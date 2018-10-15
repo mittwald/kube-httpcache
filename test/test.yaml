@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+  labels:
+    app: shopware
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: shopware
+  template:
+    metadata:
+      labels:
+        app: shopware
+    spec:
+      containers:
+        - name: app
+          image: nginx
+          ports:
+            - containerPort: 80
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+spec:
+  selector:
+    app: shopware
+  clusterIP: None
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
