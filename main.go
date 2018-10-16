@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/golang/glog"
 	"github.com/martin-helmich/kube-httpcache/controller"
 	"github.com/martin-helmich/kube-httpcache/watcher"
@@ -10,6 +11,10 @@ import (
 )
 
 var opts KubeHTTPProxyFlags
+
+func init() {
+	flag.Set("logtostderr", "true")
+}
 
 func main() {
 	opts.Parse()
