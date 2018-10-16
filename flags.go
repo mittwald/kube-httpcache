@@ -31,7 +31,7 @@ func (f *KubeHTTPProxyFlags) Parse() {
 	flag.StringVar(&f.Frontend.Address, "frontend-addr", "0.0.0.0", "TCP address to listen on")
 	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP address to listen on")
 
-	flag.StringVar(&f.Backend.Service, "backend-namespace", "", "name of Kubernetes backend namespace")
+	flag.StringVar(&f.Backend.Namespace, "backend-namespace", "", "name of Kubernetes backend namespace")
 	flag.StringVar(&f.Backend.Service, "backend-service", "", "name of Kubernetes backend service")
 	flag.StringVar(&f.Backend.Port, "backend-port", "http", "name of backend port")
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the admin port")
