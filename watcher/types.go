@@ -95,6 +95,7 @@ func (v *BackendWatcher) watch() {
 
 				if err != nil {
 					glog.Errorf("error while locating endpoint : %s", err.Error())
+					continue
 				}
 
 				if po.Items[0].Status.Conditions[0].Status != v1.ConditionTrue {
