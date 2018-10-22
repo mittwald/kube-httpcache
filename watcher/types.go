@@ -85,11 +85,26 @@ func (v *BackendWatcher) watch() {
 				continue
 			}
 
-			for _, c := range ev.Object.(*v1.Pod).Status.Conditions {
-				if c.Type != v1.PodReady || c.Status != v1.ConditionTrue {
+			var addresses []v1.EndpointAddress
+			for _, a := range endpoint.Subsets[0].Addresses {
+				puid := string(a.TargetRef.UID)
+
+				po, err := v.client.CoreV1().Pods(v.namespace).List(metav1.ListOptions{
+					FieldSelector: fields.OneTermEqualSelector("metadata.uid", puid).String(),
+				})
+
+				if err != nil {
+					glog.Errorf("error while locating endpoint : %s", err.Error())
+				}
+
+				if po.Items[0].Status.Conditions[0].Status != v1.ConditionTrue {
+					glog.Infof("skipping endpoint (not healthy): %s", puid)
 					continue
 				}
+
+				addresses = append(addresses, a)
 			}
+			endpoint.Subsets[0].Addresses = addresses
 
 			newConfig := NewBackendConfig()
 
