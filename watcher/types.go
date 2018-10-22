@@ -85,6 +85,12 @@ func (v *BackendWatcher) watch() {
 				continue
 			}
 
+			for _, c := range ev.Object.(*v1.Pod).Status.Conditions {
+				if c.Type != v1.PodReady || c.Status != v1.ConditionTrue {
+					continue
+				}
+			}
+
 			newConfig := NewBackendConfig()
 
 			newBackendList, err := BackendListFromSubset(endpoint.Subsets[0], v.portName)
