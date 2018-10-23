@@ -1,10 +1,15 @@
 package main
 
-import "flag"
+import (
+	"flag"
+	"time"
+)
 
 type KubeHTTPProxyFlags struct {
 	Kubernetes struct {
-		Config string
+		Config             string
+		RetryBackoffString string
+		RetryBackoff       time.Duration
 	}
 	Frontend struct {
 		Address string
@@ -26,8 +31,12 @@ type KubeHTTPProxyFlags struct {
 	}
 }
 
-func (f *KubeHTTPProxyFlags) Parse() {
+func (f *KubeHTTPProxyFlags) Parse() error {
+	var err error
+
 	flag.StringVar(&f.Kubernetes.Config, "kubeconfig", "", "kubeconfig file")
+	flag.StringVar(&f.Kubernetes.RetryBackoffString, "retry-backoff", "30s", "backoff for Kubernetes API reconnection attempts")
+
 	flag.StringVar(&f.Frontend.Address, "frontend-addr", "0.0.0.0", "TCP address to listen on")
 	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP address to listen on")
 
@@ -42,4 +51,11 @@ func (f *KubeHTTPProxyFlags) Parse() {
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")
 
 	flag.Parse()
+
+	f.Kubernetes.RetryBackoff, err = time.ParseDuration(f.Kubernetes.RetryBackoffString)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

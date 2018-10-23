@@ -4,6 +4,7 @@ import (
 	"github.com/golang/glog"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
 
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
@@ -30,9 +31,10 @@ type BackendWatcher struct {
 	updates     chan *BackendConfig
 
 	backendConfig *BackendConfig
+	retryBackoff  time.Duration
 }
 
-func NewBackendWatcher(client kubernetes.Interface, namespace, serviceName, portName string) *BackendWatcher {
+func NewBackendWatcher(client kubernetes.Interface, namespace, serviceName, portName string, retryBackoff time.Duration) *BackendWatcher {
 	return &BackendWatcher{
 		client:        client,
 		namespace:     namespace,
@@ -40,6 +42,7 @@ func NewBackendWatcher(client kubernetes.Interface, namespace, serviceName, port
 		portName:      portName,
 		updates:       make(chan *BackendConfig),
 		backendConfig: NewBackendConfig(),
+		retryBackoff:  retryBackoff,
 	}
 }
 
@@ -56,7 +59,11 @@ func (v *BackendWatcher) watch() {
 		})
 
 		if err != nil {
-			panic(err)
+			glog.Errorf("error while establishing watch: %s", err.Error())
+			glog.Infof("retrying after %s", v.retryBackoff.String())
+
+			time.Sleep(v.retryBackoff)
+			continue
 		}
 
 		c := w.ResultChan()
