@@ -89,16 +89,14 @@ func (v *BackendWatcher) watch() {
 			for _, a := range endpoint.Subsets[0].Addresses {
 				puid := string(a.TargetRef.UID)
 
-				po, err := v.client.CoreV1().Pods(v.namespace).List(metav1.ListOptions{
-					FieldSelector: fields.OneTermEqualSelector("metadata.uid", puid).String(),
-				})
+				po, err := v.client.CoreV1().Pods(v.namespace).Get(a.TargetRef.Name, metav1.GetOptions{})
 
 				if err != nil {
 					glog.Errorf("error while locating endpoint : %s", err.Error())
 					continue
 				}
 
-				if po.Items[0].Status.Conditions[0].Status != v1.ConditionTrue {
+				if len(po.Status.Conditions) > 0 && po.Status.Conditions[0].Status != v1.ConditionTrue {
 					glog.Infof("skipping endpoint (not healthy): %s", puid)
 					continue
 				}
