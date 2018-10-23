@@ -42,6 +42,7 @@ func main() {
 		opts.Backend.Namespace,
 		opts.Backend.Service,
 		opts.Backend.Port,
+		opts.Kubernetes.RetryBackoff,
 	)
 
 	backendUpdates := backendWatcher.Run()
