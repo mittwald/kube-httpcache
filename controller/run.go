@@ -10,14 +10,14 @@ import (
 func (v *VarnishController) Run() error {
 	glog.Infof("waiting for initial configuration before starting Varnish")
 
-	initialBackends := <- v.updates
+	v.backend = <- v.backendUpdates
 	target, err := os.Create(v.configFile)
 	if err != nil {
 		return err
 	}
 
 	glog.Infof("creating initial VCL config")
-	err = v.renderVCL(target, initialBackends.Backends, initialBackends.Primary)
+	err = v.renderVCL(target, v.backend.Backends, v.backend.Primary)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,9 @@ func (v *VarnishController) Run() error {
 
 	go func() {
 		for err := range watchErrors {
-			glog.Warningf("error while watching for updates: %s", err.Error())
+			if err != nil {
+				glog.Warningf("error while watching for updates: %s", err.Error())
+			}
 		}
 	}()
 
