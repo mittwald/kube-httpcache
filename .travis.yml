@@ -1,0 +1,7 @@
+language: go
+go:
+- 1.11
+script:
+- GO111MODULE=on go vet ./...
+- GO111MODULE=on go test ./...
+- GO111MODULE=on go build .
