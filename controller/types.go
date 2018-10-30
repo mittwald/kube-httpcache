@@ -20,11 +20,13 @@ type VarnishController struct {
 	AdminAddr    string
 	AdminPort    int
 
-	vclTemplate    *template.Template
-	updates        chan *watcher.BackendConfig
-	configFile     string
-	secret         []byte
-	localAdminAddr string
+	vclTemplate        *template.Template
+	vclTemplateUpdates chan []byte
+	backendUpdates     chan *watcher.BackendConfig
+	backend            *watcher.BackendConfig
+	configFile         string
+	secret             []byte
+	localAdminAddr     string
 }
 
 func NewVarnishController(
@@ -34,7 +36,8 @@ func NewVarnishController(
 	frontendPort int,
 	adminAddr string,
 	adminPort int,
-	updates chan *watcher.BackendConfig,
+	backendUpdates chan *watcher.BackendConfig,
+	templateUpdates chan []byte,
 	vclTemplateFile string,
 ) (*VarnishController, error) {
 	contents, err := ioutil.ReadFile(vclTemplateFile)
@@ -53,16 +56,17 @@ func NewVarnishController(
 	}
 
 	return &VarnishController{
-		SecretFile:   secretFile,
-		Storage:      storage,
-		FrontendAddr: frontendAddr,
-		FrontendPort: frontendPort,
-		AdminAddr:    adminAddr,
-		AdminPort:    adminPort,
-		vclTemplate:  tmpl,
-		updates:      updates,
-		configFile:   "/tmp/vcl",
-		secret:       secret,
+		SecretFile:         secretFile,
+		Storage:            storage,
+		FrontendAddr:       frontendAddr,
+		FrontendPort:       frontendPort,
+		AdminAddr:          adminAddr,
+		AdminPort:          adminPort,
+		vclTemplate:        tmpl,
+		vclTemplateUpdates: templateUpdates,
+		backendUpdates:     backendUpdates,
+		configFile:         "/tmp/vcl",
+		secret:             secret,
 	}, nil
 }
 

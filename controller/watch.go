@@ -6,49 +6,71 @@ import (
 	"github.com/golang/glog"
 	"github.com/martin-helmich/go-varnish-client"
 	"os/exec"
+	"text/template"
 )
 
 func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error) {
 	i := 0
-	for newConfig := range v.updates {
+
+	for {
 		i ++
-		glog.Infof("received new backend configuration: %+v", newConfig)
 
-		buf := new(bytes.Buffer)
+		select {
+		case tmplContents := <-v.vclTemplateUpdates:
+			glog.Infof("VCL template was updated")
 
-		err := v.renderVCL(buf, newConfig.Backends, newConfig.Primary)
-		if err != nil {
-			errors <- err
-			continue
-		}
+			tmpl, err := template.New("vcl").Parse(string(tmplContents))
+			if err != nil {
+				errors <- err
+				continue
+			}
 
-		vcl := buf.Bytes()
-		glog.V(8).Infof("new VCL: %s", string(vcl))
+			v.vclTemplate = tmpl
 
-		client, err := varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
-		if err != nil {
-			errors <- err
-			continue
-		}
+			errors <- v.rebuildConfig(i)
 
-		err = client.Authenticate(v.secret)
-		if err != nil {
-			errors <- err
-			continue
-		}
+		case newConfig := <-v.backendUpdates:
+			glog.Infof("received new backend configuration: %+v", newConfig)
 
-		configname := fmt.Sprintf("k8s-upstreamcfg-%d", i)
+			v.backend = newConfig
 
-		err = client.DefineInlineVCL(configname, vcl, "warm")
-		if err != nil {
-			errors <- err
-			continue
-		}
-
-		err = client.UseVCL(configname)
-		if err != nil {
-			errors <- err
-			continue
+			errors <- v.rebuildConfig(i)
 		}
 	}
+}
+
+func (v *VarnishController) rebuildConfig(i int) error {
+	buf := new(bytes.Buffer)
+
+	err := v.renderVCL(buf, v.backend.Backends, v.backend.Primary)
+	if err != nil {
+		return err
+	}
+
+	vcl := buf.Bytes()
+	glog.V(8).Infof("new VCL: %s", string(vcl))
+
+	client, err := varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
+	if err != nil {
+		return err
+	}
+
+	err = client.Authenticate(v.secret)
+	if err != nil {
+		return err
+	}
+
+	configname := fmt.Sprintf("k8s-upstreamcfg-%d", i)
+
+	err = client.DefineInlineVCL(configname, vcl, "warm")
+	if err != nil {
+		return err
+	}
+
+	err = client.UseVCL(configname)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

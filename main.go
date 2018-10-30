@@ -45,7 +45,21 @@ func main() {
 		opts.Kubernetes.RetryBackoff,
 	)
 
-	backendUpdates := backendWatcher.Run()
+	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate)
+
+	backendUpdates, backendErrors := backendWatcher.Run()
+	templateUpdates, templateErrors := templateWatcher.Run()
+
+	go func() {
+		for {
+			select {
+			case err := <- backendErrors:
+				glog.Errorf("error while watching backends: %s", err.Error())
+			case err := <- templateErrors:
+				glog.Errorf("error while watching template changes: %s", err.Error())
+			}
+		}
+	}()
 
 	varnishController, err := controller.NewVarnishController(
 		opts.Varnish.SecretFile,
@@ -55,6 +69,7 @@ func main() {
 		opts.Admin.Address,
 		opts.Admin.Port,
 		backendUpdates,
+		templateUpdates,
 		opts.Varnish.VCLTemplate,
 	)
 	if err != nil {
