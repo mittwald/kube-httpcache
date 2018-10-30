@@ -1,4 +1,4 @@
-module github.com/martin-helmich/kube-httpcache
+module github.com/mittwald/kube-httpcache
 
 require (
 	github.com/fsnotify/fsnotify v1.4.7

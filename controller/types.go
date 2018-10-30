@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/martin-helmich/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/watcher"
 	"io"
 	"io/ioutil"
 	"text/template"

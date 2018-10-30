@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/golang/glog"
-	"github.com/martin-helmich/kube-httpcache/controller"
-	"github.com/martin-helmich/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/controller"
+	"github.com/mittwald/kube-httpcache/watcher"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
