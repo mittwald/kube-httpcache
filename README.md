@@ -1,5 +1,6 @@
 # Varnish on Kubernetes
 
+[![Build Status](https://travis-ci.org/mittwald/kube-httpcache.svg?branch=master)](https://travis-ci.org/mittwald/kube-httpcache)
 [![Docker Repository on Quay](https://quay.io/repository/spaces/kube-httpcache/status "Docker Repository on Quay")](https://quay.io/repository/spaces/kube-httpcache)
 
 This repository contains a controller that allows you to operate a [Varnish cache](https://varnish-cache.org/) on Kubernetes.
