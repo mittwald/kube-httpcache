@@ -25,9 +25,10 @@ type KubeHTTPProxyFlags struct {
 		Port    int
 	}
 	Varnish struct {
-		SecretFile  string
-		Storage     string
-		VCLTemplate string
+		SecretFile      string
+		Storage         string
+		VCLTemplate     string
+		VCLTemplatePoll bool
 	}
 }
 
@@ -49,6 +50,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Varnish.SecretFile, "varnish-secret-file", "/etc/varnish/secret", "Varnish secret file")
 	flag.StringVar(&f.Varnish.Storage, "varnish-storage", "file,/tmp/varnish-data,1G", "varnish storage config")
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")
+	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
 
 	flag.Parse()
 

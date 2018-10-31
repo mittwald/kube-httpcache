@@ -40,13 +40,22 @@ func NewBackendWatcher(client kubernetes.Interface, namespace, serviceName, port
 	}
 }
 
-type TemplateWatcher struct {
+type fsnotifyTemplateWatcher struct {
 	filename string
 	watcher  *fsnotify.Watcher
 }
 
-func MustNewTemplateWatcher(filename string) *TemplateWatcher {
-	w, err := NewTemplateWatcher(filename)
+type pollingTemplateWatcher struct {
+	filename string
+	lastObservedTimestamp time.Time
+}
+
+type TemplateWatcher interface {
+	Run() (chan []byte, chan error)
+}
+
+func MustNewTemplateWatcher(filename string, polling bool) TemplateWatcher {
+	w, err := NewTemplateWatcher(filename, polling)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +63,13 @@ func MustNewTemplateWatcher(filename string) *TemplateWatcher {
 	return w
 }
 
-func NewTemplateWatcher(filename string) (*TemplateWatcher, error) {
+func NewTemplateWatcher(filename string, polling bool) (TemplateWatcher, error) {
+	if polling {
+		return &pollingTemplateWatcher{
+			filename: filename,
+		}, nil
+	}
+
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -65,7 +80,7 @@ func NewTemplateWatcher(filename string) (*TemplateWatcher, error) {
 		return nil, err
 	}
 
-	return &TemplateWatcher{
+	return &fsnotifyTemplateWatcher{
 		filename: filename,
 		watcher:  watcher,
 	}, nil
