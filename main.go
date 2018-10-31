@@ -45,7 +45,7 @@ func main() {
 		opts.Kubernetes.RetryBackoff,
 	)
 
-	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate)
+	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
 
 	backendUpdates, backendErrors := backendWatcher.Run()
 	templateUpdates, templateErrors := templateWatcher.Run()

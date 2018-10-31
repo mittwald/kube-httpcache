@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-func (t *TemplateWatcher) Run() (chan []byte, chan error) {
+func (t *fsnotifyTemplateWatcher) Run() (chan []byte, chan error) {
 	updates := make(chan []byte)
 	errors := make(chan error)
 
@@ -14,7 +14,7 @@ func (t *TemplateWatcher) Run() (chan []byte, chan error) {
 	return updates, errors
 }
 
-func (t *TemplateWatcher) watch(updates chan []byte, errors chan error) {
+func (t *fsnotifyTemplateWatcher) watch(updates chan []byte, errors chan error) {
 	for ev := range t.watcher.Events {
 		glog.V(6).Infof("observed %s event on %s", ev.String(), ev.Name)
 
