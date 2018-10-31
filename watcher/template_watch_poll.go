@@ -36,6 +36,8 @@ func (t *pollingTemplateWatcher) watch(updates chan []byte, errors chan error) {
 		if stat.ModTime() != t.lastObservedTimestamp {
 			glog.V(6).Infof("observed new modification time on %s", t.filename)
 
+			t.lastObservedTimestamp = stat.ModTime()
+
 			content, err := ioutil.ReadFile(t.filename)
 			if err != nil {
 				glog.Warningf("error while reading file %s: %s", t.filename, err.Error())
