@@ -1,7 +1,36 @@
 language: go
+
 go:
 - 1.11
+
+services:
+  - docker
+
+env:
+  global:
+    - FULL_IMAGE_URL="${DOCKER_LOGIN_URL}/${DOCKER_REPO}"
+
+before_script:
+  - sudo sysctl -w net.ipv4.ip_forward=1
+
 script:
 - GO111MODULE=on go vet ./...
 - GO111MODULE=on go test ./...
 - GO111MODULE=on go build .
+- docker build --pull --quiet --no-cache -t "${FULL_IMAGE_URL}:latest" "${TRAVIS_BUILD_DIR}"
+
+before_deploy:
+  - if [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then docker login -u "${DOCKER_LOGIN_NAME}" -p "${DOCKER_LOGIN_PASSWORD}" ; f
+deploy:
+- provider: script
+  script: docker push "${FULL_IMAGE_URL}:latest"
+  on:
+    branch: master
+- provider: script
+  script: | 
+    docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:stable" && \
+    docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:${TRAVIS_TAG}" && \
+    docker push "${FULL_IMAGE_URL}:stable" && \
+    docker push "${FULL_IMAGE_URL}:${TRAVIS_TAG}"
+  on:
+    tags: true
