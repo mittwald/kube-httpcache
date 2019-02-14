@@ -27,10 +27,6 @@ deploy:
   on:
     branch: master
 - provider: script
-  script: | 
-    docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:stable" && \
-    docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:${TRAVIS_TAG}" && \
-    docker push "${FULL_IMAGE_URL}:stable" && \
-    docker push "${FULL_IMAGE_URL}:${TRAVIS_TAG}"
+  script: docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:stable" docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:${TRAVIS_TAG}" && docker push "${FULL_IMAGE_URL}:stable" && docker push "${FULL_IMAGE_URL}:${TRAVIS_TAG}"
   on:
     tags: true
