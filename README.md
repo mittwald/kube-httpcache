@@ -85,6 +85,16 @@ Create a `Secret` object that contains the secret for the Varnish administration
 $ kubectl create secret generic varnish-secret --from-literal=secret=$(head -c32 /dev/urandom  | base64)
 ```
 
+### [Optional] Configure RBAC roles
+
+If RBAC is enabled in your cluster, you will need to create a `ServiceAccount` with a respective `Role`.
+
+```
+$ kubectl create serviceaccount kube-httpcache
+$ kubectl apply -f https://raw.githubusercontent.com/mittwald/kube-httpcache/master/deploy/rbac.yaml
+$ kubectl create rolebinding kube-httpcache --role=kube-httpcache --serviceaccount=kube-httpcache
+```
+
 ### Deploy Varnish
 
 Create a `Deployment` for the Varnish controller:
@@ -113,6 +123,7 @@ spec:
           mountPath: /etc/varnish/tmpl
         - name: secret
           mountPath: /etc/varnish/secret
+      serviceAccountName: kube-httpcache  # when using RBAC
       volumes:
       - name: template
         configMap:
