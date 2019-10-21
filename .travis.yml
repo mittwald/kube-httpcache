@@ -1,14 +1,17 @@
 language: go
 
 go:
-- 1.11
+- 1.13
 
 services:
   - docker
 
 env:
   global:
+    - GO111MODULE=on
     - FULL_IMAGE_URL="${DOCKER_LOGIN_URL}/${DOCKER_REPO}"
+
+install: true
 
 before_script:
   - sudo sysctl -w net.ipv4.ip_forward=1
