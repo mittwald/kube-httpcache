@@ -115,14 +115,14 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
-        - -varnish-secret-file=/etc/varnish/secret/secret
+        - -varnish-secret-file=/etc/varnish/k8s-secret/secret
         - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
         - -varnish-storage=malloc,128M
         volumeMounts:
         - name: template
           mountPath: /etc/varnish/tmpl
         - name: secret
-          mountPath: /etc/varnish/secret
+          mountPath: /etc/varnish/k8s-secret
       serviceAccountName: kube-httpcache  # when using RBAC
       volumes:
       - name: template
