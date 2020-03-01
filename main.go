@@ -18,6 +18,7 @@ func init() {
 
 func main() {
 	opts.Parse()
+	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
 	var err error
