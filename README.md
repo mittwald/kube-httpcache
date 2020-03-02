@@ -133,6 +133,10 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
+        - -frontend-watch=true
+        - -frontend-namespace=$(NAMESPACE)
+        - -frontend-service=frontend-service
+        - -backend-watch=true
         - -backend-namespace=$(NAMESPACE)
         - -backend-service=backend-service
         - -varnish-secret-file=/etc/varnish/k8s-secret/secret
