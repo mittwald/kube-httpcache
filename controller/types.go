@@ -1,15 +1,18 @@
 package controller
 
 import (
-	"github.com/mittwald/kube-httpcache/watcher"
 	"io"
 	"io/ioutil"
 	"text/template"
+
+	"github.com/mittwald/kube-httpcache/watcher"
 )
 
 type TemplateData struct {
-	Backends       watcher.BackendList
-	PrimaryBackend *watcher.Backend
+	Frontends       watcher.EndpointList
+	PrimaryFrontend *watcher.Endpoint
+	Backends        watcher.EndpointList
+	PrimaryBackend  *watcher.Endpoint
 }
 
 type VarnishController struct {
@@ -22,8 +25,10 @@ type VarnishController struct {
 
 	vclTemplate        *template.Template
 	vclTemplateUpdates chan []byte
-	backendUpdates     chan *watcher.BackendConfig
-	backend            *watcher.BackendConfig
+	frontendUpdates    chan *watcher.EndpointConfig
+	frontend           *watcher.EndpointConfig
+	backendUpdates     chan *watcher.EndpointConfig
+	backend            *watcher.EndpointConfig
 	configFile         string
 	secret             []byte
 	localAdminAddr     string
@@ -36,7 +41,8 @@ func NewVarnishController(
 	frontendPort int,
 	adminAddr string,
 	adminPort int,
-	backendUpdates chan *watcher.BackendConfig,
+	frontendUpdates chan *watcher.EndpointConfig,
+	backendUpdates chan *watcher.EndpointConfig,
 	templateUpdates chan []byte,
 	vclTemplateFile string,
 ) (*VarnishController, error) {
@@ -64,16 +70,19 @@ func NewVarnishController(
 		AdminPort:          adminPort,
 		vclTemplate:        tmpl,
 		vclTemplateUpdates: templateUpdates,
+		frontendUpdates:    frontendUpdates,
 		backendUpdates:     backendUpdates,
 		configFile:         "/tmp/vcl",
 		secret:             secret,
 	}, nil
 }
 
-func (v *VarnishController) renderVCL(target io.Writer, backendList watcher.BackendList, primary *watcher.Backend) (error) {
+func (v *VarnishController) renderVCL(target io.Writer, frontendList watcher.EndpointList, primaryFrontend *watcher.Endpoint, backendList watcher.EndpointList, primaryBackend *watcher.Endpoint) error {
 	err := v.vclTemplate.Execute(target, &TemplateData{
-		Backends:       backendList,
-		PrimaryBackend: primary,
+		Frontends:       frontendList,
+		PrimaryFrontend: primaryFrontend,
+		Backends:        backendList,
+		PrimaryBackend:  primaryBackend,
 	})
 
 	return err

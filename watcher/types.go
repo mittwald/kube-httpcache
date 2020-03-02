@@ -1,42 +1,43 @@
 package watcher
 
 import (
-	"github.com/fsnotify/fsnotify"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-type BackendConfig struct {
-	Backends BackendList
-	Primary  *Backend
+type EndpointConfig struct {
+	Endpoints EndpointList
+	Primary   *Endpoint
 }
 
-func NewBackendConfig() *BackendConfig {
-	return &BackendConfig{
-		Backends: []Backend{},
-		Primary:  nil,
+func NewEndpointConfig() *EndpointConfig {
+	return &EndpointConfig{
+		Endpoints: []Endpoint{},
+		Primary:   nil,
 	}
 }
 
-type BackendWatcher struct {
+type EndpointWatcher struct {
 	client      kubernetes.Interface
 	namespace   string
 	serviceName string
 	portName    string
 
-	backendConfig *BackendConfig
-	retryBackoff  time.Duration
+	endpointConfig *EndpointConfig
+	retryBackoff   time.Duration
 }
 
-func NewBackendWatcher(client kubernetes.Interface, namespace, serviceName, portName string, retryBackoff time.Duration) *BackendWatcher {
-	return &BackendWatcher{
-		client:        client,
-		namespace:     namespace,
-		serviceName:   serviceName,
-		portName:      portName,
-		backendConfig: NewBackendConfig(),
-		retryBackoff:  retryBackoff,
+func NewEndpointWatcher(client kubernetes.Interface, namespace, serviceName, portName string, retryBackoff time.Duration) *EndpointWatcher {
+	return &EndpointWatcher{
+		client:         client,
+		namespace:      namespace,
+		serviceName:    serviceName,
+		portName:       portName,
+		endpointConfig: NewEndpointConfig(),
+		retryBackoff:   retryBackoff,
 	}
 }
 
@@ -46,7 +47,7 @@ type fsnotifyTemplateWatcher struct {
 }
 
 type pollingTemplateWatcher struct {
-	filename string
+	filename              string
 	lastObservedTimestamp time.Time
 }
 

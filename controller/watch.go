@@ -3,17 +3,18 @@ package controller
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/glog"
-	"github.com/martin-helmich/go-varnish-client"
 	"os/exec"
 	"text/template"
+
+	"github.com/golang/glog"
+	varnishclient "github.com/martin-helmich/go-varnish-client"
 )
 
 func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error) {
 	i := 0
 
 	for {
-		i ++
+		i++
 
 		select {
 		case tmplContents := <-v.vclTemplateUpdates:
@@ -26,6 +27,13 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 			}
 
 			v.vclTemplate = tmpl
+
+			errors <- v.rebuildConfig(i)
+
+		case newConfig := <-v.frontendUpdates:
+			glog.Infof("received new frontend configuration: %+v", newConfig)
+
+			v.frontend = newConfig
 
 			errors <- v.rebuildConfig(i)
 
@@ -42,7 +50,7 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 func (v *VarnishController) rebuildConfig(i int) error {
 	buf := new(bytes.Buffer)
 
-	err := v.renderVCL(buf, v.backend.Backends, v.backend.Primary)
+	err := v.renderVCL(buf, v.frontend.Endpoints, v.frontend.Primary, v.backend.Endpoints, v.backend.Primary)
 	if err != nil {
 		return err
 	}

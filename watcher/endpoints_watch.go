@@ -1,16 +1,17 @@
 package watcher
 
 import (
+	"time"
+
 	"github.com/golang/glog"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/watch"
-	"time"
 )
 
-func (v *BackendWatcher) Run() (chan *BackendConfig, chan error) {
-	updates := make(chan *BackendConfig)
+func (v *EndpointWatcher) Run() (chan *EndpointConfig, chan error) {
+	updates := make(chan *EndpointConfig)
 	errors := make(chan error)
 
 	go v.watch(updates, errors)
@@ -18,7 +19,7 @@ func (v *BackendWatcher) Run() (chan *BackendConfig, chan error) {
 	return updates, errors
 }
 
-func (v *BackendWatcher) watch(updates chan *BackendConfig, errors chan error) {
+func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error) {
 	for {
 		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(metav1.ListOptions{
 			FieldSelector: fields.OneTermEqualSelector("metadata.name", v.serviceName).String(),
@@ -48,12 +49,12 @@ func (v *BackendWatcher) watch(updates chan *BackendConfig, errors chan error) {
 			if len(endpoint.Subsets) == 0 || len(endpoint.Subsets[0].Addresses) == 0 {
 				glog.Warningf("service '%s' has no endpoints", v.serviceName)
 
-				v.backendConfig = NewBackendConfig()
+				v.endpointConfig = NewEndpointConfig()
 
 				continue
 			}
 
-			if v.backendConfig.Backends.EqualsEndpoints(endpoint.Subsets[0]) {
+			if v.endpointConfig.Endpoints.EqualsEndpoints(endpoint.Subsets[0]) {
 				glog.Infof("endpoints did not change")
 				continue
 			}
@@ -78,23 +79,23 @@ func (v *BackendWatcher) watch(updates chan *BackendConfig, errors chan error) {
 			}
 			endpoint.Subsets[0].Addresses = addresses
 
-			newConfig := NewBackendConfig()
+			newConfig := NewEndpointConfig()
 
-			newBackendList, err := BackendListFromSubset(endpoint.Subsets[0], v.portName)
+			newBackendList, err := EndpointListFromSubset(endpoint.Subsets[0], v.portName)
 			if err != nil {
 				glog.Errorf("error while building backend list: %s", err.Error())
 				continue
 			}
 
-			if v.backendConfig.Primary != nil && newBackendList.Contains(v.backendConfig.Primary) {
-				newConfig.Primary = v.backendConfig.Primary
+			if v.endpointConfig.Primary != nil && newBackendList.Contains(v.endpointConfig.Primary) {
+				newConfig.Primary = v.endpointConfig.Primary
 			} else {
 				newConfig.Primary = &newBackendList[0]
 			}
 
-			newConfig.Backends = newBackendList
+			newConfig.Endpoints = newBackendList
 
-			v.backendConfig = newConfig
+			v.endpointConfig = newConfig
 			updates <- newConfig
 		}
 
