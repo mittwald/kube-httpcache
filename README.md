@@ -45,6 +45,18 @@ data:
     import std;
     import directors;
 
+    {{ range .Frontends }}
+    backend fe-{{ .Name }} {
+        .host = "{{ .Host }}";
+        .port = "{{ .Port }}";
+    }
+    {{- end }}
+
+    backend fe-primary {
+        .host = "{{ .PrimaryFrontend.Host }}";
+        .port = "{{ .PrimaryFrontend.Port }}";
+    }
+
     {{ range .Backends }}
     backend be-{{ .Name }} {
         .host = "{{ .Host }}";
@@ -61,12 +73,18 @@ data:
         "127.0.0.1";
         "localhost";
         "::1";
-    {{- range .Backends }}
+        {{- range .Backends }}
         "{{ .Host }}";
-    {{- end }}
+        {{- end }}
     }
 
     sub vcl_init {
+        new cluster = directors.hash();
+
+        {{ range .Frontends -}}
+        cluster.add_backend({{ .Name }}, 1);
+        {{ end }}
+
         new lb = directors.round_robin();
 
         {{ range .Backends -}}
