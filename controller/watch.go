@@ -72,5 +72,15 @@ func (v *VarnishController) rebuildConfig(i int) error {
 		return err
 	}
 
+	if v.currentVCLName == "" {
+		v.currentVCLName = "boot"
+	}
+
+	if err := client.SetVCLState(v.currentVCLName, varnishclient.VCLStateCold); err != nil {
+		glog.V(1).Infof("error while changing state of VCL %s: %s", v.currentVCLName, err)
+	}
+
+	v.currentVCLName = configname
+
 	return nil
 }
