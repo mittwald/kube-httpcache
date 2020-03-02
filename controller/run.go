@@ -6,13 +6,21 @@ import (
 	"os/exec"
 
 	"github.com/golang/glog"
+	"github.com/mittwald/kube-httpcache/watcher"
 )
 
 func (v *VarnishController) Run() error {
 	glog.Infof("waiting for initial configuration before starting Varnish")
 
-	v.frontend = <-v.frontendUpdates
-	v.backend = <-v.backendUpdates
+	v.frontend = watcher.NewEndpointConfig()
+	if v.frontendUpdates != nil {
+		v.frontend = <-v.frontendUpdates
+	}
+
+	v.backend = watcher.NewEndpointConfig()
+	if v.backendUpdates != nil {
+		v.backend = <-v.backendUpdates
+	}
 
 	target, err := os.Create(v.configFile)
 	if err != nil {

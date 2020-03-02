@@ -39,26 +39,33 @@ func main() {
 
 	client = kubernetes.NewForConfigOrDie(config)
 
-	frontendWatcher := watcher.NewEndpointWatcher(
-		client,
-		opts.Frontend.Namespace,
-		opts.Frontend.Service,
-		opts.Frontend.PortName,
-		opts.Kubernetes.RetryBackoff,
-	)
+	var frontendUpdates chan *watcher.EndpointConfig
+	var frontendErrors chan error
+	if opts.Frontend.Watch {
+		frontendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Frontend.Namespace,
+			opts.Frontend.Service,
+			opts.Frontend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		frontendUpdates, frontendErrors = frontendWatcher.Run()
+	}
 
-	backendWatcher := watcher.NewEndpointWatcher(
-		client,
-		opts.Backend.Namespace,
-		opts.Backend.Service,
-		opts.Backend.PortName,
-		opts.Kubernetes.RetryBackoff,
-	)
+	var backendUpdates chan *watcher.EndpointConfig
+	var backendErrors chan error
+	if opts.Backend.Watch {
+		backendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Backend.Namespace,
+			opts.Backend.Service,
+			opts.Backend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		backendUpdates, backendErrors = backendWatcher.Run()
+	}
 
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
-
-	frontendUpdates, frontendErrors := frontendWatcher.Run()
-	backendUpdates, backendErrors := backendWatcher.Run()
 	templateUpdates, templateErrors := templateWatcher.Run()
 
 	go func() {
