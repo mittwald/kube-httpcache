@@ -62,7 +62,7 @@ func (v *VarnishController) rebuildConfig(i int) error {
 
 	configname := fmt.Sprintf("k8s-upstreamcfg-%d", i)
 
-	err = client.DefineInlineVCL(configname, vcl, "warm")
+	err = client.DefineInlineVCL(configname, vcl, "auto")
 	if err != nil {
 		return err
 	}
