@@ -14,14 +14,16 @@ type Cast struct {
 }
 
 type Broadcaster struct {
-	Address      string
-	Port         int
-	Retries      int
-	RetryBackoff time.Duration
-	server       *http.Server
-	endpoints    *watcher.EndpointConfig
-	casts        chan Cast
-	mutex        sync.RWMutex
+	Address        string
+	Port           int
+	Retries        int
+	RetryBackoff   time.Duration
+	EndpointScheme string
+	server         *http.Server
+	endpoints      *watcher.EndpointConfig
+	castQueue      chan Cast
+	errors         chan error
+	mutex          sync.RWMutex
 }
 
 func NewBroadcaster(
@@ -31,11 +33,12 @@ func NewBroadcaster(
 	retryBackoff time.Duration,
 ) *Broadcaster {
 	return &Broadcaster{
-		Address:      address,
-		Port:         port,
-		Retries:      retries,
-		RetryBackoff: retryBackoff,
-		endpoints:    watcher.NewEndpointConfig(),
-		casts:        make(chan Cast),
+		Address:        address,
+		Port:           port,
+		Retries:        retries,
+		RetryBackoff:   retryBackoff,
+		EndpointScheme: "http",
+		endpoints:      watcher.NewEndpointConfig(),
+		castQueue:      make(chan Cast),
 	}
 }

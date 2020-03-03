@@ -1,26 +1,66 @@
 package broadcaster
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/mittwald/kube-httpcache/watcher"
 )
 
-func (b *Broadcaster) Run() error {
+func (b *Broadcaster) Run() (error, chan error) {
 	b.server = &http.Server{
 		Addr:    b.Address + ":" + strconv.Itoa(b.Port),
 		Handler: b,
 	}
 
-	return b.server.ListenAndServe()
+	go b.ProcessCastQueue()
+
+	return b.server.ListenAndServe(), b.errors
 }
 
 func (b *Broadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		b.errors <- err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	b.mutex.RLock()
-	fmt.Fprintf(w, "%+v", b.endpoints)
+	for _, endpoint := range b.endpoints.Endpoints {
+		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
+		request, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
+		if err != nil {
+			b.errors <- err
+		}
+		request.Header = r.Header
+		b.castQueue <- Cast{request, 0}
+	}
 	b.mutex.RUnlock()
+
+	fmt.Fprintf(w, "Request is being broadcasted.")
+}
+
+func (b *Broadcaster) ProcessCastQueue() {
+	client := &http.Client{}
+
+	for cast := range b.castQueue {
+		_, err := client.Do(cast.Request)
+		if err != nil {
+			cast.Attempt++
+			if cast.Attempt < b.Retries {
+				go func() {
+					time.Sleep(b.RetryBackoff)
+					b.castQueue <- cast
+				}()
+			}
+			b.errors <- err
+		}
+	}
 }
 
 func (b *Broadcaster) UpdateEndpoints(e *watcher.EndpointConfig) {

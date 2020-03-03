@@ -69,20 +69,8 @@ func main() {
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
 	templateUpdates, templateErrors := templateWatcher.Run()
 
-	go func() {
-		for {
-			select {
-			case err := <-frontendErrors:
-				glog.Errorf("error while watching frontends: %s", err.Error())
-			case err := <-backendErrors:
-				glog.Errorf("error while watching backends: %s", err.Error())
-			case err := <-templateErrors:
-				glog.Errorf("error while watching template changes: %s", err.Error())
-			}
-		}
-	}()
-
 	var varnishBroadcaster *broadcaster.Broadcaster
+	var varnishBroadcasterErrors chan error
 	if opts.Broadcaster.Enabled {
 		varnishBroadcaster = broadcaster.NewBroadcaster(
 			opts.Broadcaster.Address,
@@ -92,12 +80,27 @@ func main() {
 		)
 
 		go func() {
-			err = varnishBroadcaster.Run()
+			err, varnishBroadcasterErrors = varnishBroadcaster.Run()
 			if err != nil {
 				panic(err)
 			}
 		}()
 	}
+
+	go func() {
+		for {
+			select {
+			case err := <-frontendErrors:
+				glog.Errorf("error while watching frontends: %s", err.Error())
+			case err := <-backendErrors:
+				glog.Errorf("error while watching backends: %s", err.Error())
+			case err := <-templateErrors:
+				glog.Errorf("error while watching template changes: %s", err.Error())
+			case err := <-varnishBroadcasterErrors:
+				glog.Errorf("error while running varnish broadcaster: %s", err.Error())
+			}
+		}
+	}()
 
 	varnishController, err := controller.NewVarnishController(
 		opts.Varnish.SecretFile,
