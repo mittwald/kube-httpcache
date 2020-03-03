@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/golang/glog"
+	"github.com/mittwald/kube-httpcache/broadcaster"
 	"github.com/mittwald/kube-httpcache/controller"
 	"github.com/mittwald/kube-httpcache/watcher"
 	"k8s.io/client-go/kubernetes"
@@ -80,6 +81,23 @@ func main() {
 			}
 		}
 	}()
+
+	var varnishBroadcaster *broadcaster.Broadcaster
+	if opts.Broadcaster.Enabled {
+		varnishBroadcaster = broadcaster.NewBroadcaster(
+			opts.Broadcaster.Address,
+			opts.Broadcaster.Port,
+			opts.Broadcaster.Retries,
+			opts.Broadcaster.RetryBackoff,
+		)
+
+		go func() {
+			err = varnishBroadcaster.Run()
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
 
 	varnishController, err := controller.NewVarnishController(
 		opts.Varnish.SecretFile,
