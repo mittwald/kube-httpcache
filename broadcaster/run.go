@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/mittwald/kube-httpcache/watcher"
 )
 
 func (b *Broadcaster) Run() error {
@@ -16,5 +18,13 @@ func (b *Broadcaster) Run() error {
 }
 
 func (b *Broadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hey")
+	b.mutex.RLock()
+	fmt.Fprintf(w, "%+v", b.endpoints)
+	b.mutex.RUnlock()
+}
+
+func (b *Broadcaster) UpdateEndpoints(e *watcher.EndpointConfig) {
+	b.mutex.Lock()
+	b.endpoints = e
+	b.mutex.Unlock()
 }

@@ -2,6 +2,7 @@ package broadcaster
 
 import (
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/mittwald/kube-httpcache/watcher"
@@ -18,8 +19,9 @@ type Broadcaster struct {
 	Retries      int
 	RetryBackoff time.Duration
 	server       *http.Server
-	frontends    *watcher.EndpointConfig
+	endpoints    *watcher.EndpointConfig
 	casts        chan Cast
+	mutex        sync.RWMutex
 }
 
 func NewBroadcaster(
@@ -33,7 +35,7 @@ func NewBroadcaster(
 		Port:         port,
 		Retries:      retries,
 		RetryBackoff: retryBackoff,
-		frontends:    watcher.NewEndpointConfig(),
+		endpoints:    watcher.NewEndpointConfig(),
 		casts:        make(chan Cast),
 	}
 }

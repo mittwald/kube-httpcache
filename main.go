@@ -109,6 +109,7 @@ func main() {
 		frontendUpdates,
 		backendUpdates,
 		templateUpdates,
+		varnishBroadcaster,
 		opts.Varnish.VCLTemplate,
 	)
 	if err != nil {
