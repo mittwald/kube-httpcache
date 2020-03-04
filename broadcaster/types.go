@@ -16,7 +16,8 @@ type Cast struct {
 type Broadcaster struct {
 	Address        string
 	Port           int
-	Retries        int
+	WorkersCount   int
+	MaxRetries     int
 	RetryBackoff   time.Duration
 	EndpointScheme string
 	endpoints      *watcher.EndpointConfig
@@ -28,13 +29,15 @@ type Broadcaster struct {
 func NewBroadcaster(
 	address string,
 	port int,
-	retries int,
+	workersCount int,
+	maxRetries int,
 	retryBackoff time.Duration,
 ) *Broadcaster {
 	return &Broadcaster{
 		Address:        address,
 		Port:           port,
-		Retries:        retries,
+		WorkersCount:   workersCount,
+		MaxRetries:     maxRetries,
 		RetryBackoff:   retryBackoff,
 		EndpointScheme: "http",
 		endpoints:      watcher.NewEndpointConfig(),

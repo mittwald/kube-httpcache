@@ -71,11 +71,12 @@ func main() {
 
 	var varnishBroadcaster *broadcaster.Broadcaster
 	var varnishBroadcasterErrors chan error
-	if opts.Broadcaster.Enabled {
+	if opts.Broadcaster.Enable {
 		varnishBroadcaster = broadcaster.NewBroadcaster(
 			opts.Broadcaster.Address,
 			opts.Broadcaster.Port,
-			opts.Broadcaster.Retries,
+			opts.Broadcaster.WorkersCount,
+			opts.Broadcaster.MaxRetries,
 			opts.Broadcaster.RetryBackoff,
 		)
 		varnishBroadcasterErrors = varnishBroadcaster.GetErrors()

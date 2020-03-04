@@ -17,7 +17,9 @@ func (b *Broadcaster) Run() error {
 		Handler: b,
 	}
 
-	go b.ProcessCastQueue()
+	for i := 0; i < b.WorkersCount; i++ {
+		go b.ProcessCastQueue()
+	}
 
 	return server.ListenAndServe()
 }
@@ -68,7 +70,7 @@ func (b *Broadcaster) ProcessCastQueue() {
 
 func (b *Broadcaster) Retry(cast Cast) {
 	cast.Attempt++
-	if cast.Attempt < b.Retries {
+	if cast.Attempt < b.MaxRetries {
 		go func() {
 			time.Sleep(b.RetryBackoff)
 			b.castQueue <- cast

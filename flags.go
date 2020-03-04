@@ -29,10 +29,11 @@ type KubeHTTPProxyFlags struct {
 		PortName  string
 	}
 	Broadcaster struct {
-		Enabled            bool
+		Enable             bool
 		Address            string
 		Port               int
-		Retries            int
+		WorkersCount       int
+		MaxRetries         int
 		RetryBackoffString string
 		RetryBackoff       time.Duration
 	}
@@ -68,10 +69,11 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Backend.Port, "backend-port", "", "deprecated: name of backend port")
 	flag.StringVar(&f.Backend.PortName, "backend-portname", "http", "name of backend port")
 
-	flag.BoolVar(&f.Broadcaster.Enabled, "broadcaster-enabled", false, "enable broadcaster functionality for PURGE and BAN requests")
+	flag.BoolVar(&f.Broadcaster.Enable, "broadcaster-enable", false, "enable broadcaster functionality for PURGE and BAN requests")
 	flag.StringVar(&f.Broadcaster.Address, "broadcaster-addr", "0.0.0.0", "TCP address for the boradcaster")
 	flag.IntVar(&f.Broadcaster.Port, "broadcaster-port", 8090, "TCP port for the boradcaster")
-	flag.IntVar(&f.Broadcaster.Retries, "broadcaster-retries", 5, "maximum number of attempts for request broadcasting")
+	flag.IntVar(&f.Broadcaster.WorkersCount, "broadcaster-workers", 1, "number of workers to process requests")
+	flag.IntVar(&f.Broadcaster.MaxRetries, "broadcaster-retries", 5, "maximum number of attempts for request broadcasting")
 	flag.StringVar(&f.Broadcaster.RetryBackoffString, "broadcaster-backoff", "30s", "backoff for request broadcasting attempts")
 
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
