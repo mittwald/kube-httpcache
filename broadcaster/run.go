@@ -42,6 +42,8 @@ func (b *Broadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			b.errors <- err
 		}
 		request.Header = r.Header
+		request.Host = r.Host
+		request.Header.Set("X-Forwarded-For", r.RemoteAddr)
 		b.castQueue <- Cast{request, 0}
 	}
 	b.mutex.RUnlock()
