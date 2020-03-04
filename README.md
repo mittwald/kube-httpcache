@@ -15,13 +15,37 @@ This controller is not intended to be a replacement of a regular [ingress contro
 +---------+      +---------+      +-------------+
 ```
 
+It can run in high avalability mode using multiple Varnish and application pods.
+
+```
+             +---------+
+             | Ingress |
+             +---------+
+                  |
+             +---------+
+             | Service |
+             +---------+
+              /       \
+    +-----------+  +-----------+
+    | Varnish 1 |  | Varnish 2 |
+    +-----------+  +-----------+
+          |      \/      |
+          |      /\      |
++---------------+  +---------------+
+| Application 1 |  | Application 2 |
++---------------+  +---------------+
+```
+
+It supports broadcasting PURGE and BAN requests to all Varnish nodes.
+
+
 The Varnish controller needs the following prerequisites to run:
 
 - A [Go-template](https://golang.org/pkg/text/template/) that will be used to generate a [VCL](https://varnish-cache.org/docs/trunk/users-guide/vcl.html) configuration file
-- A [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as backend for the Varnish controller
+- A [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used to determine Varnish (frontend) and application (backend) pods
 - If RBAC is enabled in your cluster, you'll need a ServiceAccount with a role that grants `WATCH` access to the `endpoints` resource in the respective namespace
 
-After starting, the Varnish controller will watch the configured backend service's endpoints; on startup and whenever these change, it will use the supplied VCL template to generate a new Varnish configuration and load this configuration at runtime.
+After starting, the Varnish controller will watch the configured Varnish service's endpoints and application service's endpoints; on startup and whenever these change, it will use the supplied VCL template to generate a new Varnish configuration and load this configuration at runtime.
 
 The controller does not ship with any preconfigured configuration; the upstream connection and advanced features like load balancing are possible, but need to be configured in the VCL template supplied by you.
 
@@ -155,6 +179,8 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
+        - -broadcaster-enable=true
+        - -broadcaster-port=8090
         - -frontend-watch=true
         - -frontend-namespace=$(NAMESPACE)
         - -frontend-service=frontend-service
@@ -182,4 +208,18 @@ spec:
       - name: secret
         secret:
           secretName: varnish-secret
+```
+
+## Using built in broadcaster
+
+To broadcast a PURGE request to all Varnish frontends, run:
+
+```
+curl -H "Host: example.com" -X PURGE http://example.com:8090/path
+```
+
+To broadcast a BAN request to all Varnish frontends, run:
+
+```
+curl -H "Host: example.com" -H "X-Url: /path" -X BAN http://example.com:8090
 ```
