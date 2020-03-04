@@ -92,6 +92,28 @@ data:
         {{ end }}
     }
 
+    sub vcl_recv
+    {
+        # Set backend hint for non cachable objects.
+        set req.backend_hint = lb.backend();
+
+        # ...
+
+        # Routing logic. Pass a request to an appropriate Varnish node.
+        # See https://info.varnish-software.com/blog/creating-self-routing-varnish-cluster for more info.
+        unset req.http.x-cache;
+        set req.backend_hint = cluster.backend(req.url);
+        set req.http.x-shard = req.backend_hint;
+        if (req.http.x-shard != server.identity) {
+            return(pass);
+        }
+        set req.backend_hint = lb.backend();
+
+        # ...
+
+        return(hash);
+    }
+
     # ...
 ```
 
