@@ -36,7 +36,7 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 			v.frontend = newConfig
 
 			if v.varnishBroadcaster != nil {
-				v.varnishBroadcaster.UpdateEndpoints(v.frontend)
+				v.varnishBroadcaster.SetEndpoints(v.frontend)
 			}
 
 			errors <- v.rebuildConfig(i)

@@ -78,9 +78,10 @@ func main() {
 			opts.Broadcaster.Retries,
 			opts.Broadcaster.RetryBackoff,
 		)
+		varnishBroadcasterErrors = varnishBroadcaster.GetErrors()
 
 		go func() {
-			err, varnishBroadcasterErrors = varnishBroadcaster.Run()
+			err = varnishBroadcaster.Run()
 			if err != nil {
 				panic(err)
 			}

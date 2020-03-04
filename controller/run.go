@@ -16,7 +16,7 @@ func (v *VarnishController) Run() error {
 	if v.frontendUpdates != nil {
 		v.frontend = <-v.frontendUpdates
 		if v.varnishBroadcaster != nil {
-			v.varnishBroadcaster.UpdateEndpoints(v.frontend)
+			v.varnishBroadcaster.SetEndpoints(v.frontend)
 		}
 	}
 

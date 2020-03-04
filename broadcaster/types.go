@@ -19,7 +19,6 @@ type Broadcaster struct {
 	Retries        int
 	RetryBackoff   time.Duration
 	EndpointScheme string
-	server         *http.Server
 	endpoints      *watcher.EndpointConfig
 	castQueue      chan Cast
 	errors         chan error
@@ -40,5 +39,16 @@ func NewBroadcaster(
 		EndpointScheme: "http",
 		endpoints:      watcher.NewEndpointConfig(),
 		castQueue:      make(chan Cast),
+		errors:         make(chan error),
 	}
+}
+
+func (b *Broadcaster) GetErrors() chan error {
+	return b.errors
+}
+
+func (b *Broadcaster) SetEndpoints(e *watcher.EndpointConfig) {
+	b.mutex.Lock()
+	b.endpoints = e
+	b.mutex.Unlock()
 }

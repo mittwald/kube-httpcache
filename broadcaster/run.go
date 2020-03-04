@@ -7,19 +7,17 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/mittwald/kube-httpcache/watcher"
 )
 
-func (b *Broadcaster) Run() (error, chan error) {
-	b.server = &http.Server{
+func (b *Broadcaster) Run() error {
+	server := &http.Server{
 		Addr:    b.Address + ":" + strconv.Itoa(b.Port),
 		Handler: b,
 	}
 
 	go b.ProcessCastQueue()
 
-	return b.server.ListenAndServe(), b.errors
+	return server.ListenAndServe()
 }
 
 func (b *Broadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -61,10 +59,4 @@ func (b *Broadcaster) ProcessCastQueue() {
 			b.errors <- err
 		}
 	}
-}
-
-func (b *Broadcaster) UpdateEndpoints(e *watcher.EndpointConfig) {
-	b.mutex.Lock()
-	b.endpoints = e
-	b.mutex.Unlock()
 }
