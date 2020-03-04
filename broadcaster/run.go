@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 func (b *Broadcaster) Run() error {
@@ -28,6 +30,8 @@ func (b *Broadcaster) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	glog.V(5).Infof("received a broadcast request: %+v", r)
+
 	b.mutex.RLock()
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
@@ -47,16 +51,27 @@ func (b *Broadcaster) ProcessCastQueue() {
 	client := &http.Client{}
 
 	for cast := range b.castQueue {
-		_, err := client.Do(cast.Request)
+		response, err := client.Do(cast.Request)
 		if err != nil {
-			cast.Attempt++
-			if cast.Attempt < b.Retries {
-				go func() {
-					time.Sleep(b.RetryBackoff)
-					b.castQueue <- cast
-				}()
-			}
-			b.errors <- err
+			glog.Errorf("broadcasting error: %v", err.Error())
+			glog.Infof("retring in %v", b.RetryBackoff)
+			b.Retry(cast)
+		} else if response.StatusCode >= 400 && response.StatusCode <= 599 {
+			glog.Warningf("broadcasting error: %v", response.Status)
+			glog.Infof("retring in %v", b.RetryBackoff)
+			b.Retry(cast)
+		} else {
+			glog.V(5).Infof("recieved an endpoint response: %+v", response)
 		}
+	}
+}
+
+func (b *Broadcaster) Retry(cast Cast) {
+	cast.Attempt++
+	if cast.Attempt < b.Retries {
+		go func() {
+			time.Sleep(b.RetryBackoff)
+			b.castQueue <- cast
+		}()
 	}
 }
