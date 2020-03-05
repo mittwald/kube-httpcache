@@ -97,6 +97,9 @@ data:
         "127.0.0.1";
         "localhost";
         "::1";
+        {{- range .Frontends }}
+        "{{ .Host }}";
+        {{- end }}
         {{- range .Backends }}
         "{{ .Host }}";
         {{- end }}
@@ -161,21 +164,30 @@ $ kubectl create rolebinding kube-httpcache --role=kube-httpcache --serviceaccou
 
 ### Deploy Varnish
 
-Create a `Deployment` for the Varnish controller:
+1. Create a `StatefulSet` for the Varnish controller:
 
 ```yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: cache
+  name: cache-statefulset
+  labels:
+    app: cache
 spec:
-  replicas: 1
+  serviceName: cache-service
+  replicas: 2
+  updateStrategy:
+    type: RollingUpdate
   template:
+    metadata:
+      labels:
+        app: cache
     spec:
       containers:
       - name: cache
         image: quay.io/spaces/kube-httpcache:stable
         imagePullPolicy: Always
+        restartPolicy: Always
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
@@ -210,16 +222,47 @@ spec:
           secretName: varnish-secret
 ```
 
+2. Create a service for the Varnish controller:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache-service
+  labels:
+    app: cache
+spec:
+  ports:
+  - name: "http"
+    port: 80
+    targetPort: 80
+  - name: "broadcaster"
+    port: 8090
+    targetPort: 8090
+  selector:
+    app: cache
+```
+
+3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://www.example.com:8090. Make sure to limit access to `8090` port.
+
 ## Using built in broadcaster
-
-To broadcast a PURGE request to all Varnish frontends, run:
-
-```
-curl -H "Host: example.com" -X PURGE http://example.com:8090/path
-```
 
 To broadcast a BAN request to all Varnish frontends, run:
 
 ```
-curl -H "Host: example.com" -H "X-Url: /path" -X BAN http://example.com:8090
+curl -H "X-Url: /path" -X BAN http://www.example.com:8090
 ```
+
+or
+
+```
+curl -H "X-Url: /path" -X BAN http://cache-service:8090
+```
+
+To broadcast a PURGE request to all Varnish frontends, run:
+
+```
+curl -H "Host: www.example.com" -X PURGE http://cache-service:8090/path
+```
+
+Specific headers of PURGE/BAN requests depend on your Varnish configuration.
