@@ -25,10 +25,11 @@ It can run in high avalability mode using multiple Varnish and application pods.
              +---------+
              | Service |
              +---------+
-              /       \
-    +-----------+  +-----------+
-    | Varnish 1 |  | Varnish 2 |
-    +-----------+  +-----------+
+               /     \
++---------------+  +---------------+
+|   Varnish 1   |--|   Varnish 2   |
+| Broadcaster 1 |--| Broadcaster 2 |
++---------------+  +---------------+
           |      \/      |
           |      /\      |
 +---------------+  +---------------+
@@ -243,26 +244,68 @@ spec:
     app: cache
 ```
 
-3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://www.example.com:8090. Make sure to limit access to `8090` port.
+3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://broadcaster.example.com. A url for broadcaster is optional, if you choose to have it, make sure to limit access to it.
 
 ## Using built in broadcaster
 
-To broadcast a BAN request to all Varnish frontends, run:
-
-```
-curl -H "X-Url: /path" -X BAN http://www.example.com:8090
-```
-
-or
+To broadcast a BAN request to all Varnish endpoints, run:
 
 ```
 curl -H "X-Url: /path" -X BAN http://cache-service:8090
 ```
 
-To broadcast a PURGE request to all Varnish frontends, run:
+or
 
 ```
-curl -H "Host: www.example.com" -X PURGE http://cache-service:8090/path
+curl -H "X-Url: /path" -X BAN http://broadcaster.example.com
 ```
 
-Specific headers of PURGE/BAN requests depend on your Varnish configuration.
+To broadcast a PURGE request to all Varnish endpoints, run:
+
+```
+curl -H "X-Host: www.example.com" -X PURGE http://cache-service:8090/path
+```
+
+or
+
+```
+curl -H "X-Host: www.example.com" -X PURGE http://broadcaster.example.com/path
+```
+
+Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. X-Host header is set for convinience, because broadcaster is listening on other URL than Varnish. However, you need to suport such headers in your vcl.
+
+```vcl
+sub vcl_recv
+{
+  # ...
+
+  # Purge logic
+  if ( req.method == "PURGE" ) {
+    if ( client.ip !~ privileged ) {
+      return (synth(403, "Not allowed."));
+    }
+    if (req.http.X-Host) {
+      set req.http.host = req.http.X-Host;
+    }
+    return (purge);
+  }
+
+  # Ban logic
+  if ( req.method == "BAN" ) {
+    if ( client.ip !~ privileged ) {
+      return (synth(403, "Not allowed."));
+    }
+    if (req.http.Cache-Tags) {
+      ban("obj.http.Cache-Tags ~ " + req.http.Cache-Tags);
+      return (synth(200, "Ban added " + req.http.host));
+    }
+    if (req.http.X-Url) {
+      ban("obj.http.X-Url == " + req.http.X-Url);
+      return (synth(200, "Ban added " + req.http.host));
+    }
+    return (synth(403, "Cache-Tags or X-Url header missing."));
+  }
+
+  # ...
+}
+```
