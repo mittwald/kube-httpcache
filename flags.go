@@ -54,7 +54,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Frontend.Service, "frontend-service", "", "name of Kubernetes frontend service")
 	flag.StringVar(&f.Frontend.PortName, "frontend-portname", "http", "name of frontend port")
 
-	flag.BoolVar(&f.Backend.Watch, "backend-watch", false, "watch for Kubernetes backend updates")
+	flag.BoolVar(&f.Backend.Watch, "backend-watch", true, "watch for Kubernetes backend updates")
 	flag.StringVar(&f.Backend.Namespace, "backend-namespace", "", "name of Kubernetes backend namespace")
 	flag.StringVar(&f.Backend.Service, "backend-service", "", "name of Kubernetes backend service")
 	flag.StringVar(&f.Backend.Port, "backend-port", "", "deprecated: name of backend port")
