@@ -45,6 +45,18 @@ data:
     import std;
     import directors;
 
+    {{ range .Frontends }}
+    backend fe-{{ .Name }} {
+        .host = "{{ .Host }}";
+        .port = "{{ .Port }}";
+    }
+    {{- end }}
+
+    backend fe-primary {
+        .host = "{{ .PrimaryFrontend.Host }}";
+        .port = "{{ .PrimaryFrontend.Port }}";
+    }
+
     {{ range .Backends }}
     backend be-{{ .Name }} {
         .host = "{{ .Host }}";
@@ -61,17 +73,45 @@ data:
         "127.0.0.1";
         "localhost";
         "::1";
-    {{- range .Backends }}
+        {{- range .Backends }}
         "{{ .Host }}";
-    {{- end }}
+        {{- end }}
     }
 
     sub vcl_init {
+        new cluster = directors.hash();
+
+        {{ range .Frontends -}}
+        cluster.add_backend({{ .Name }}, 1);
+        {{ end }}
+
         new lb = directors.round_robin();
 
         {{ range .Backends -}}
         lb.add_backend(be-{{ .Name }});
         {{ end }}
+    }
+
+    sub vcl_recv
+    {
+        # Set backend hint for non cachable objects.
+        set req.backend_hint = lb.backend();
+
+        # ...
+
+        # Routing logic. Pass a request to an appropriate Varnish node.
+        # See https://info.varnish-software.com/blog/creating-self-routing-varnish-cluster for more info.
+        unset req.http.x-cache;
+        set req.backend_hint = cluster.backend(req.url);
+        set req.http.x-shard = req.backend_hint;
+        if (req.http.x-shard != server.identity) {
+            return(pass);
+        }
+        set req.backend_hint = lb.backend();
+
+        # ...
+
+        return(hash);
     }
 
     # ...
@@ -115,6 +155,10 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
+        - -frontend-watch=true
+        - -frontend-namespace=$(NAMESPACE)
+        - -frontend-service=frontend-service
+        - -backend-watch=true
         - -backend-namespace=$(NAMESPACE)
         - -backend-service=backend-service
         - -varnish-secret-file=/etc/varnish/k8s-secret/secret

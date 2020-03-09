@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/controller"
 	"github.com/mittwald/kube-httpcache/watcher"
@@ -18,6 +19,7 @@ func init() {
 
 func main() {
 	opts.Parse()
+	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
 	var err error
@@ -37,25 +39,43 @@ func main() {
 
 	client = kubernetes.NewForConfigOrDie(config)
 
-	backendWatcher := watcher.NewBackendWatcher(
-		client,
-		opts.Backend.Namespace,
-		opts.Backend.Service,
-		opts.Backend.Port,
-		opts.Kubernetes.RetryBackoff,
-	)
+	var frontendUpdates chan *watcher.EndpointConfig
+	var frontendErrors chan error
+	if opts.Frontend.Watch {
+		frontendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Frontend.Namespace,
+			opts.Frontend.Service,
+			opts.Frontend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		frontendUpdates, frontendErrors = frontendWatcher.Run()
+	}
+
+	var backendUpdates chan *watcher.EndpointConfig
+	var backendErrors chan error
+	if opts.Backend.Watch {
+		backendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Backend.Namespace,
+			opts.Backend.Service,
+			opts.Backend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		backendUpdates, backendErrors = backendWatcher.Run()
+	}
 
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
-
-	backendUpdates, backendErrors := backendWatcher.Run()
 	templateUpdates, templateErrors := templateWatcher.Run()
 
 	go func() {
 		for {
 			select {
-			case err := <- backendErrors:
+			case err := <-frontendErrors:
+				glog.Errorf("error while watching frontends: %s", err.Error())
+			case err := <-backendErrors:
 				glog.Errorf("error while watching backends: %s", err.Error())
-			case err := <- templateErrors:
+			case err := <-templateErrors:
 				glog.Errorf("error while watching template changes: %s", err.Error())
 			}
 		}
@@ -68,6 +88,7 @@ func main() {
 		opts.Frontend.Port,
 		opts.Admin.Address,
 		opts.Admin.Port,
+		frontendUpdates,
 		backendUpdates,
 		templateUpdates,
 		opts.Varnish.VCLTemplate,
