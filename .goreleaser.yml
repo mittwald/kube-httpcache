@@ -1,9 +1,9 @@
 project_name: kube-httpcache
 before:
   hooks:
+    - go mod download
     - go vet ./...
     - go test ./...
-    - go mod download
 builds:
   - env:
       - CGO_ENABLED=0
