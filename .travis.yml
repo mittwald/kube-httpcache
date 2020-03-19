@@ -1,35 +1,34 @@
 language: go
 
+dist: bionic
+
+os: linux
+
 go:
-- 1.13
+- "1.14"
 
 services:
   - docker
 
-env:
-  global:
-    - GO111MODULE=on
-    - FULL_IMAGE_URL="${DOCKER_LOGIN_URL}/${DOCKER_REPO}"
-
 install: true
 
-before_script:
-  - sudo sysctl -w net.ipv4.ip_forward=1
-
 script:
-- GO111MODULE=on go vet ./...
-- GO111MODULE=on go test ./...
-- GO111MODULE=on go build .
-- docker build --pull --no-cache -t "${FULL_IMAGE_URL}:latest" "${TRAVIS_BUILD_DIR}"
+  - curl -sL https://git.io/goreleaser | bash -s -- --snapshot --skip-publish --rm-dist
 
 before_deploy:
-  - if [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then docker login -u "${DOCKER_LOGIN_NAME}" -p "${DOCKER_LOGIN_PASSWORD}" "${DOCKER_LOGIN_URL}"; fi
+  - docker login -u "${DOCKER_LOGIN_NAME}" -p "${DOCKER_LOGIN_PASSWORD}" quay.io
+
 deploy:
-- provider: script
-  script: docker push "${FULL_IMAGE_URL}:latest"
-  on:
-    branch: master
-- provider: script
-  script: docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:stable" docker tag "${FULL_IMAGE_URL}:latest" "${FULL_IMAGE_URL}:${TRAVIS_TAG}" && docker push "${FULL_IMAGE_URL}:stable" && docker push "${FULL_IMAGE_URL}:${TRAVIS_TAG}"
-  on:
-    tags: true
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash -s -- --snapshot --skip-publish --rm-dist && docker push "quay.io/spaces/kube-httpcache:latest"
+    on:
+      tags: false
+      branch: master
+      condition: $TRAVIS_OS_NAME = linux
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash -s -- --rm-dist
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux
