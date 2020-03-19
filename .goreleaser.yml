@@ -33,6 +33,8 @@ dockers:
       - quay.io/spaces/kube-httpcache:stable
     binaries:
       - kube-httpcache
+    extra_files:
+      - varnish.repo
     goos: linux
     goarch: amd64
     goarm: ''
