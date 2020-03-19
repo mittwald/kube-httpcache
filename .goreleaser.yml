@@ -1,0 +1,40 @@
+project_name: kube-httpcache
+before:
+  hooks:
+    - go mod download
+    - go vet ./...
+    - go test ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    binary: kube-httpcache
+    goos:
+      - linux
+    goarch:
+      - amd64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+dockers:
+  -
+    image_templates:
+      - quay.io/spaces/kube-httpcache:latest
+      - quay.io/spaces/kube-httpcache:v{{ .Major }}
+      - quay.io/spaces/kube-httpcache:v{{ .Major }}.{{ .Minor }}
+      - quay.io/spaces/kube-httpcache:{{ .Tag }}
+      - quay.io/spaces/kube-httpcache:stable
+    binaries:
+      - kube-httpcache
+    extra_files:
+      - varnish.repo
+    goos: linux
+    goarch: amd64
+    goarm: ''

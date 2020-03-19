@@ -1,6 +1,6 @@
 /.idea
 /vendor
 /kube-httpcache
-
+dist
 *.vcl
 *.vcl.tmpl
