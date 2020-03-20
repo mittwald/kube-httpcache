@@ -1,4 +1,4 @@
-package broadcaster
+package signaller
 
 import (
 	"net/http"
@@ -8,12 +8,12 @@ import (
 	"github.com/mittwald/kube-httpcache/watcher"
 )
 
-type Cast struct {
+type Signal struct {
 	Request *http.Request
 	Attempt int
 }
 
-type Broadcaster struct {
+type Signaller struct {
 	Address        string
 	Port           int
 	WorkersCount   int
@@ -21,19 +21,19 @@ type Broadcaster struct {
 	RetryBackoff   time.Duration
 	EndpointScheme string
 	endpoints      *watcher.EndpointConfig
-	castQueue      chan Cast
+	signalQueue    chan Signal
 	errors         chan error
 	mutex          sync.RWMutex
 }
 
-func NewBroadcaster(
+func NewSignaller(
 	address string,
 	port int,
 	workersCount int,
 	maxRetries int,
 	retryBackoff time.Duration,
-) *Broadcaster {
-	return &Broadcaster{
+) *Signaller {
+	return &Signaller{
 		Address:        address,
 		Port:           port,
 		WorkersCount:   workersCount,
@@ -41,17 +41,18 @@ func NewBroadcaster(
 		RetryBackoff:   retryBackoff,
 		EndpointScheme: "http",
 		endpoints:      watcher.NewEndpointConfig(),
-		castQueue:      make(chan Cast),
+		signalQueue:    make(chan Signal),
 		errors:         make(chan error),
 	}
 }
 
-func (b *Broadcaster) GetErrors() chan error {
+func (b *Signaller) GetErrors() chan error {
 	return b.errors
 }
 
-func (b *Broadcaster) SetEndpoints(e *watcher.EndpointConfig) {
+func (b *Signaller) SetEndpoints(e *watcher.EndpointConfig) {
 	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
 	b.endpoints = e
-	b.mutex.Unlock()
 }

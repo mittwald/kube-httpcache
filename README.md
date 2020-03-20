@@ -28,7 +28,7 @@ It can run in high avalability mode using multiple Varnish and application pods.
                /     \
 +---------------+  +---------------+
 |   Varnish 1   |--|   Varnish 2   |
-| Broadcaster 1 |--| Broadcaster 2 |
+|  Signaller 1  |--|  Signaller 2  |
 +---------------+  +---------------+
           |      \/      |
           |      /\      |
@@ -37,13 +37,14 @@ It can run in high avalability mode using multiple Varnish and application pods.
 +---------------+  +---------------+
 ```
 
-It supports broadcasting PURGE and BAN requests to all Varnish nodes.
+Signaller compoment supports broadcasting PURGE and BAN requests to all Varnish nodes.
 
 
 The Varnish controller needs the following prerequisites to run:
 
 - A [Go-template](https://golang.org/pkg/text/template/) that will be used to generate a [VCL](https://varnish-cache.org/docs/trunk/users-guide/vcl.html) configuration file
-- A [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used to determine Varnish (frontend) and application (backend) pods
+- An application [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as backend for the Varnish controller
+- A Varnish [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as frontend for the Varnish controller
 - If RBAC is enabled in your cluster, you'll need a ServiceAccount with a role that grants `WATCH` access to the `endpoints` resource in the respective namespace
 
 After starting, the Varnish controller will watch the configured Varnish service's endpoints and application service's endpoints; on startup and whenever these change, it will use the supplied VCL template to generate a new Varnish configuration and load this configuration at runtime.
@@ -192,8 +193,8 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
-        - -broadcaster-enable=true
-        - -broadcaster-port=8090
+        - -signaller-enable=true
+        - -signaller-port=8090
         - -frontend-watch=true
         - -frontend-namespace=$(NAMESPACE)
         - -frontend-service=frontend-service
@@ -237,16 +238,16 @@ spec:
   - name: "http"
     port: 80
     targetPort: 80
-  - name: "broadcaster"
+  - name: "signaller"
     port: 8090
     targetPort: 8090
   selector:
     app: cache
 ```
 
-3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://broadcaster.example.com. A url for broadcaster is optional, if you choose to have it, make sure to limit access to it.
+3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://signaller.example.com. A url for signaller is optional, if you choose to have it, make sure to limit access to it.
 
-## Using built in broadcaster
+## Using built in signaller component
 
 To broadcast a BAN request to all Varnish endpoints, run:
 
@@ -257,7 +258,7 @@ curl -H "X-Url: /path" -X BAN http://cache-service:8090
 or
 
 ```
-curl -H "X-Url: /path" -X BAN http://broadcaster.example.com
+curl -H "X-Url: /path" -X BAN http://signaller.example.com
 ```
 
 To broadcast a PURGE request to all Varnish endpoints, run:
@@ -269,10 +270,10 @@ curl -H "X-Host: www.example.com" -X PURGE http://cache-service:8090/path
 or
 
 ```
-curl -H "X-Host: www.example.com" -X PURGE http://broadcaster.example.com/path
+curl -H "X-Host: www.example.com" -X PURGE http://signaller.example.com/path
 ```
 
-Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. X-Host header is set for convinience, because broadcaster is listening on other URL than Varnish. However, you need to suport such headers in your vcl.
+Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. X-Host header is set for convinience, because signaller is listening on other URL than Varnish. However, you need to suport such headers in your vcl.
 
 ```vcl
 sub vcl_recv

@@ -4,8 +4,8 @@ import (
 	"flag"
 
 	"github.com/golang/glog"
-	"github.com/mittwald/kube-httpcache/broadcaster"
 	"github.com/mittwald/kube-httpcache/controller"
+	"github.com/mittwald/kube-httpcache/signaller"
 	"github.com/mittwald/kube-httpcache/watcher"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -69,20 +69,20 @@ func main() {
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
 	templateUpdates, templateErrors := templateWatcher.Run()
 
-	var varnishBroadcaster *broadcaster.Broadcaster
-	var varnishBroadcasterErrors chan error
-	if opts.Broadcaster.Enable {
-		varnishBroadcaster = broadcaster.NewBroadcaster(
-			opts.Broadcaster.Address,
-			opts.Broadcaster.Port,
-			opts.Broadcaster.WorkersCount,
-			opts.Broadcaster.MaxRetries,
-			opts.Broadcaster.RetryBackoff,
+	var varnishSignaller *signaller.Signaller
+	var varnishSignallerErrors chan error
+	if opts.Signaller.Enable {
+		varnishSignaller = signaller.NewSignaller(
+			opts.Signaller.Address,
+			opts.Signaller.Port,
+			opts.Signaller.WorkersCount,
+			opts.Signaller.MaxRetries,
+			opts.Signaller.RetryBackoff,
 		)
-		varnishBroadcasterErrors = varnishBroadcaster.GetErrors()
+		varnishSignallerErrors = varnishSignaller.GetErrors()
 
 		go func() {
-			err = varnishBroadcaster.Run()
+			err = varnishSignaller.Run()
 			if err != nil {
 				panic(err)
 			}
@@ -98,8 +98,8 @@ func main() {
 				glog.Errorf("error while watching backends: %s", err.Error())
 			case err := <-templateErrors:
 				glog.Errorf("error while watching template changes: %s", err.Error())
-			case err := <-varnishBroadcasterErrors:
-				glog.Errorf("error while running varnish broadcaster: %s", err.Error())
+			case err := <-varnishSignallerErrors:
+				glog.Errorf("error while running varnish signaller: %s", err.Error())
 			}
 		}
 	}()
@@ -114,7 +114,7 @@ func main() {
 		frontendUpdates,
 		backendUpdates,
 		templateUpdates,
-		varnishBroadcaster,
+		varnishSignaller,
 		opts.Varnish.VCLTemplate,
 	)
 	if err != nil {
