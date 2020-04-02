@@ -5,6 +5,23 @@
 
 This repository contains a controller that allows you to operate a [Varnish cache](https://varnish-cache.org/) on Kubernetes.
 
+## Table of Contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [How it works](#how-it-works)
+- [High-Availability mode](#high-availability-mode)
+- [Getting started](#getting-started)
+  - [Create a VCL template](#create-a-vcl-template)
+  - [Create a Secret](#create-a-secret)
+  - [[Optional] Configure RBAC roles](#optional-configure-rbac-roles)
+  - [Deploy Varnish](#deploy-varnish)
+- [Using built in signaller component](#using-built-in-signaller-component)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## How it works
 
 This controller is not intended to be a replacement of a regular [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress/). Instead, it is intended to be used between your regular Ingress controller and your application's service.
@@ -14,6 +31,19 @@ This controller is not intended to be a replacement of a regular [ingress contro
 | Ingress |----->| Varnish |----->| Application |
 +---------+      +---------+      +-------------+
 ```
+
+The Varnish controller needs the following prerequisites to run:
+
+- A [Go-template](https://golang.org/pkg/text/template/) that will be used to generate a [VCL](https://varnish-cache.org/docs/trunk/users-guide/vcl.html) configuration file
+- An application [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as backend for the Varnish controller
+- A Varnish [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as frontend for the Varnish controller
+- If RBAC is enabled in your cluster, you'll need a ServiceAccount with a role that grants `WATCH` access to the `endpoints` resource in the respective namespace
+
+After starting, the Varnish controller will watch the configured Varnish service's endpoints and application service's endpoints; on startup and whenever these change, it will use the supplied VCL template to generate a new Varnish configuration and load this configuration at runtime.
+
+The controller does not ship with any preconfigured configuration; the upstream connection and advanced features like load balancing are possible, but need to be configured in the VCL template supplied by you.
+
+## High-Availability mode
 
 It can run in high avalability mode using multiple Varnish and application pods.
 
@@ -37,19 +67,7 @@ It can run in high avalability mode using multiple Varnish and application pods.
 +---------------+  +---------------+
 ```
 
-Signaller compoment supports broadcasting PURGE and BAN requests to all Varnish nodes.
-
-
-The Varnish controller needs the following prerequisites to run:
-
-- A [Go-template](https://golang.org/pkg/text/template/) that will be used to generate a [VCL](https://varnish-cache.org/docs/trunk/users-guide/vcl.html) configuration file
-- An application [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as backend for the Varnish controller
-- A Varnish [Kubernetes service](https://kubernetes.io/docs/concepts/services-networking/service/) that will be used as frontend for the Varnish controller
-- If RBAC is enabled in your cluster, you'll need a ServiceAccount with a role that grants `WATCH` access to the `endpoints` resource in the respective namespace
-
-After starting, the Varnish controller will watch the configured Varnish service's endpoints and application service's endpoints; on startup and whenever these change, it will use the supplied VCL template to generate a new Varnish configuration and load this configuration at runtime.
-
-The controller does not ship with any preconfigured configuration; the upstream connection and advanced features like load balancing are possible, but need to be configured in the VCL template supplied by you.
+The Signaller component supports broadcasting PURGE and BAN requests to all Varnish nodes.
 
 ## Getting started
 
@@ -245,35 +263,27 @@ spec:
     app: cache
 ```
 
-3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://signaller.example.com. A url for signaller is optional, if you choose to have it, make sure to limit access to it.
+3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://signaller.example.com. An Ingress for signaller is optional, if you choose to have it, make sure to limit access to it.
 
 ## Using built in signaller component
 
 To broadcast a BAN request to all Varnish endpoints, run:
 
-```
-curl -H "X-Url: /path" -X BAN http://cache-service:8090
-```
+    $ curl -H "X-Url: /path" -X BAN http://cache-service:8090
 
 or
 
-```
-curl -H "X-Url: /path" -X BAN http://signaller.example.com
-```
+    $ curl -H "X-Url: /path" -X BAN http://signaller.example.com
 
 To broadcast a PURGE request to all Varnish endpoints, run:
 
-```
-curl -H "X-Host: www.example.com" -X PURGE http://cache-service:8090/path
-```
+    $ curl -H "X-Host: www.example.com" -X PURGE http://cache-service:8090/path
 
 or
 
-```
-curl -H "X-Host: www.example.com" -X PURGE http://signaller.example.com/path
-```
+    $ curl -H "X-Host: www.example.com" -X PURGE http://signaller.example.com/path
 
-Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. X-Host header is set for convinience, because signaller is listening on other URL than Varnish. However, you need to suport such headers in your vcl.
+Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. `X-Host` header is set for convenience, because signaller is listening on other URL than Varnish. However, you need to suport such headers in your VCL.
 
 ```vcl
 sub vcl_recv
