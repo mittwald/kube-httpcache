@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"text/template"
 
+	"github.com/mittwald/kube-httpcache/signaller"
 	"github.com/mittwald/kube-httpcache/watcher"
 )
 
@@ -29,6 +30,7 @@ type VarnishController struct {
 	frontend           *watcher.EndpointConfig
 	backendUpdates     chan *watcher.EndpointConfig
 	backend            *watcher.EndpointConfig
+	varnishSignaller   *signaller.Signaller
 	configFile         string
 	secret             []byte
 	localAdminAddr     string
@@ -44,6 +46,7 @@ func NewVarnishController(
 	frontendUpdates chan *watcher.EndpointConfig,
 	backendUpdates chan *watcher.EndpointConfig,
 	templateUpdates chan []byte,
+	varnishSignaller *signaller.Signaller,
 	vclTemplateFile string,
 ) (*VarnishController, error) {
 	contents, err := ioutil.ReadFile(vclTemplateFile)
@@ -72,6 +75,7 @@ func NewVarnishController(
 		vclTemplateUpdates: templateUpdates,
 		frontendUpdates:    frontendUpdates,
 		backendUpdates:     backendUpdates,
+		varnishSignaller:   varnishSignaller,
 		configFile:         "/tmp/vcl",
 		secret:             secret,
 	}, nil

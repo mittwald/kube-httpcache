@@ -28,6 +28,15 @@ type KubeHTTPProxyFlags struct {
 		Port      string
 		PortName  string
 	}
+	Signaller struct {
+		Enable             bool
+		Address            string
+		Port               int
+		WorkersCount       int
+		MaxRetries         int
+		RetryBackoffString string
+		RetryBackoff       time.Duration
+	}
 	Admin struct {
 		Address string
 		Port    int
@@ -47,7 +56,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Kubernetes.RetryBackoffString, "retry-backoff", "30s", "backoff for Kubernetes API reconnection attempts")
 
 	flag.StringVar(&f.Frontend.Address, "frontend-addr", "0.0.0.0", "TCP address to listen on")
-	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP address to listen on")
+	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP port to listen on")
 
 	flag.BoolVar(&f.Frontend.Watch, "frontend-watch", false, "watch for Kubernetes frontend updates")
 	flag.StringVar(&f.Frontend.Namespace, "frontend-namespace", "", "name of Kubernetes frontend namespace")
@@ -60,8 +69,15 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Backend.Port, "backend-port", "", "deprecated: name of backend port")
 	flag.StringVar(&f.Backend.PortName, "backend-portname", "http", "name of backend port")
 
-	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the admin port")
-	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP address for the admin port")
+	flag.BoolVar(&f.Signaller.Enable, "signaller-enable", false, "enable signaller functionality for boradcasting PURGE and BAN requests")
+	flag.StringVar(&f.Signaller.Address, "signaller-addr", "0.0.0.0", "TCP address for the signaller")
+	flag.IntVar(&f.Signaller.Port, "signaller-port", 8090, "TCP port for the signaller")
+	flag.IntVar(&f.Signaller.WorkersCount, "signaller-workers", 1, "number of workers to process requests")
+	flag.IntVar(&f.Signaller.MaxRetries, "signaller-retries", 5, "maximum number of attempts for signalling request")
+	flag.StringVar(&f.Signaller.RetryBackoffString, "signaller-backoff", "30s", "backoff for signalling request attempts")
+
+	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
+	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP port for the Varnish admin")
 
 	flag.StringVar(&f.Varnish.SecretFile, "varnish-secret-file", "/etc/varnish/secret", "Varnish secret file")
 	flag.StringVar(&f.Varnish.Storage, "varnish-storage", "file,/tmp/varnish-data,1G", "varnish storage config")
@@ -76,6 +92,11 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	}
 
 	f.Kubernetes.RetryBackoff, err = time.ParseDuration(f.Kubernetes.RetryBackoffString)
+	if err != nil {
+		return err
+	}
+
+	f.Signaller.RetryBackoff, err = time.ParseDuration(f.Signaller.RetryBackoffString)
 	if err != nil {
 		return err
 	}
