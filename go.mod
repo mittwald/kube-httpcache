@@ -32,4 +32,3 @@ require (
 	k8s.io/client-go v9.0.0+incompatible
 )
 
-go 1.13
