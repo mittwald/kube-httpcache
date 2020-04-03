@@ -1,5 +1,7 @@
 module github.com/mittwald/kube-httpcache
 
+go 1.14
+
 require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/ghodss/yaml v1.0.0 // indirect

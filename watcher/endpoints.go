@@ -2,11 +2,12 @@ package watcher
 
 import (
 	"fmt"
-	"k8s.io/api/core/v1"
 	"strconv"
+
+	v1 "k8s.io/api/core/v1"
 )
 
-type BackendProbe struct {
+type EndpointProbe struct {
 	URL       string
 	Interval  int
 	Timeout   int
@@ -14,16 +15,16 @@ type BackendProbe struct {
 	Threshold int
 }
 
-type Backend struct {
+type Endpoint struct {
 	Name  string
 	Host  string
 	Port  string
-	Probe *BackendProbe
+	Probe *EndpointProbe
 }
 
-type BackendList []Backend
+type EndpointList []Endpoint
 
-func (l BackendList) EqualsEndpoints(ep v1.EndpointSubset) bool {
+func (l EndpointList) EqualsEndpoints(ep v1.EndpointSubset) bool {
 	if len(l) != len(ep.Addresses) {
 		return false
 	}
@@ -44,7 +45,7 @@ func (l BackendList) EqualsEndpoints(ep v1.EndpointSubset) bool {
 	return true
 }
 
-func (l BackendList) Contains(b *Backend) bool {
+func (l EndpointList) Contains(b *Endpoint) bool {
 	if b == nil {
 		return false
 	}
@@ -58,10 +59,10 @@ func (l BackendList) Contains(b *Backend) bool {
 	return false
 }
 
-func BackendListFromSubset(ep v1.EndpointSubset, portName string) (BackendList, error) {
+func EndpointListFromSubset(ep v1.EndpointSubset, portName string) (EndpointList, error) {
 	var port int32
 
-	l := make(BackendList, len(ep.Addresses))
+	l := make(EndpointList, len(ep.Addresses))
 
 	for i := range ep.Ports {
 		if ep.Ports[i].Name == portName {

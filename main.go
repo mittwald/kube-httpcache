@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/controller"
+	"github.com/mittwald/kube-httpcache/signaller"
 	"github.com/mittwald/kube-httpcache/watcher"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -18,6 +20,7 @@ func init() {
 
 func main() {
 	opts.Parse()
+	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
 	var err error
@@ -37,26 +40,66 @@ func main() {
 
 	client = kubernetes.NewForConfigOrDie(config)
 
-	backendWatcher := watcher.NewBackendWatcher(
-		client,
-		opts.Backend.Namespace,
-		opts.Backend.Service,
-		opts.Backend.Port,
-		opts.Kubernetes.RetryBackoff,
-	)
+	var frontendUpdates chan *watcher.EndpointConfig
+	var frontendErrors chan error
+	if opts.Frontend.Watch {
+		frontendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Frontend.Namespace,
+			opts.Frontend.Service,
+			opts.Frontend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		frontendUpdates, frontendErrors = frontendWatcher.Run()
+	}
+
+	var backendUpdates chan *watcher.EndpointConfig
+	var backendErrors chan error
+	if opts.Backend.Watch {
+		backendWatcher := watcher.NewEndpointWatcher(
+			client,
+			opts.Backend.Namespace,
+			opts.Backend.Service,
+			opts.Backend.PortName,
+			opts.Kubernetes.RetryBackoff,
+		)
+		backendUpdates, backendErrors = backendWatcher.Run()
+	}
 
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
-
-	backendUpdates, backendErrors := backendWatcher.Run()
 	templateUpdates, templateErrors := templateWatcher.Run()
+
+	var varnishSignaller *signaller.Signaller
+	var varnishSignallerErrors chan error
+	if opts.Signaller.Enable {
+		varnishSignaller = signaller.NewSignaller(
+			opts.Signaller.Address,
+			opts.Signaller.Port,
+			opts.Signaller.WorkersCount,
+			opts.Signaller.MaxRetries,
+			opts.Signaller.RetryBackoff,
+		)
+		varnishSignallerErrors = varnishSignaller.GetErrors()
+
+		go func() {
+			err = varnishSignaller.Run()
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
 
 	go func() {
 		for {
 			select {
-			case err := <- backendErrors:
+			case err := <-frontendErrors:
+				glog.Errorf("error while watching frontends: %s", err.Error())
+			case err := <-backendErrors:
 				glog.Errorf("error while watching backends: %s", err.Error())
-			case err := <- templateErrors:
+			case err := <-templateErrors:
 				glog.Errorf("error while watching template changes: %s", err.Error())
+			case err := <-varnishSignallerErrors:
+				glog.Errorf("error while running varnish signaller: %s", err.Error())
 			}
 		}
 	}()
@@ -68,8 +111,10 @@ func main() {
 		opts.Frontend.Port,
 		opts.Admin.Address,
 		opts.Admin.Port,
+		frontendUpdates,
 		backendUpdates,
 		templateUpdates,
+		varnishSignaller,
 		opts.Varnish.VCLTemplate,
 	)
 	if err != nil {
