@@ -129,13 +129,13 @@ data:
         new cluster = directors.hash();
 
         {{ range .Frontends -}}
-        cluster.add_backend({{ .Name }}, 1);
+        cluster.add_backend("{{ .Name }}", 1);
         {{ end }}
 
         new lb = directors.round_robin();
 
         {{ range .Backends -}}
-        lb.add_backend(be-{{ .Name }});
+        lb.add_backend("be-{{ .Name }}");
         {{ end }}
     }
 
