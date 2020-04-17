@@ -9,6 +9,7 @@ builds:
       - CGO_ENABLED=0
       - GO111MODULE=on
     binary: kube-httpcache
+    main: ./cmd/kube-httpcache/main.go
     goos:
       - linux
     goarch:
