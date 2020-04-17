@@ -2,17 +2,18 @@ package main
 
 import (
 	"flag"
+	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 
 	"github.com/golang/glog"
-	"github.com/mittwald/kube-httpcache/controller"
-	"github.com/mittwald/kube-httpcache/signaller"
-	"github.com/mittwald/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/pkg/controller"
+	"github.com/mittwald/kube-httpcache/pkg/signaller"
+	"github.com/mittwald/kube-httpcache/pkg/watcher"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var opts KubeHTTPProxyFlags
+var opts internal.KubeHTTPProxyFlags
 
 func init() {
 	flag.Set("logtostderr", "true")

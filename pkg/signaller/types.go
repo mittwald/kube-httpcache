@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mittwald/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
 type Signal struct {
