@@ -6,7 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/golang/glog"
-	"github.com/mittwald/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
 func (v *VarnishController) Run() error {

@@ -31,10 +31,11 @@ dockers:
       - quay.io/spaces/kube-httpcache:v{{ .Major }}.{{ .Minor }}
       - quay.io/spaces/kube-httpcache:{{ .Tag }}
       - quay.io/spaces/kube-httpcache:stable
+    dockerfile: build/package/docker/GoReleaser.Dockerfile
     binaries:
       - kube-httpcache
     extra_files:
-      - varnish.repo
+      - assets/varnish.repo
     goos: linux
     goarch: amd64
     goarm: ''

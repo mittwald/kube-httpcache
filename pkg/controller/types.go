@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"text/template"
 
-	"github.com/mittwald/kube-httpcache/signaller"
-	"github.com/mittwald/kube-httpcache/watcher"
+	"github.com/mittwald/kube-httpcache/pkg/signaller"
+	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
 type TemplateData struct {
