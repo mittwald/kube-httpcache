@@ -63,6 +63,8 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 		"-s", v.Storage,
 		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
 		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
+		"-a", ":6085",
+		"-a", ":6086,PROXY",
 	)
 
 	c.Dir = "/"

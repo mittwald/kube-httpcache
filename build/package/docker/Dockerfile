@@ -11,19 +11,13 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -a cmd/kube-httpcache/main.go
 
 
-FROM        centos:7 AS final
+FROM        centos:8 AS final
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
 WORKDIR     /
 
-RUN         yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-            yum install -y pygpgme yum-utils
-
-COPY        assets/varnish.repo /etc/yum.repos.d/varnishcache_varnish60.repo
-
-RUN         yum -q makecache -y --disablerepo='*' --enablerepo='varnishcache_varnish60' && \
-            yum install -y varnish
+RUN         yum install -y varnish varnish-modules net-tools
 
 COPY        --from=builder /workspace/kube-httpcache .
 
