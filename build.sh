@@ -22,5 +22,5 @@ git tag ${VERSION}
 git push --tags
 
 # docker build
-docker build -t re-docker-registry.ihrprod.net/kube-httpcache:${VERSION} .
+docker build -t re-docker-registry.ihrprod.net/kube-httpcache:${VERSION} -f build/package/docker/Dockerfile .
 docker push re-docker-registry.ihrprod.net/kube-httpcache:${VERSION}
