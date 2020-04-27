@@ -4,6 +4,9 @@ import (
 	"context"
 	"flag"
 	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/controller"
@@ -123,7 +126,21 @@ func main() {
 		panic(err)
 	}
 
-	err = varnishController.Run(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+
+	signals := make(chan os.Signal, 1)
+
+	signal.Notify(signals, syscall.SIGINT)
+	signal.Notify(signals, syscall.SIGTERM)
+
+	go func() {
+		s := <-signals
+
+		glog.Infof("received signal %s", s)
+		cancel()
+	}()
+
+	err = varnishController.Run(ctx)
 	if err != nil {
 		panic(err)
 	}

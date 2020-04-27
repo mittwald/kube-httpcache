@@ -48,6 +48,10 @@ func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd,
 			v.backend = newConfig
 
 			errors <- v.rebuildConfig(ctx, i)
+
+		case <-ctx.Done():
+			errors <- ctx.Err()
+			return
 		}
 	}
 }

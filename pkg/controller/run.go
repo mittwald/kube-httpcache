@@ -37,9 +37,11 @@ func (v *VarnishController) Run(ctx context.Context) error {
 		return err
 	}
 
-	cmd, errChan := v.startVarnish()
+	cmd, errChan := v.startVarnish(ctx)
 
-	v.waitForAdminPort(ctx)
+	if err := v.waitForAdminPort(ctx); err != nil {
+		return err
+	}
 
 	watchErrors := make(chan error)
 	go v.watchConfigUpdates(ctx, cmd, watchErrors)
@@ -55,8 +57,9 @@ func (v *VarnishController) Run(ctx context.Context) error {
 	return <-errChan
 }
 
-func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
-	c := exec.Command(
+func (v *VarnishController) startVarnish(ctx context.Context) (*exec.Cmd, <-chan error) {
+	c := exec.CommandContext(
+		ctx,
 		"varnishd",
 		"-F",
 		"-f", v.configFile,
