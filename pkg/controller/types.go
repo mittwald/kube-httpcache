@@ -34,6 +34,7 @@ type VarnishController struct {
 	configFile         string
 	secret             []byte
 	localAdminAddr     string
+	currentVCLName     string
 }
 
 func NewVarnishController(

@@ -24,6 +24,12 @@ github.com/json-iterator/go v1.1.5 h1:gL2yXlmiIo4+t+y32d4WGwOjKGYcGOuyrg46vadswD
 github.com/json-iterator/go v1.1.5/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/martin-helmich/go-varnish-client v0.1.0 h1:T8wkBqiKaWQ46Lv1yO8Z1Zkm0FXabqSLxdOULqTorUs=
 github.com/martin-helmich/go-varnish-client v0.1.0/go.mod h1:BPZwupDItHsp9jLWUCFtchhJoJlt1RIjWoPEfeWTRdI=
+github.com/martin-helmich/go-varnish-client v0.1.1-0.20200302071804-9c9194146dfe h1:N/W+nCm1pXD7BlGKpMgVYHrvpcctdBEzMNVAv1Q8Hf4=
+github.com/martin-helmich/go-varnish-client v0.1.1-0.20200302071804-9c9194146dfe/go.mod h1:BPZwupDItHsp9jLWUCFtchhJoJlt1RIjWoPEfeWTRdI=
+github.com/martin-helmich/go-varnish-client v0.2.0 h1:UNeB/8PQ+inkn1v57KLg2s3UkBc0QKBCeQs0qoh+ZoQ=
+github.com/martin-helmich/go-varnish-client v0.2.0/go.mod h1:BPZwupDItHsp9jLWUCFtchhJoJlt1RIjWoPEfeWTRdI=
+github.com/martin-helmich/go-varnish-client v0.2.1 h1:+NTZ+Io0dXMVrLJ534ABt8zr34sZop1fjt683qybmhg=
+github.com/martin-helmich/go-varnish-client v0.2.1/go.mod h1:mTUoKZn5fbP67YKPfKP2Zi8Y6A/+99B0oCQBFuHOhks=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9AWI=
