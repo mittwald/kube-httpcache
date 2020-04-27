@@ -11,7 +11,7 @@ import (
 	varnishclient "github.com/martin-helmich/go-varnish-client"
 )
 
-func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error) {
+func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd, errors chan<- error) {
 	i := 0
 
 	for {
@@ -29,7 +29,7 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 
 			v.vclTemplate = tmpl
 
-			errors <- v.rebuildConfig(i)
+			errors <- v.rebuildConfig(ctx, i)
 
 		case newConfig := <-v.frontendUpdates:
 			glog.Infof("received new frontend configuration: %+v", newConfig)
@@ -40,21 +40,20 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 				v.varnishSignaller.SetEndpoints(v.frontend)
 			}
 
-			errors <- v.rebuildConfig(i)
+			errors <- v.rebuildConfig(ctx, i)
 
 		case newConfig := <-v.backendUpdates:
 			glog.Infof("received new backend configuration: %+v", newConfig)
 
 			v.backend = newConfig
 
-			errors <- v.rebuildConfig(i)
+			errors <- v.rebuildConfig(ctx, i)
 		}
 	}
 }
 
-func (v *VarnishController) rebuildConfig(i int) error {
+func (v *VarnishController) rebuildConfig(ctx context.Context, i int) error {
 	buf := new(bytes.Buffer)
-	ctx := context.Background()
 
 	err := v.renderVCL(buf, v.frontend.Endpoints, v.frontend.Primary, v.backend.Endpoints, v.backend.Primary)
 	if err != nil {

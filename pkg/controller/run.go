@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,7 +10,7 @@ import (
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
-func (v *VarnishController) Run() error {
+func (v *VarnishController) Run(ctx context.Context) error {
 	glog.Infof("waiting for initial configuration before starting Varnish")
 
 	v.frontend = watcher.NewEndpointConfig()
@@ -38,10 +39,10 @@ func (v *VarnishController) Run() error {
 
 	cmd, errChan := v.startVarnish()
 
-	v.waitForAdminPort()
+	v.waitForAdminPort(ctx)
 
 	watchErrors := make(chan error)
-	go v.watchConfigUpdates(cmd, watchErrors)
+	go v.watchConfigUpdates(ctx, cmd, watchErrors)
 
 	go func() {
 		for err := range watchErrors {

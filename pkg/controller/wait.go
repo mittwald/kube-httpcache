@@ -8,9 +8,8 @@ import (
 	"time"
 )
 
-func (v *VarnishController) waitForAdminPort() {
+func (v *VarnishController) waitForAdminPort(ctx context.Context) {
 	glog.Infof("probing admin port until it is available")
-	ctx := context.Background()
 	addr := fmt.Sprintf("127.0.0.1:%d", v.AdminPort)
 
 	for {

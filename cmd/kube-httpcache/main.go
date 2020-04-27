@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 
@@ -122,7 +123,7 @@ func main() {
 		panic(err)
 	}
 
-	err = varnishController.Run()
+	err = varnishController.Run(context.Background())
 	if err != nil {
 		panic(err)
 	}
