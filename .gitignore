@@ -4,3 +4,5 @@
 dist
 *.vcl
 *.vcl.tmpl
+*.env
+*.docker-compose.override.yml
