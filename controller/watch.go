@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 	"text/template"
@@ -53,6 +54,7 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 
 func (v *VarnishController) rebuildConfig(i int) error {
 	buf := new(bytes.Buffer)
+	ctx := context.Background()
 
 	err := v.renderVCL(buf, v.frontend.Endpoints, v.frontend.Primary, v.backend.Endpoints, v.backend.Primary)
 	if err != nil {
@@ -62,24 +64,24 @@ func (v *VarnishController) rebuildConfig(i int) error {
 	vcl := buf.Bytes()
 	glog.V(8).Infof("new VCL: %s", string(vcl))
 
-	client, err := varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
+	client, err := varnishclient.DialTCP(ctx, fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
 	if err != nil {
 		return err
 	}
 
-	err = client.Authenticate(v.secret)
+	err = client.Authenticate(ctx, v.secret)
 	if err != nil {
 		return err
 	}
 
 	configname := fmt.Sprintf("k8s-upstreamcfg-%d", i)
 
-	err = client.DefineInlineVCL(configname, vcl, "auto")
+	err = client.DefineInlineVCL(ctx, configname, vcl, "auto")
 	if err != nil {
 		return err
 	}
 
-	err = client.UseVCL(configname)
+	err = client.UseVCL(ctx, configname)
 	if err != nil {
 		return err
 	}
@@ -88,7 +90,7 @@ func (v *VarnishController) rebuildConfig(i int) error {
 		v.currentVCLName = "boot"
 	}
 
-	if err := client.SetVCLState(v.currentVCLName, varnishclient.VCLStateCold); err != nil {
+	if err := client.SetVCLState(ctx, v.currentVCLName, varnishclient.VCLStateCold); err != nil {
 		glog.V(1).Infof("error while changing state of VCL %s: %s", v.currentVCLName, err)
 	}
 

@@ -13,7 +13,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
-	github.com/martin-helmich/go-varnish-client v0.1.1-0.20200302071804-9c9194146dfe
+	github.com/martin-helmich/go-varnish-client v0.2.1
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
@@ -31,4 +31,3 @@ require (
 	k8s.io/apimachinery v0.0.0-20181013010248-dcb88206cd7f
 	k8s.io/client-go v9.0.0+incompatible
 )
-

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang/glog"
 	"github.com/martin-helmich/go-varnish-client"
@@ -9,9 +10,11 @@ import (
 
 func (v *VarnishController) waitForAdminPort() {
 	glog.Infof("probing admin port until it is available")
+	ctx := context.Background()
+	addr := fmt.Sprintf("127.0.0.1:%d", v.AdminPort)
 
 	for {
-		_, err := varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
+		_, err := varnishclient.DialTCP(ctx, addr)
 		if err == nil {
 			glog.Infof("admin port is available")
 			return
