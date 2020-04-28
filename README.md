@@ -207,7 +207,6 @@ spec:
       - name: cache
         image: quay.io/spaces/kube-httpcache:stable
         imagePullPolicy: Always
-        restartPolicy: Always
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
@@ -228,6 +227,7 @@ spec:
         - name: secret
           mountPath: /etc/varnish/k8s-secret
       serviceAccountName: kube-httpcache  # when using RBAC
+      restartPolicy: Always
       env:
       - name: NAMESPACE
         valueFrom:
