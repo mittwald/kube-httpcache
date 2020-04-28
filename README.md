@@ -198,6 +198,9 @@ spec:
   replicas: 2
   updateStrategy:
     type: RollingUpdate
+  selector:
+    matchLabels:
+      app: cache
   template:
     metadata:
       labels:
