@@ -198,6 +198,9 @@ spec:
   replicas: 2
   updateStrategy:
     type: RollingUpdate
+  selector:
+    matchLabels:
+      app: cache
   template:
     metadata:
       labels:
@@ -207,7 +210,6 @@ spec:
       - name: cache
         image: quay.io/spaces/kube-httpcache:stable
         imagePullPolicy: Always
-        restartPolicy: Always
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
@@ -222,17 +224,18 @@ spec:
         - -varnish-secret-file=/etc/varnish/k8s-secret/secret
         - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
         - -varnish-storage=malloc,128M
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: template
           mountPath: /etc/varnish/tmpl
         - name: secret
           mountPath: /etc/varnish/k8s-secret
       serviceAccountName: kube-httpcache  # when using RBAC
-      env:
-      - name: NAMESPACE
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.namespace
+      restartPolicy: Always
       volumes:
       - name: template
         configMap:
