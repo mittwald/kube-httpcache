@@ -221,6 +221,11 @@ spec:
         - -varnish-secret-file=/etc/varnish/k8s-secret/secret
         - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
         - -varnish-storage=malloc,128M
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: template
           mountPath: /etc/varnish/tmpl
@@ -228,11 +233,6 @@ spec:
           mountPath: /etc/varnish/k8s-secret
       serviceAccountName: kube-httpcache  # when using RBAC
       restartPolicy: Always
-      env:
-      - name: NAMESPACE
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.namespace
       volumes:
       - name: template
         configMap:
