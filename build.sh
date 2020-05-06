@@ -7,7 +7,7 @@ if [ "${VERSION}" == "" ]; then
     echo "usage: $0 <version>"
 fi
 
-echo "Building cortex-proxyd ${VERSION}"
+echo "Building kube-httpcache ${VERSION}"
 
 # clean check
 STATUS=$(git status --porcelain)
