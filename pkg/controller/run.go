@@ -39,6 +39,7 @@ func (v *VarnishController) Run() error {
 	cmd, errChan := v.startVarnish()
 
 	v.waitForAdminPort()
+	v.startPrometheusVarnishExporter()
 
 	watchErrors := make(chan error)
 	go v.watchConfigUpdates(cmd, watchErrors)
@@ -79,4 +80,17 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 	}()
 
 	return c, r
+}
+
+func (v *VarnishController) startPrometheusVarnishExporter() {
+	c := exec.Command(
+		"prometheus_varnish_exporter",
+	)
+	c.Dir = "/"
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	go func() {
+		err := c.Run()
+		glog.Errorf("prometheus_varnish_exporter exited: %v", err)
+	}()
 }
