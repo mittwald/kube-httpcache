@@ -57,7 +57,7 @@ func (v *VarnishController) Run() error {
 
 func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 	c := exec.Command(
-		"varnishd",
+		"/opt/varnish/sbin/varnishd",
 		"-F",
 		"-f", v.configFile,
 		"-S", v.SecretFile,

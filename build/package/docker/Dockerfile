@@ -1,4 +1,5 @@
-FROM        golang:1.14 AS builder
+# build kube-httpcache go app
+FROM        golang:1.14 AS app-builder
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
@@ -8,20 +9,50 @@ COPY        . .
 
 RUN         CGO_ENABLED=0 GOOS=linux \
             go build \
-                -installsuffix cgo \
+                -mod=vendor \
                 -o kube-httpcache \
-                -a cmd/kube-httpcache/main.go
+                ./cmd/kube-httpcache/main.go
 
 
+# build varnish and vmods
+FROM        ubuntu:18.04 AS varnish-builder
+ENV         DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
+RUN         apt-get update
+RUN         apt-get install -y curl automake libtool python-docutils python3 python3-sphinx pkg-config libpcre++-dev libedit-dev vim
+COPY        varnish /root/
+
+# varnish 6.0.6
+RUN         (cd /root; tar zxf varnish-6.0.6.tgz)
+WORKDIR     /root/varnish-6.0.6
+RUN         ./configure --prefix=/opt/varnish
+RUN         make
+RUN         make install
+ENV         PKG_CONFIG_PATH=/opt/varnish/lib/pkgconfig
+
+# varnish-modules
+RUN         (cd /root; tar zxf varnish-modules-6.0-lts.tar.gz)
+WORKDIR     /root/varnish-modules-6.0-lts
+RUN         ./bootstrap
+RUN         ./configure --prefix=/opt/varnish
+RUN         make
+RUN         make install
+
+# libvmod-statsd
+RUN         (cd /root; tar zxf libvmod-statsd-varnish6.0.tar.gz)
+WORKDIR     /root/libvmod-statsd-varnish6.0
+RUN         ./autogen.sh
+RUN         ./configure --prefix=/opt/varnish
+RUN         make
+RUN         make install
+
+
+# final image
 FROM        ubuntu:18.04 AS final
 
 WORKDIR     /
-
-RUN         apt-get update && \
-            apt-get install -y varnish varnish-modules net-tools curl && \
-            rm -rf /var/lib/apt/lists/*
-
+RUN         apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+COPY        --from=varnish-builder /opt/varnish /opt/varnish/
+COPY        --from=app-builder /workspace/kube-httpcache .
 COPY        ./prometheus_varnish_exporter-1.5.2.linux-amd64/prometheus_varnish_exporter /usr/bin
-COPY        --from=builder /workspace/kube-httpcache .
 
 ENTRYPOINT  [ "/kube-httpcache" ]
