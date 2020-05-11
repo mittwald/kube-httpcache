@@ -50,9 +50,10 @@ RUN         make install
 FROM        ubuntu:18.04 AS final
 
 WORKDIR     /
-RUN         apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+RUN         apt-get update && apt-get install -y gcc libedit2 libpcre++ && rm -rf /var/lib/apt/lists/*
 COPY        --from=varnish-builder /opt/varnish /opt/varnish/
 COPY        --from=app-builder /workspace/kube-httpcache .
 COPY        ./prometheus_varnish_exporter-1.5.2.linux-amd64/prometheus_varnish_exporter /usr/bin
+ENV         PATH=/opt/varnish/bin:$PATH
 
 ENTRYPOINT  [ "/kube-httpcache" ]
