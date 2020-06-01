@@ -66,6 +66,11 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
 		"-a", ":6085",
 		"-a", ":6086,PROXY",
+		"-p", "http_max_hdr=96",
+		"-p", "http_req_size=100k",
+		"-p", "http_req_hdr_len=69k",
+		"-p", "http_resp_size=100k",
+		"-p", "http_resp_hdr_len=69k",
 	)
 
 	c.Dir = "/"
