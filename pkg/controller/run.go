@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
 	"os"
 	"os/exec"
 
@@ -61,12 +62,7 @@ func (v *VarnishController) startVarnish(ctx context.Context) (*exec.Cmd, <-chan
 	c := exec.CommandContext(
 		ctx,
 		"varnishd",
-		"-F",
-		"-f", v.configFile,
-		"-S", v.SecretFile,
-		"-s", v.Storage,
-		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
-		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
+		v.generateParameter()...
 	)
 
 	c.Dir = "/"
@@ -81,4 +77,23 @@ func (v *VarnishController) startVarnish(ctx context.Context) (*exec.Cmd, <-chan
 	}()
 
 	return c, r
+}
+
+func (v *VarnishController) generateParameter() []string {
+	args := []string{
+		"-F",
+		"-f", v.configFile,
+		"-S", v.SecretFile,
+		"-s", v.Storage,
+		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
+		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
+	}
+
+	if v.AdditionalParameter != "" {
+		for _, val := range strings.Split(v.AdditionalParameter, ",") {
+			args = append(args, "-p")
+			args = append(args, val)
+		}
+	}
+	return args
 }
