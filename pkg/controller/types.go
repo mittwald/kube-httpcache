@@ -17,12 +17,13 @@ type TemplateData struct {
 }
 
 type VarnishController struct {
-	SecretFile   string
-	Storage      string
-	FrontendAddr string
-	FrontendPort int
-	AdminAddr    string
-	AdminPort    int
+	SecretFile           string
+	Storage              string
+	AdditionalParameters string
+	FrontendAddr         string
+	FrontendPort         int
+	AdminAddr            string
+	AdminPort            int
 
 	vclTemplate        *template.Template
 	vclTemplateUpdates chan []byte
@@ -40,6 +41,7 @@ type VarnishController struct {
 func NewVarnishController(
 	secretFile string,
 	storage string,
+	additionalParameter string,
 	frontendAddr string,
 	frontendPort int,
 	adminAddr string,
@@ -66,19 +68,20 @@ func NewVarnishController(
 	}
 
 	return &VarnishController{
-		SecretFile:         secretFile,
-		Storage:            storage,
-		FrontendAddr:       frontendAddr,
-		FrontendPort:       frontendPort,
-		AdminAddr:          adminAddr,
-		AdminPort:          adminPort,
-		vclTemplate:        tmpl,
-		vclTemplateUpdates: templateUpdates,
-		frontendUpdates:    frontendUpdates,
-		backendUpdates:     backendUpdates,
-		varnishSignaller:   varnishSignaller,
-		configFile:         "/tmp/vcl",
-		secret:             secret,
+		SecretFile:           secretFile,
+		Storage:              storage,
+		AdditionalParameters: additionalParameter,
+		FrontendAddr:         frontendAddr,
+		FrontendPort:         frontendPort,
+		AdminAddr:            adminAddr,
+		AdminPort:            adminPort,
+		vclTemplate:          tmpl,
+		vclTemplateUpdates:   templateUpdates,
+		frontendUpdates:      frontendUpdates,
+		backendUpdates:       backendUpdates,
+		varnishSignaller:     varnishSignaller,
+		configFile:           "/tmp/vcl",
+		secret:               secret,
 	}, nil
 }
 

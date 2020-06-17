@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
@@ -61,12 +62,7 @@ func (v *VarnishController) startVarnish(ctx context.Context) (*exec.Cmd, <-chan
 	c := exec.CommandContext(
 		ctx,
 		"varnishd",
-		"-F",
-		"-f", v.configFile,
-		"-S", v.SecretFile,
-		"-s", v.Storage,
-		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
-		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
+		v.generateArgs()...,
 	)
 
 	c.Dir = "/"
@@ -81,4 +77,23 @@ func (v *VarnishController) startVarnish(ctx context.Context) (*exec.Cmd, <-chan
 	}()
 
 	return c, r
+}
+
+func (v *VarnishController) generateArgs() []string {
+	args := []string{
+		"-F",
+		"-f", v.configFile,
+		"-S", v.SecretFile,
+		"-s", v.Storage,
+		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
+		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
+	}
+
+	if v.AdditionalParameters != "" {
+		for _, val := range strings.Split(v.AdditionalParameters, ",") {
+			args = append(args, "-p")
+			args = append(args, val)
+		}
+	}
+	return args
 }
