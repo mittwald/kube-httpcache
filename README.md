@@ -1,9 +1,13 @@
 # Varnish on Kubernetes
 
-[![Build Status](https://travis-ci.org/mittwald/kube-httpcache.svg?branch=master)](https://travis-ci.org/mittwald/kube-httpcache)
-[![Docker Repository on Quay](https://quay.io/repository/mittwald/kube-httpcache/status "Docker Repository on Quay")](https://quay.io/repository/mittwald/kube-httpcache)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/mittwald/kube-httpcache/Test)
 
 This repository contains a controller that allows you to operate a [Varnish cache](https://varnish-cache.org/) on Kubernetes.
+
+---
+:warning: **COMPATIBILITY NOTICE**: As of version v0.3, the image tag name of this project was renamed from `quay.io/spaces/kube-httpcache` to `quay.io/mittwald/kube-httpcache`. The old image will remain available (for the time being), but only the new image name will receive any updates. **Please remember to adjust the image name when upgrading**.
+
+---
 
 ## Table of Contents
 
