@@ -1,0 +1,4 @@
+contact_links:
+  - name: Security issue
+    url: mailto:opensource@mittwald.de
+    about: Please reach out privately to discuss any potential security issues
