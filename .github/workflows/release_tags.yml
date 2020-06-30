@@ -1,0 +1,33 @@
+name: Release Tags
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build and release stable image
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      -
+        name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      -
+        name: Docker login
+        run: docker login -u "${{ secrets.QUAY_IO_USER }}" -p "${{ secrets.QUAY_IO_PASSWORD }}" quay.io
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist -f build/ci/.goreleaser.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_USER_TOKEN }}

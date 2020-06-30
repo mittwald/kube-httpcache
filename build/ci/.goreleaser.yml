@@ -27,16 +27,14 @@ changelog:
 dockers:
   -
     image_templates:
-      - quay.io/spaces/kube-httpcache:latest
-      - quay.io/spaces/kube-httpcache:v{{ .Major }}
-      - quay.io/spaces/kube-httpcache:v{{ .Major }}.{{ .Minor }}
-      - quay.io/spaces/kube-httpcache:{{ .Tag }}
-      - quay.io/spaces/kube-httpcache:stable
+      - quay.io/mittwald/kube-httpcache:latest
+      - quay.io/mittwald/kube-httpcache:v{{ .Major }}
+      - quay.io/mittwald/kube-httpcache:v{{ .Major }}.{{ .Minor }}
+      - quay.io/mittwald/kube-httpcache:{{ .Tag }}
+      - quay.io/mittwald/kube-httpcache:stable
     dockerfile: build/package/docker/GoReleaser.Dockerfile
     binaries:
       - kube-httpcache
-    extra_files:
-      - assets/varnish.repo
     goos: linux
     goarch: amd64
     goarm: ''

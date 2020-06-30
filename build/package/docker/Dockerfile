@@ -11,19 +11,34 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -a cmd/kube-httpcache/main.go
 
 
-FROM        centos:7 AS final
+FROM        debian:stretch-slim AS final
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
 WORKDIR     /
 
-RUN         yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-            yum install -y pygpgme yum-utils
-
-COPY        assets/varnish.repo /etc/yum.repos.d/varnishcache_varnish60.repo
-
-RUN         yum -q makecache -y --disablerepo='*' --enablerepo='varnishcache_varnish60' && \
-            yum install -y varnish
+RUN         set -x \
+            && \
+            apt-get -qq update && apt-get -qq upgrade \
+            && \
+            apt-get -qq install \
+                debian-archive-keyring \
+                curl \
+                gnupg \
+                apt-transport-https \
+            && \
+            curl -Ss -L https://packagecloud.io/varnishcache/varnish60lts/gpgkey | apt-key add - \
+            && \
+            printf "%s\n%s" \
+                "deb https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
+                "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
+            > "/etc/apt/sources.list.d/varnishcache_varnish60lts.list" \
+            && \
+            apt-get -qq update && apt-get -qq install varnish \
+            && \
+            apt-get -qq purge curl gnupg apt-transport-https && \
+            apt-get -qq autoremove && apt-get -qq autoclean && \
+            rm -rf /var/cache/*
 
 COPY        --from=builder /workspace/kube-httpcache .
 
