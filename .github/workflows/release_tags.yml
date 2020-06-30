@@ -1,0 +1,20 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build and release tagged image
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist -f build/ci/.goreleaser.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_USER_TOKEN }}

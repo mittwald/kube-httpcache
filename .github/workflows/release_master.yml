@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and release latest image
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Run GoReleaser
+        run: curl -sL https://git.io/goreleaser | bash -s -- -f build/ci/.goreleaser.yml --snapshot --skip-publish --rm-dist && docker push "quay.io/mittwald/kube-httpcache:latest"
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_USER_TOKEN }}
