@@ -217,12 +217,12 @@ spec:
         args:
         - -admin-addr=0.0.0.0
         - -admin-port=6083
-        - -signaller-enable=true
+        - -signaller-enable
         - -signaller-port=8090
-        - -frontend-watch=true
+        - -frontend-watch
         - -frontend-namespace=$(NAMESPACE)
         - -frontend-service=frontend-service
-        - -backend-watch=true
+        - -backend-watch
         - -backend-namespace=$(NAMESPACE)
         - -backend-service=backend-service
         - -varnish-secret-file=/etc/varnish/k8s-secret/secret
