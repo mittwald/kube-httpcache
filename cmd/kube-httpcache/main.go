@@ -24,7 +24,10 @@ func init() {
 }
 
 func main() {
-	opts.Parse()
+	if err := opts.Parse(); err != nil {
+		panic(err)	
+	}
+
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
