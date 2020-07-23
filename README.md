@@ -93,8 +93,14 @@ data:
     import std;
     import directors;
 
+    // ".Frontends" is a slice that contains all known Varnish instances
+    // (as selected by the service specified by -frontend-service).
+    // The backend name needs to be the Pod name, since this value is compared
+    // to the server identity ("server.identity" [1]) later.
+    //
+    //   [1]: https://varnish-cache.org/docs/6.4/reference/vcl.html#local-server-remote-and-client
     {{ range .Frontends }}
-    backend fe-{{ .Name }} {
+    backend {{ .Name }} {
         .host = "{{ .Host }}";
         .port = "{{ .Port }}";
     }
