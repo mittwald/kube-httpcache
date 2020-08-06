@@ -36,6 +36,8 @@ type VarnishController struct {
 	secret             []byte
 	localAdminAddr     string
 	currentVCLName     string
+
+	started chan struct{}
 }
 
 func NewVarnishController(
@@ -51,6 +53,7 @@ func NewVarnishController(
 	templateUpdates chan []byte,
 	varnishSignaller *signaller.Signaller,
 	vclTemplateFile string,
+	started chan struct{},
 ) (*VarnishController, error) {
 	contents, err := ioutil.ReadFile(vclTemplateFile)
 	if err != nil {
@@ -82,6 +85,7 @@ func NewVarnishController(
 		varnishSignaller:     varnishSignaller,
 		configFile:           "/tmp/vcl",
 		secret:               secret,
+		started:              started,
 	}, nil
 }
 
