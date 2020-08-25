@@ -189,7 +189,7 @@ If RBAC is enabled in your cluster, you will need to create a `ServiceAccount` w
 ```
 $ kubectl create serviceaccount kube-httpcache
 $ kubectl apply -f https://raw.githubusercontent.com/mittwald/kube-httpcache/master/deploy/kubernetes/rbac.yaml
-$ kubectl create rolebinding kube-httpcache --role=kube-httpcache --serviceaccount=kube-httpcache
+$ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --serviceaccount=kube-httpcache
 ```
 
 ### Deploy Varnish
