@@ -44,8 +44,6 @@ func (v *VarnishController) Run(ctx context.Context) error {
 		return err
 	}
 
-	close(v.started)
-
 	watchErrors := make(chan error)
 	go v.watchConfigUpdates(ctx, cmd, watchErrors)
 
