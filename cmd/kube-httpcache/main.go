@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
-	"github.com/mittwald/kube-httpcache/pkg/readiness"
 	"os"
 	"os/signal"
 	"syscall"
@@ -98,17 +97,6 @@ func main() {
 		}()
 	}
 
-	ready := make(chan struct{})
-	if opts.Readiness.Enable {
-		r := readiness.NewServer(opts.Readiness.Address, ready)
-
-		go func() {
-			if err := r.Run(); err != nil {
-				panic(err)
-			}
-		}()
-	}
-
 	go func() {
 		for {
 			select {
@@ -137,7 +125,6 @@ func main() {
 		templateUpdates,
 		varnishSignaller,
 		opts.Varnish.VCLTemplate,
-		ready,
 	)
 	if err != nil {
 		panic(err)
