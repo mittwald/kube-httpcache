@@ -22,7 +22,9 @@ This repository contains a controller that allows you to operate a [Varnish cach
   - [Create a Secret](#create-a-secret)
   - [[Optional] Configure RBAC roles](#optional-configure-rbac-roles)
   - [Deploy Varnish](#deploy-varnish)
-- [Using built in signaller component](#using-built-in-signaller-component)
+- [Detailed how-tos](#detailed-how-tos)
+  - [Using built in signaller component](#using-built-in-signaller-component)
+  - [Proxying to external services](#proxying-to-external-services)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -31,9 +33,9 @@ This repository contains a controller that allows you to operate a [Varnish cach
 This controller is not intended to be a replacement of a regular [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress/). Instead, it is intended to be used between your regular Ingress controller and your application's service.
 
 ```
-+---------+      +---------+      +-------------+
-| Ingress |----->| Varnish |----->| Application |
-+---------+      +---------+      +-------------+
+┌─────────┐      ┌─────────┐      ┌─────────────┐
+│ Ingress ├─────▶│ Varnish ├─────▶│ Application │
+└─────────┘      └─────────┘      └─────────────┘
 ```
 
 The Varnish controller needs the following prerequisites to run:
@@ -52,23 +54,23 @@ The controller does not ship with any preconfigured configuration; the upstream 
 It can run in high avalability mode using multiple Varnish and application pods.
 
 ```
-             +---------+
-             | Ingress |
-             +---------+
+             ┌─────────┐
+             │ Ingress │
+             └────┬────┘
                   |
-             +---------+
-             | Service |
-             +---------+
-               /     \
-+---------------+  +---------------+
-|   Varnish 1   |--|   Varnish 2   |
-|  Signaller 1  |--|  Signaller 2  |
-+---------------+  +---------------+
-          |      \/      |
-          |      /\      |
-+---------------+  +---------------+
-| Application 1 |  | Application 2 |
-+---------------+  +---------------+
+             ┌────┴────┐
+             │ Service │
+             └───┬┬────┘
+             ┌───┘└───┐
+┌────────────┴──┐  ┌──┴────────────┐
+│   Varnish 1   ├──┤   Varnish 2   │
+│  Signaller 1  ├──┤  Signaller 2  │
+└─────────┬┬────┘  └────┬┬─────────┘
+          │└─────┌──────┘│
+          │┌─────┘└─────┐│
+┌─────────┴┴────┐  ┌────┴┴─────────┐
+│ Application 1 │  | Application 2 │
+└───────────────┘  └───────────────┘
 ```
 
 The Signaller component supports broadcasting PURGE and BAN requests to all Varnish nodes.
@@ -77,7 +79,11 @@ The Signaller component supports broadcasting PURGE and BAN requests to all Varn
 
 ### Create a VCL template
 
-**SUBJECT TO CHANGE**
+<hr>
+
+:warning: **NOTE**: The current implementation (supplying a VCL template as `ConfigMap`) may still be subject to change. Future implementations might for example use a Kubernetes Custom Resource for the entire configuration set.
+
+<hr>
 
 Start by creating a `ConfigMap` that contains a VCL template:
 
@@ -196,116 +202,114 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
 
 1. Create a `StatefulSet` for the Varnish controller:
 
-```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: cache-statefulset
-  labels:
-    app: cache
-spec:
-  serviceName: cache-service
-  replicas: 2
-  updateStrategy:
-    type: RollingUpdate
-  selector:
-    matchLabels:
-      app: cache
-  template:
+    ```yaml
+    apiVersion: apps/v1
+    kind: StatefulSet
     metadata:
+      name: cache-statefulset
       labels:
         app: cache
     spec:
-      containers:
-      - name: cache
-        image: quay.io/mittwald/kube-httpcache:stable
-        imagePullPolicy: Always
-        args:
-        - -admin-addr=0.0.0.0
-        - -admin-port=6083
-        - -signaller-enable
-        - -signaller-port=8090
-        - -frontend-watch
-        - -frontend-namespace=$(NAMESPACE)
-        - -frontend-service=frontend-service
-        - -backend-watch
-        - -backend-namespace=$(NAMESPACE)
-        - -backend-service=backend-service
-        - -varnish-secret-file=/etc/varnish/k8s-secret/secret
-        - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
-        - -varnish-storage=malloc,128M
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        volumeMounts:
-        - name: template
-          mountPath: /etc/varnish/tmpl
-        - name: secret
-          mountPath: /etc/varnish/k8s-secret
-      serviceAccountName: kube-httpcache  # when using RBAC
-      restartPolicy: Always
-      volumes:
-      - name: template
-        configMap:
-          name: vcl-template
-      - name: secret
-        secret:
-          secretName: varnish-secret
-```
+      serviceName: cache-service
+      replicas: 2
+      updateStrategy:
+        type: RollingUpdate
+      selector:
+        matchLabels:
+          app: cache
+      template:
+        metadata:
+          labels:
+            app: cache
+        spec:
+          containers:
+          - name: cache
+            image: quay.io/mittwald/kube-httpcache:stable
+            imagePullPolicy: Always
+            args:
+            - -admin-addr=0.0.0.0
+            - -admin-port=6083
+            - -signaller-enable
+            - -signaller-port=8090
+            - -frontend-watch
+            - -frontend-namespace=$(NAMESPACE)
+            - -frontend-service=frontend-service
+            - -backend-watch
+            - -backend-namespace=$(NAMESPACE)
+            - -backend-service=backend-service
+            - -varnish-secret-file=/etc/varnish/k8s-secret/secret
+            - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
+            - -varnish-storage=malloc,128M
+            env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            volumeMounts:
+            - name: template
+              mountPath: /etc/varnish/tmpl
+            - name: secret
+              mountPath: /etc/varnish/k8s-secret
+          serviceAccountName: kube-httpcache  # when using RBAC
+          restartPolicy: Always
+          volumes:
+          - name: template
+            configMap:
+              name: vcl-template
+          - name: secret
+            secret:
+              secretName: varnish-secret
+    ```
+
+    **NOTE**: Using a `StatefulSet` is particularly important when using a stateful, self-routed Varnish cluster. Otherwise, you could also use a `Deployment` resource, instead.
 
 2. Create a service for the Varnish controller:
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: cache-service
-  labels:
-    app: cache
-spec:
-  ports:
-  - name: "http"
-    port: 80
-    targetPort: 80
-  - name: "signaller"
-    port: 8090
-    targetPort: 8090
-  selector:
-    app: cache
-```
+    ```yaml
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: cache-service
+      labels:
+        app: cache
+    spec:
+      ports:
+      - name: "http"
+        port: 80
+        targetPort: 80
+      - name: "signaller"
+        port: 8090
+        targetPort: 8090
+      selector:
+        app: cache
+    ```
 
-3. Create an ingress to forward requests to cache service. You may end up with two URLs: http://www.example.com, http://signaller.example.com. An Ingress for signaller is optional, if you choose to have it, make sure to limit access to it.
+3. Create an `Ingress` to forward requests to cache service. Typically, you should only need an Ingress for the Services `http` port, and not for the `signaller` port (if for some reason you do, make sure to implement proper access controls)
 
-## Using built in signaller component
+## Detailed how-tos
 
-To broadcast a BAN request to all Varnish endpoints, run:
+### Using built in signaller component
+
+The signaller component is responsible for broadcasting HTTP requests to all nodes of a Varnish cluster. This is useful in HA cluster setups, when `BAN` or `PURGE` requests should be broadcast across the entire cluster.
+
+To broadcast a `BAN` or `PURGE` request to all Varnish endpoints, run one of the following commands, respectively:
 
     $ curl -H "X-Url: /path" -X BAN http://cache-service:8090
-
-or
-
-    $ curl -H "X-Url: /path" -X BAN http://signaller.example.com
-
-To broadcast a PURGE request to all Varnish endpoints, run:
-
     $ curl -H "X-Host: www.example.com" -X PURGE http://cache-service:8090/path
 
-or
+When running from outside the cluster, you can use `kubectl port-forward` to forward the signaller port to your local machine (and then send your requests to `http://localhost:8090`):
 
-    $ curl -H "X-Host: www.example.com" -X PURGE http://signaller.example.com/path
+    $ kubectl port-forward service/cache-service 8090:8090
 
-Specific headers for PURGE/BAN requests depend on your Varnish configuration. E.g. `X-Host` header is set for convenience, because signaller is listening on other URL than Varnish. However, you need to suport such headers in your VCL.
+**NOTE:** Specific headers for `PURGE`/`BAN` requests depend on your Varnish configuration. E.g. `X-Host` header is set for convenience, because signaller is listening on other URL than Varnish. However, you need to support such headers in your VCL.
 
 ```vcl
-sub vcl_recv
-{
+sub vcl_recv {
   # ...
 
   # Purge logic
-  if ( req.method == "PURGE" ) {
-    if ( client.ip !~ privileged ) {
+  if (req.method == "PURGE") {
+    if (client.ip !~ privileged) {
       return (synth(403, "Not allowed."));
     }
     if (req.http.X-Host) {
@@ -315,8 +319,8 @@ sub vcl_recv
   }
 
   # Ban logic
-  if ( req.method == "BAN" ) {
-    if ( client.ip !~ privileged ) {
+  if (req.method == "BAN") {
+    if (client.ip !~ privileged) {
       return (synth(403, "Not allowed."));
     }
     if (req.http.Cache-Tags) {
@@ -333,3 +337,50 @@ sub vcl_recv
   # ...
 }
 ```
+
+### Proxying to external services
+
+<hr>
+
+**NOTE**: Native support for `ExternalName` services is a requested features. Have a look at [#39](https://github.com/mittwald/kube-httpcache/issues/39) if you're willing to help out.
+
+<hr>
+
+In some cases, you might want to cache content from a cluster-external resource. In this case, create a new Kubernetes service of type `ExternalName` for your backend:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: external-service.example
+```
+
+In your VCL template, you can then simply use this service as static backend (since there are no dynamic endpoints, you do not need to iterate over `.Backends` in your VCL template):
+
+```yaml
+kind: ConfigMap
+apiVersion: v1
+metadata: # [...]
+data:
+  default.vcl.tmpl: |
+    vcl 4.0;
+
+    {{ range .Frontends }}
+    backend {{ .Name }} {
+        .host = "{{ .Host }}";
+        .port = "{{ .Port }}";
+    }
+    {{- end }}
+
+    backend backend {
+        .host = "external-service.svc";
+    }
+
+    // ...
+```
+
+When starting kube-httpcache, remember to set the `--backend-watch=false` flag to disable watching the (non-existent) backend endpoints.
