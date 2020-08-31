@@ -342,7 +342,7 @@ sub vcl_recv {
 
 <hr>
 
-**NOTE**: Native support for `ExternalName` services is a requested features. Have a look at [#39](https://github.com/mittwald/kube-httpcache/issues/39) if you're willing to help out.
+**NOTE**: Native support for `ExternalName` services is a requested feature. Have a look at [#39](https://github.com/mittwald/kube-httpcache/issues/39) if you're willing to help out.
 
 <hr>
 
