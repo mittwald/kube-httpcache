@@ -2,10 +2,25 @@ package internal
 
 import (
 	"flag"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
 )
+
+type arrayFlags []string
+
+func (i *arrayFlags) String() string {
+	if i == nil {
+		return "(empty)"
+	}
+	return strings.Join(*i, ", ")
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
 
 type KubeHTTPProxyFlags struct {
 	Kubernetes struct {
@@ -46,6 +61,8 @@ type KubeHTTPProxyFlags struct {
 		Storage         string
 		VCLTemplate     string
 		VCLTemplatePoll bool
+		Addresses       arrayFlags
+		Parameters      arrayFlags
 	}
 }
 
@@ -83,6 +100,8 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Varnish.Storage, "varnish-storage", "file,/tmp/varnish-data,1G", "varnish storage config")
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")
 	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
+	flag.Var(&f.Varnish.Addresses, "varnish-address", "listen address for varnish (may be repeated)")
+	flag.Var(&f.Varnish.Parameters, "varnish-parameter", "parameter configs for varnish (may be repeated)")
 
 	flag.Parse()
 

@@ -56,21 +56,26 @@ func (v *VarnishController) Run() error {
 }
 
 func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
-	c := exec.Command(
-		"/opt/varnish/sbin/varnishd",
+	args := []string{
 		"-F",
 		"-f", v.configFile,
 		"-S", v.SecretFile,
 		"-s", v.Storage,
 		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
 		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
-		"-a", ":6085",
-		"-a", ":6086,PROXY",
-		"-p", "http_max_hdr=96",
-		"-p", "http_req_size=100k",
-		"-p", "http_req_hdr_len=69k",
-		"-p", "http_resp_size=100k",
-		"-p", "http_resp_hdr_len=69k",
+	}
+
+	for _, a := range v.addresses {
+		args = append(args, "-a", a)
+	}
+
+	for _, p := range v.parameters {
+		args = append(args, "-p", p)
+	}
+
+	c := exec.Command(
+		"/opt/varnish/sbin/varnishd",
+		args...,
 	)
 
 	c.Dir = "/"
