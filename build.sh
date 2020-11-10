@@ -18,7 +18,7 @@ if [ "${STATUS}" != "" ]; then
 fi
 
 # git tagging
-git tag ${VERSION}
+git tag "${VERSION}"
 git push --tags
 
 # docker build

@@ -2,9 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
-
 	"github.com/golang/glog"
+	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 	"github.com/mittwald/kube-httpcache/pkg/controller"
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
@@ -16,11 +15,11 @@ import (
 var opts internal.KubeHTTPProxyFlags
 
 func init() {
-	flag.Set("logtostderr", "true")
+	_ = flag.Set("logtostderr", "true")
 }
 
 func main() {
-	opts.Parse()
+	_ = opts.Parse()
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
@@ -117,6 +116,8 @@ func main() {
 		templateUpdates,
 		varnishSignaller,
 		opts.Varnish.VCLTemplate,
+		opts.Varnish.Addresses,
+		opts.Varnish.Parameters,
 	)
 	if err != nil {
 		panic(err)
