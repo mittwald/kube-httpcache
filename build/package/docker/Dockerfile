@@ -22,29 +22,21 @@ RUN         apt-get install -y curl automake libtool python-docutils python3 pyt
 COPY        varnish /root/
 
 # varnish 6.0.6
-RUN         (cd /root; tar zxf varnish-6.0.6.tgz)
-WORKDIR     /root/varnish-6.0.6
+RUN         (cd /root; tar zxf varnish-cache-varnish-6.5.1.tar.gz)
+WORKDIR     /root/varnish-cache-varnish-6.5.1
+RUN         ./autogen.sh
 RUN         ./configure --prefix=/opt/varnish
 RUN         make
 RUN         make install
 ENV         PKG_CONFIG_PATH=/opt/varnish/lib/pkgconfig
 
 # varnish-modules
-RUN         (cd /root; tar zxf varnish-modules-6.0-lts.tar.gz)
-WORKDIR     /root/varnish-modules-6.0-lts
+RUN         (cd /root; tar zxf varnish-modules-6.5.tar.gz)
+WORKDIR     /root/varnish-modules-6.5
 RUN         ./bootstrap
 RUN         ./configure --prefix=/opt/varnish
 RUN         make
 RUN         make install
-
-# libvmod-statsd
-RUN         (cd /root; tar zxf libvmod-statsd-varnish6.0.tar.gz)
-WORKDIR     /root/libvmod-statsd-varnish6.0
-RUN         ./autogen.sh
-RUN         ./configure --prefix=/opt/varnish
-RUN         make
-RUN         make install
-
 
 # final image
 FROM        ubuntu:18.04 AS final
