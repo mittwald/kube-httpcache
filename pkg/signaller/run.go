@@ -43,7 +43,7 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			b.errors <- err
 		}
-		request.Header = r.Header
+		request.Header = r.Header.Clone()
 		request.Host = r.Host
 		request.Header.Set("X-Forwarded-For", r.RemoteAddr)
 		b.signalQueue <- Signal{request, 0}
