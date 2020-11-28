@@ -269,7 +269,7 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
     apiVersion: v1
     kind: Service
     metadata:
-      name: cache-service
+      name: frontend-service
       labels:
         app: cache
     spec:
