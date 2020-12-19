@@ -93,7 +93,7 @@ ingress:
   #        backend:
   #          serviceName: kube-httpcache
   #          servicePort: 80
-#  tls: []
+  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
