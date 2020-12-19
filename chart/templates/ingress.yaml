@@ -1,8 +1,4 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := .Values.cache.frontendservice -}}
-{{- $servicePort := .Values.service.port -}}
-{{- $ingressPath := default "/" .Values.ingress.paths -}}
-
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
