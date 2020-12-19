@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.cache.configmapname }}
+data:
+  default.vcl.tmpl: |
+{{ .Files.Get .Values.cache.template | indent 4}}

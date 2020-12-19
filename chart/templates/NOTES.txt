@@ -1,0 +1,3 @@
+Ensure your backend-service has a port name 'http' and create an ingress
+point to the kube-httpcache service. Enjoy your Varnish cache!
+

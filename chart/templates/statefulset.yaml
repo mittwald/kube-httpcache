@@ -1,0 +1,88 @@
+{{- if .Values.statefulset.enabled -}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+  labels:
+    {{- include "kube-httpcache.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "kube-httpcache.fullname" . }}
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "kube-httpcache.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "kube-httpcache.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kube-httpcache.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - -admin-addr=0.0.0.0
+          - -admin-port=6083
+          - -signaller-enable
+          - -signaller-port=8090
+          - -frontend-watch
+          - -frontend-namespace=$(NAMESPACE)
+          - -frontend-service={{ .Values.cache.frontendservice }}
+          - -backend-watch
+          - -backend-namespace=$(NAMESPACE)
+          - -backend-service={{ .Values.cache.backendservice }}
+          - -varnish-secret-file=/etc/varnish/k8s-secret/secret
+          - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
+          - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
+          env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          volumeMounts:
+          - name: template
+            mountPath: /etc/varnish/tmpl
+          - name: secret
+            mountPath: /etc/varnish/k8s-secret
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6083
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: template
+        configMap:
+          name: {{ .Values.cache.configmapname }}
+      - name: secret
+        secret:
+          secretName: {{ .Values.cache.secretname}}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

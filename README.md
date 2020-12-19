@@ -25,6 +25,7 @@ This repository contains a controller that allows you to operate a [Varnish cach
 - [Detailed how-tos](#detailed-how-tos)
   - [Using built in signaller component](#using-built-in-signaller-component)
   - [Proxying to external services](#proxying-to-external-services)
+- [Helm Chart Intallation](#helm-chart-installation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -384,3 +385,47 @@ data:
 ```
 
 When starting kube-httpcache, remember to set the `--backend-watch=false` flag to disable watching the (non-existent) backend endpoints.
+
+## Helm Chart installation
+
+Using [HELM](chart/) to rollout an instance of kube-httpcache.
+
+Ensure your defined frontend and backend services have a port
+name `http`:
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  type: ClusterIP
+```
+
+An ingress points to the kube-httpcache service which cached 
+your backend service:
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  rules:
+  - host: www.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: kube-httpcache
+          servicePort: 80
+        path: /
+```
+
+Look at the [Varnish Go Template file](chart/varnish.tpl) to define
+your own Varnish cluster rules.
+

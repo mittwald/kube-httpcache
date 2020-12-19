@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+  labels:
+    {{- include "kube-httpcache.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.target }}
+      protocol: TCP
+    - name: "signaller"
+      port: 8090
+      targetPort: 8090
+  selector:
+    {{- include "kube-httpcache.selectorLabels" . | nindent 4 }}
