@@ -66,6 +66,27 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+extraInitContainers: {}
+# extraInitContainers: |
+  # - args:
+  #   - -c
+  #   - |
+  #     echo "Copying external varnish template from..."
+  #  command:
+  #  - sh
+  #  image: busybox:latest
+  #  imagePullPolicy: IfNotPresent
+  #  name: varnishtemplate
+  #  resources: {}
+  #  terminationMessagePath: /dev/termination-log
+  #  terminationMessagePolicy: File
+  #  volumeMounts:
+  #  - name: varnish-templates
+  #    mountPath: /etc/varnish/tmpl
+extraVolumes: {}
+# extraVolumes: |
+  # - emptyDir: {}
+  #   name: varnish-templates
 service:
   type: ClusterIP
   port: 80
