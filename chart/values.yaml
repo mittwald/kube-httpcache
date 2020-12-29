@@ -143,3 +143,10 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+livenessprobe: {}
+# livenessprobe: |
+  # httpGet:
+  #   path: /
+  #   port: 6083
+readinessprobe: {}

@@ -66,12 +66,22 @@ spec:
             mountPath: /etc/varnish/tmpl
           - name: secret
             mountPath: /etc/varnish/k8s-secret
+          {{- if .Values.livenessprobe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: 6083
+            {{- with .Values.livenessprobe }}
+            {{- tpl . $ | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.readinessprobe }}
+          readinessProbe:
+            {{- with .Values.readinessprobe }}
+            {{- tpl . $ | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.resources }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
       volumes:
       - name: template
         configMap:
