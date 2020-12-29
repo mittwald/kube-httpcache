@@ -20,6 +20,11 @@ statefulset:
 deployment:
   enabled: false
 
+# Enable configMap for Varnish Template File
+# Otherwise use extravolume if the file is too big
+configmap:
+  enabled: true
+
 # kube-httpcache specific configuration
 cache:
   # name of frontend service
@@ -86,12 +91,12 @@ extraInitContainers: {}
   #  terminationMessagePath: /dev/termination-log
   #  terminationMessagePolicy: File
   #  volumeMounts:
-  #  - name: varnish-templates
+  #  - name: template
   #    mountPath: /etc/varnish/tmpl
 extraVolumes: {}
 # extraVolumes: |
   # - emptyDir: {}
-  #   name: varnish-templates
+  #   name: template
 service:
   type: ClusterIP
   port: 80

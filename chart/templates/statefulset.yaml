@@ -88,9 +88,11 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
       volumes:
+     {{- if .Values.configmap.enabled }}
       - name: template
         configMap:
           name: {{ .Values.cache.configmapname }}
+     {{- end }}
       - name: secret
         secret:
           secretName: {{ .Values.cache.secretname}}
