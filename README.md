@@ -427,5 +427,5 @@ spec:
 ```
 
 Look at the [Varnish Go Template file](chart/varnish.tpl) to define
-your own Varnish cluster rules.
+your own Varnish cluster rules or load the file as initContainer.
 
