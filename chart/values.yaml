@@ -37,6 +37,11 @@ cache:
   # File name for Varnish template
   template: varnish.tpl
 
+cacheextraargs: {}
+# cacheextraargs: |
+  # - -v=8
+  # - -varnish-additional-parameters=vcc_allow_inline_c=on
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
