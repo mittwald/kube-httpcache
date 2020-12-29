@@ -1,3 +1,4 @@
+{{- if .Values.configmap.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,3 +6,4 @@ metadata:
 data:
   default.vcl.tmpl: |
 {{ .Files.Get .Values.cache.template | indent 4}}
+{{- end }}

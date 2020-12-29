@@ -56,6 +56,11 @@ spec:
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
           - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
+          {{- if .Values.cacheextraargs -}}
+          {{- with .Values.cacheextraargs -}}
+          {{- tpl . $ | nindent 10 }}
+          {{- end -}}
+          {{- end -}}
           env:
           - name: NAMESPACE
             valueFrom:
@@ -66,16 +71,28 @@ spec:
             mountPath: /etc/varnish/tmpl
           - name: secret
             mountPath: /etc/varnish/k8s-secret
+          {{- if .Values.livenessprobe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: 6083
+            {{- with .Values.livenessprobe -}}
+            {{- tpl . $ | trim | nindent 12 }}
+            {{- end -}}
+          {{- end }}
+          {{- if .Values.readinessprobe }}
+          readinessProbe:
+            {{- with .Values.readinessprobe }}
+            {{- tpl . $ | trim | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.resources }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
       volumes:
+     {{- if .Values.configmap.enabled }}
       - name: template
         configMap:
           name: {{ .Values.cache.configmapname }}
+     {{- end }}
       - name: secret
         secret:
           secretName: {{ .Values.cache.secretname}}
