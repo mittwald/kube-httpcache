@@ -56,11 +56,11 @@ spec:
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
           - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
-          {{- if .Values.cacheextraargs -}}
-          {{- with .Values.cacheextraargs -}}
+          {{- if .Values.cacheextraargs }}
+          {{- with .Values.cacheextraargs }}
           {{- tpl . $ | trim | nindent 10 }}
-          {{- end -}}
-          {{- end -}}
+          {{- end }}
+          {{- end }}
           env:
           - name: NAMESPACE
             valueFrom:
@@ -73,7 +73,7 @@ spec:
             mountPath: /etc/varnish/k8s-secret
           {{- if .Values.extraMounts }}
             {{- with .Values.extraMounts }}
-            {{- tpl . $ | nindent 10 }}
+            {{- tpl . $ | trim | nindent 10 }}
             {{- end }}
           {{- end }}
           {{- if .Values.livenessprobe }}
