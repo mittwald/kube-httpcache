@@ -15,10 +15,10 @@ fullnameOverride: ""
 
 # Enable StatefulSet or Deployment
 statefulset:
-  enabled: true
+  enabled: false
 
 deployment:
-  enabled: false
+  enabled: true
 
 # Enable configMap for Varnish Template File
 # Otherwise use extravolume if the file is too big
@@ -93,10 +93,17 @@ extraInitContainers: {}
   #  volumeMounts:
   #  - name: template
   #    mountPath: /etc/varnish/tmpl
+
 extraVolumes: {}
 # extraVolumes: |
   # - emptyDir: {}
   #   name: template
+
+extraMounts: {}
+# extraMounts: |
+  # - name: geoip
+  #   mountPath: /var/lib/geoip
+
 service:
   type: ClusterIP
   port: 80
@@ -157,6 +164,6 @@ affinity: {}
 livenessprobe: {}
 # livenessprobe: |
   # httpGet:
-  #   path: /
-  #   port: 6083
+  #  path: /
+  #  port: 6083
 readinessprobe: {}

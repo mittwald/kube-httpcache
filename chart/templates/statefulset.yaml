@@ -58,7 +58,7 @@ spec:
           - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
           {{- if .Values.cacheextraargs -}}
           {{- with .Values.cacheextraargs -}}
-          {{- tpl . $ | nindent 10 }}
+          {{- tpl . $ | trim | nindent 10 }}
           {{- end -}}
           {{- end -}}
           env:
@@ -71,9 +71,14 @@ spec:
             mountPath: /etc/varnish/tmpl
           - name: secret
             mountPath: /etc/varnish/k8s-secret
+          {{- if .Values.extraMounts }}
+            {{- with .Values.extraMounts }}
+            {{- tpl . $ | nindent 10 }}
+            {{- end }}
+          {{- end }}
           {{- if .Values.livenessprobe }}
           livenessProbe:
-            {{- with .Values.livenessprobe -}}
+            {{- with .Values.livenessprobe }}
             {{- tpl . $ | trim | nindent 12 }}
             {{- end -}}
           {{- end }}
