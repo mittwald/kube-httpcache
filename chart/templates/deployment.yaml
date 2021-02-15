@@ -71,7 +71,7 @@ spec:
           name: {{ .Values.cache.configmapname }}
       - name: secret
         secret:
-          secretName: {{ .Values.cache.secretname}}
+          secretName: {{ include "kube-httpcache.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
