@@ -37,8 +37,8 @@ cache:
   storagesize: 128M # K(ibibytes), M(ebibytes), G(ibibytes), T(ebibytes) ... unlimited
   # ConfigMap name for Varnish template
   configmapname: vcl-template
-  # Secret Name for Varnish admin credentials
-  secretname: varnish-secret
+  # Secret for Varnish admin credentials
+  #secret: "12345678"
   # File name for Varnish template
   template: varnish.tpl
 
