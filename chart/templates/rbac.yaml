@@ -1,4 +1,4 @@
-{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.enabled -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -13,7 +13,7 @@ rules:
   verbs:
   - watch
   - get
-{{- if .Values.podsecuritypolicy.enabled -}}
+{{- if .Values.podSecurityPolicy.enabled -}}
 - apiGroups:
   - ""
   resources:
@@ -25,7 +25,7 @@ rules:
 - apiGroups:
   - extensions
   resourceNames:
-  - {{ .Values.podsecuritypolicy.name }}
+  - {{ .Values.podSecurityPolicy.name }}
   resources:
   - podsecuritypolicies
   verbs:

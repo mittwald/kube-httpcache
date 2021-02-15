@@ -67,8 +67,8 @@ spec:
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
           - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
-          {{- if .Values.cacheextraargs }}
-            {{- with .Values.cacheextraargs }}
+          {{- if .Values.cacheExtraArgs }}
+            {{- with .Values.cacheExtraArgs }}
             {{- tpl . $ | trim | nindent 10 }}
             {{- end }}
           {{- end }}
@@ -95,7 +95,7 @@ spec:
       {{- if .Values.configmap.enabled }}
       - name: template
         configMap:
-          name: {{ .Values.cache.configmapname }}
+          name: {{ include "kube-httpcache.fullname" . }}
       {{- end }}
       - name: secret
         secret:

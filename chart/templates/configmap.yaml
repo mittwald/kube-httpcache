@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.cache.configmapname }}
+  name: {{ include "kube-httpcache.fullname" . }}
 data:
   default.vcl.tmpl: |
-{{ .Files.Get .Values.cache.template | indent 4}}
+{{ .Values.defaultConfig | indent 4}}
 {{- end }}

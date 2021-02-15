@@ -390,7 +390,7 @@ When starting kube-httpcache, remember to set the `--backend-watch=false` flag t
 
 Using [HELM](chart/) to rollout an instance of kube-httpcache.
 
-Ensure your defined frontend and backend services have a port
+Ensure your defined backen services have a port
 name `http`:
 
 ```
@@ -411,7 +411,7 @@ An ingress points to the kube-httpcache service which cached
 your backend service:
 
 ```
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-ingress
@@ -421,11 +421,15 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: kube-httpcache
-          servicePort: 80
+          service:
+            name: kube-httpcache
+            port:
+              number: 80
         path: /
+        pathType: Prefix
 ```
 
-Look at the [Varnish Go Template file](chart/varnish.tpl) to define
-your own Varnish cluster rules or load the file as initContainer.
+Look at the `defaultConf` property in [chart/values.yaml](chart/values.yaml) to define
+your own Varnish cluster rules or load with `extraVolume` an extra file
+as initContainer if your ruleset is really big.
 
