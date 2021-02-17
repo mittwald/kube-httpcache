@@ -1,4 +1,4 @@
-{{- if .Values.statefulset.enabled -}}
+{{- if .Values.useStatefulset.enabled -}}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -30,9 +30,9 @@ spec:
       serviceAccountName: {{ include "kube-httpcache.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.extraInitContainers }}
+      {{- if .Values.initContainers }}
       initContainers:
-        {{- with .Values.extraInitContainers }}
+        {{- with .Values.initContainers }}
         {{- tpl . $ | nindent 8 }}
         {{- end }}
       {{- end }}
@@ -48,14 +48,14 @@ spec:
           - -signaller-enable
           - -signaller-port=8090
           - -frontend-watch
-          - -frontend-namespace=$(NAMESPACE)
-          - -frontend-service={{ .Values.cache.frontendservice }}
+          - -frontend-namespace={{ "$(NAMESPACE)" }}
+          - -frontend-service={{ include "kube-httpcache.fullname" . }}
           - -backend-watch
-          - -backend-namespace=$(NAMESPACE)
-          - -backend-service={{ .Values.cache.backendservice }}
+          - -backend-namespace={{ .Values.cache.backendServiceNamespace | default "$(NAMESPACE)" }}
+          - -backend-service={{ .Values.cache.backendService }}
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
-          - -varnish-storage={{ .Values.cache.varnishstorage }},{{ .Values.cache.storagesize }}
+          - -varnish-storage={{ .Values.cache.varnishStorage }},{{ .Values.cache.storageSize }}
           {{- if .Values.cacheExtraArgs }}
           {{- with .Values.cacheExtraArgs }}
           {{- tpl . $ | trim | nindent 10 }}
@@ -72,21 +72,15 @@ spec:
           - name: secret
             mountPath: /etc/varnish/k8s-secret
           {{- if .Values.extraMounts }}
-            {{- with .Values.extraMounts }}
-            {{- tpl . $ | trim | nindent 10 }}
-            {{- end }}
+            {{- toYaml .Values.extraMounts | nindent 10 }}
           {{- end }}
-          {{- if .Values.livenessprobe }}
+          {{- if .Values.livenessProbe }}
           livenessProbe:
-            {{- with .Values.livenessprobe }}
-            {{- tpl . $ | trim | nindent 12 }}
-            {{- end -}}
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           {{- end }}
-          {{- if .Values.readinessprobe }}
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            {{- with .Values.readinessprobe }}
-            {{- tpl . $ | trim | nindent 12 }}
-            {{- end }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
           {{- if .Values.resources }}
           resources:
@@ -102,9 +96,7 @@ spec:
         secret:
           secretName: {{ include "kube-httpcache.fullname" . }}
       {{- if .Values.extraVolumes }}
-      {{- with .Values.extraVolumes }}
-      {{- tpl . $ | nindent 6 }}
-      {{- end }}
+      {{- toYaml .Values.extraVolumes | nindent 6 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

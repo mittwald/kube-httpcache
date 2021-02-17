@@ -5,5 +5,5 @@ metadata:
   name: {{ include "kube-httpcache.fullname" . }}
 data:
   default.vcl.tmpl: |
-{{ .Values.defaultConfig | indent 4}}
+{{ .Values.vclTemplate | indent 4}}
 {{- end }}
