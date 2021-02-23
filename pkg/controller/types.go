@@ -3,6 +3,8 @@ package controller
 import (
 	"io"
 	"io/ioutil"
+	"os"
+	"strings"
 	"text/template"
 
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
@@ -14,6 +16,7 @@ type TemplateData struct {
 	PrimaryFrontend *watcher.Endpoint
 	Backends        watcher.EndpointList
 	PrimaryBackend  *watcher.Endpoint
+	Env             map[string]string
 }
 
 type VarnishController struct {
@@ -85,12 +88,22 @@ func NewVarnishController(
 	}, nil
 }
 
+func getEnvironment() map[string]string {
+	items := make(map[string]string)
+	for _, e := range os.Environ() {
+		pair := strings.SplitN(e, "=", 2)
+		items[pair[0]] = pair[1]
+	}
+	return items
+}
+
 func (v *VarnishController) renderVCL(target io.Writer, frontendList watcher.EndpointList, primaryFrontend *watcher.Endpoint, backendList watcher.EndpointList, primaryBackend *watcher.Endpoint) error {
 	err := v.vclTemplate.Execute(target, &TemplateData{
 		Frontends:       frontendList,
 		PrimaryFrontend: primaryFrontend,
 		Backends:        backendList,
 		PrimaryBackend:  primaryBackend,
+		Env:             getEnvironment(),
 	})
 
 	return err

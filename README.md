@@ -180,6 +180,10 @@ data:
     # ...
 ```
 
+Environment variables can be used from the template. `{{ .Env.ENVVAR }}` is replaced with the
+environment variable value. This can be used to set for example the Host-header for the external 
+service.
+
 ### Create a Secret
 
 Create a `Secret` object that contains the secret for the Varnish administration port:
