@@ -47,7 +47,7 @@ spec:
           {{- end }}
           {{- if .Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml .Values.readiessProbe | nindent 12 }}
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
           args:
           - -admin-addr=0.0.0.0

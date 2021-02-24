@@ -214,7 +214,6 @@ vclTemplate: |
   {
       # Set backend hint for non cachable objects.
       set req.backend_hint = lb.backend();
-      set req.backend_hint = lb.backend();
   
       # ...
   

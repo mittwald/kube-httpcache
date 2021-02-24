@@ -429,7 +429,6 @@ spec:
         pathType: Prefix
 ```
 
-Look at the `defaultConf` property in [chart/values.yaml](chart/values.yaml) to define
+Look at the `vclTemplate` property in [chart/values.yaml](chart/values.yaml) to define
 your own Varnish cluster rules or load with `extraVolume` an extra file
 as initContainer if your ruleset is really big.
-
