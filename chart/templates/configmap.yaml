@@ -1,0 +1,9 @@
+{{- if .Values.configmap.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+data:
+  default.vcl.tmpl: |
+{{ .Values.vclTemplate | indent 4}}
+{{- end }}

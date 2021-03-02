@@ -1,0 +1,48 @@
+{{- if .Values.rbac.enabled -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - pods
+  verbs:
+  - watch
+  - get
+{{- if .Values.podSecurityPolicy.enabled -}}
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - pods
+  verbs:
+  - watch
+  - get
+- apiGroups:
+  - extensions
+  resourceNames:
+  - {{ .Values.podSecurityPolicy.name }}
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    {{- include "kube-httpcache.labels" . | nindent 4 }}
+  name: {{ include "kube-httpcache.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "kube-httpcache.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kube-httpcache.serviceAccountName" . }}
+{{- end }}

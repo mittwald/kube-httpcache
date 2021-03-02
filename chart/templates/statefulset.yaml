@@ -1,0 +1,113 @@
+{{- if .Values.useStatefulset.enabled -}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+  labels:
+    {{- include "kube-httpcache.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "kube-httpcache.fullname" . }}
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "kube-httpcache.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "kube-httpcache.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kube-httpcache.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initContainers }}
+      initContainers:
+        {{- with .Values.initContainers }}
+        {{- tpl . $ | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - -admin-addr=0.0.0.0
+          - -admin-port=6083
+          - -signaller-enable
+          - -signaller-port=8090
+          - -frontend-watch
+          - -frontend-namespace={{ "$(NAMESPACE)" }}
+          - -frontend-service={{ include "kube-httpcache.fullname" . }}
+          - -backend-watch
+          - -backend-namespace={{ .Values.cache.backendServiceNamespace | default "$(NAMESPACE)" }}
+          - -backend-service={{ .Values.cache.backendService }}
+          - -varnish-secret-file=/etc/varnish/k8s-secret/secret
+          - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
+          - -varnish-storage={{ .Values.cache.varnishStorage }},{{ .Values.cache.storageSize }}
+          {{- if .Values.cacheExtraArgs }}
+          {{- with .Values.cacheExtraArgs }}
+          {{- tpl . $ | trim | nindent 10 }}
+          {{- end }}
+          {{- end }}
+          env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          volumeMounts:
+          - name: template
+            mountPath: /etc/varnish/tmpl
+          - name: secret
+            mountPath: /etc/varnish/k8s-secret
+          {{- if .Values.extraMounts }}
+            {{- toYaml .Values.extraMounts | nindent 10 }}
+          {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+      volumes:
+     {{- if .Values.configmap.enabled }}
+      - name: template
+        configMap:
+          name: {{ include "kube-httpcache.fullname" . }}
+     {{- end }}
+      - name: secret
+        secret:
+          secretName: {{ include "kube-httpcache.fullname" . }}
+      {{- if .Values.extraVolumes }}
+      {{- toYaml .Values.extraVolumes | nindent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

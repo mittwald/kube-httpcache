@@ -1,0 +1,233 @@
+# Default values for kube-httpcache.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: quay.io/mittwald/kube-httpcache
+  pullPolicy: IfNotPresent
+  tag: "stable"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Enable StatefulSet (Deployment is default)
+useStatefulset:
+  enabled: true
+
+# Enable configMap for Varnish Template File (see below vclTemplate)
+# OR use extravolume with name "template" if the file is too big
+configmap:
+  enabled: true
+
+# kube-httpcache specific configuration
+cache:
+  # name of backend service
+  backendService: backend-service
+  # name of backend service namespace
+  # backendServiceNamespace: backend-service-namespace
+  # Varnish storage backend type (https://varnish-cache.org/docs/trunk/users-guide/storage-backends.html)
+  varnishStorage: malloc # default,malloc,umem,file...
+  # Varnish storage backend size
+  storageSize: 128M # K(ibibytes), M(ebibytes), G(ibibytes), T(ebibytes) ... unlimited
+  # Secret for Varnish admin credentials
+  #secret: "12345678"
+  # File name for Varnish template
+  template: varnish.tpl
+
+cacheExtraArgs: {}
+# cacheExtraArgs: |
+  # - -v=8
+  # - -varnish-additional-parameters=vcc_allow_inline_c=on
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  enabled: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rbac:
+  enabled: true
+
+podSecurityPolicy:
+  enabled: false
+  # name: unrestricted-psp
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+initContainers: {}
+# initContainers: |
+#   - args:
+#     - -c
+#     - |
+#       echo "Copying external varnish template from..."
+#     command:
+#     - sh
+#     image: busybox:latest
+#     imagePullPolicy: IfNotPresent
+#     name: varnishtemplate
+#     resources: {}
+#     terminationMessagePath: /dev/termination-log
+#     terminationMessagePolicy: File
+#     volumeMounts:
+#     - name: template
+#       mountPath: /etc/varnish/tmpl
+#
+extraVolumes: {}
+# extraVolumes:
+#   - emptyDir: {}
+#     name: template
+
+extraMounts: {}
+# extraMounts:
+#   - name: geoip
+#     mountPath: /var/lib/geoip
+
+service:
+  type: ClusterIP
+  port: 80
+  target: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts: []
+  # hosts:
+  #   - host: www.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  #         backend:
+  #           service:
+  #             name: kube-httpcache
+  #             port:
+  #               number: 80
+  #       - path: /backend
+  #         backend:
+  #           name: backend-service
+  #           port:
+  #             number: 8080
+  #   - host: www2.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  #         backend:
+  #           name: kube-httpcache
+  #           port:
+  #             number: 80
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+livenessProbe: {}
+# livenessProbe:
+#   httpGet:
+#    path: /
+#    port: 6083
+readinessProbe: {}
+
+vclTemplate: |
+  vcl 4.0;
+  
+  import std;
+  import directors;
+  
+  // ".Frontends" is a slice that contains all known Varnish instances
+  // (as selected by the service specified by -frontend-service).
+  // The backend name needs to be the Pod name, since this value is compared
+  // to the server identity ("server.identity" [1]) later.
+  //
+  //   [1]: https://varnish-cache.org/docs/6.4/reference/vcl.html#local-server-remote-and-client
+  {{ range .Frontends }}
+  backend {{ .Name }} {
+      .host = "{{ .Host }}";
+      .port = "{{ .Port }}";
+  }
+  {{- end }}
+  
+  {{ range .Backends }}
+  backend be-{{ .Name }} {
+      .host = "{{ .Host }}";
+      .port = "{{ .Port }}";
+  }
+  {{- end }}
+  
+  sub vcl_init {
+      new cluster = directors.hash();
+  
+      {{ range .Frontends -}}
+      cluster.add_backend({{ .Name }}, 1);
+      {{ end }}
+  
+      new lb = directors.round_robin();
+  
+      {{ range .Backends -}}
+      lb.add_backend(be-{{ .Name }});
+      {{ end }}
+  }
+  
+  sub vcl_recv
+  {
+      # Set backend hint for non cachable objects.
+      set req.backend_hint = lb.backend();
+  
+      # ...
+  
+      # Routing logic. Pass a request to an appropriate Varnish node.
+      # See https://info.varnish-software.com/blog/creating-self-routing-varnish-cluster for more info.
+      unset req.http.x-cache;
+      set req.backend_hint = cluster.backend(req.url);
+      set req.http.x-shard = req.backend_hint;
+      if (req.http.x-shard != server.identity) {
+          return(pass);
+      }
+      set req.backend_hint = lb.backend();
+  
+      # ...
+  
+      return(hash);
+  }

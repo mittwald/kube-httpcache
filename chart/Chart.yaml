@@ -1,0 +1,8 @@
+name: kube-httpcache
+description: Varnish on Kubernetes Helm Chart
+version: 0.0.1
+appVersion: 0.0.1
+home: https://varnish-cache.org
+icon: https://varnish-cache.org/_static/varnish-bunny.png
+sources:
+  - https://github.com/mittwald/kube-httpcache
