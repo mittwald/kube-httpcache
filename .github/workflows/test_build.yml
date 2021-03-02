@@ -1,8 +1,32 @@
 name: Test
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
 
 jobs:
+  verify_helm:
+    name: Verify Helm chart
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        helm: [ '3.1.2' ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Helm
+        run: |
+          wget https://get.helm.sh/helm-v${{ matrix.helm }}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+          tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
+          chmod +x /tmp/helm
+      - name: Test template rendering
+        run: /tmp/helm template ./chart/.
+
+      - name: Lint chart
+        run: /tmp/helm lint ./chart/
+
   build:
     name: Build
     runs-on: ubuntu-latest
