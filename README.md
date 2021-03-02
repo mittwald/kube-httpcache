@@ -392,10 +392,15 @@ When starting kube-httpcache, remember to set the `--backend-watch=false` flag t
 
 ## Helm Chart installation
 
-Using [HELM](chart/) to rollout an instance of kube-httpcache.
+You can use the [Helm chart](chart/) to rollout an instance of kube-httpcache:
 
-Ensure your defined backen services have a port
-name `http`:
+```
+$ helm install -f your-values.yaml kube-httpcache ./chart
+```
+
+For possible values, have a look at the comments in the provided [`values.yaml` file](./chart/values.yaml).
+
+Ensure your defined backend services have a port named `http`:
 
 ```
 apiVersion: v1
