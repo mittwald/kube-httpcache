@@ -77,6 +77,13 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 
 				addresses = append(addresses, a)
 			}
+
+			if len(addresses) == 0 {
+				glog.Warningf("service '%s' has no endpoint that is ready", v.serviceName)
+				v.endpointConfig = NewEndpointConfig()
+				continue
+			}
+
 			endpoint.Subsets[0].Addresses = addresses
 
 			newConfig := NewEndpointConfig()
