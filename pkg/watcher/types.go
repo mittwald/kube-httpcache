@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"github.com/golang/glog"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -31,6 +32,7 @@ type EndpointWatcher struct {
 }
 
 func NewEndpointWatcher(client kubernetes.Interface, namespace, serviceName, portName string, retryBackoff time.Duration) *EndpointWatcher {
+	glog.Info("NewEndpointWatcher namespace=%v serviceName=%v portName=%v", namespace, serviceName, portName)
 	return &EndpointWatcher{
 		client:         client,
 		namespace:      namespace,

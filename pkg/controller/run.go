@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
@@ -52,6 +54,13 @@ func (v *VarnishController) Run() error {
 		}
 	}()
 
+	go func() {
+		for {
+			glog.Infof("NumGoroutine=%v", runtime.NumGoroutine())
+			<-time.After(5 * time.Second)
+		}
+	}()
+
 	return <-errChan
 }
 
@@ -74,7 +83,7 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 	}
 
 	c := exec.Command(
-		"/opt/varnish/sbin/varnishd",
+		v.Executable,
 		args...,
 	)
 

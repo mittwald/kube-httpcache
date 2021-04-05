@@ -21,9 +21,11 @@ func (v *EndpointWatcher) Run() (chan *EndpointConfig, chan error) {
 
 func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error) {
 	for {
-		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(metav1.ListOptions{
+		options := metav1.ListOptions{
 			FieldSelector: fields.OneTermEqualSelector("metadata.name", v.serviceName).String(),
-		})
+		}
+		glog.Infof("calling `endpoints` with namespace=%s options=%#v", v.namespace, options)
+		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(options)
 
 		if err != nil {
 			glog.Errorf("error while establishing watch: %s", err.Error())

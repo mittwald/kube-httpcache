@@ -17,6 +17,8 @@ func (b *Signaller) Run() error {
 		Handler: b,
 	}
 
+	glog.Infof("running signaller on %v", server.Addr)
+
 	for i := 0; i < b.WorkersCount; i++ {
 		go b.ProcessSignalQueue()
 	}
@@ -33,12 +35,15 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	glog.V(5).Infof("received a signal request: %+v", r)
+	glog.V(5).Infof("endpoints=%#v", b.endpoints)
+
 
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
 
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
+		glog.Infof("sending signal url=%v", url)
 		request, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 		if err != nil {
 			b.errors <- err
@@ -54,6 +59,8 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (b *Signaller) ProcessSignalQueue() {
 	client := &http.Client{}
+
+	glog.Infof("Signaller.ProcessSingnalQueue()")
 
 	for signal := range b.signalQueue {
 		response, err := client.Do(signal.Request)
