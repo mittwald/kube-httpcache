@@ -7,6 +7,7 @@ import (
 	"github.com/mittwald/kube-httpcache/pkg/controller"
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -19,6 +20,9 @@ func init() {
 }
 
 func main() {
+	tracer.Start()
+	defer tracer.Stop()
+
 	_ = opts.Parse()
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
