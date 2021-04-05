@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang/glog"
+	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 )
 
 func (b *Signaller) Run() error {
+	service := os.Getenv("DD_SERVICE")
 	server := &http.Server{
 		Addr:    b.Address + ":" + strconv.Itoa(b.Port),
-		Handler: b,
+		Handler: httptrace.WrapHandler(b, service, "signaller"),
 	}
 
 	glog.Infof("running signaller on %v", server.Addr)

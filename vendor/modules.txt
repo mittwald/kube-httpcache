@@ -111,6 +111,8 @@ google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
 # gopkg.in/DataDog/dd-trace-go.v1 v1.29.2
 ## explicit
+gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httputil
+gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http
 gopkg.in/DataDog/dd-trace-go.v1/ddtrace
 gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext
 gopkg.in/DataDog/dd-trace-go.v1/ddtrace/internal
