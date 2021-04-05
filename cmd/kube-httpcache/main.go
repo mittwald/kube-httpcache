@@ -20,7 +20,7 @@ func init() {
 }
 
 func main() {
-	tracer.Start()
+	tracer.Start(tracer.WithRuntimeMetrics())
 	defer tracer.Stop()
 
 	_ = opts.Parse()
