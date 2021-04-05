@@ -76,10 +76,10 @@ func (b *Signaller) ProcessSignalQueue() {
 			glog.Infof("retrying in %v", b.RetryBackoff)
 			b.Retry(signal)
 		} else {
-			glog.V(5).Infof("recieved a signal response from %s: %+v", response.Request.URL.Host, response)
+			glog.V(5).Infof("received a signal response from %s: %+v", response.Request.URL.Host, response)
 		}
 		if response != nil {
-			response.Body.Close()
+			_ = response.Body.Close()
 		}
 	}
 }
