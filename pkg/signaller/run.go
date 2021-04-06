@@ -44,6 +44,12 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
 
+	xff := r.Header.Get("X-Forwarded-For")
+	if xff != "" {
+		xff += ", "
+	}
+	xff += r.RemoteAddr
+	r.Header.Set("X-Forwarded-For", xff)
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
 		glog.Infof("sending signal url=%v", url)
@@ -53,7 +59,6 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		request.Header = r.Header
 		request.Host = r.Host
-		request.Header.Set("X-Forwarded-For", r.RemoteAddr)
 		b.signalQueue <- Signal{request, 0}
 	}
 
