@@ -44,12 +44,18 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
 
+	// Compute XFF once because it will be the same for all requests
 	xff := r.Header.Get("X-Forwarded-For")
 	if xff != "" {
 		xff += ", "
 	}
 	xff += r.RemoteAddr
-	r.Header.Set("X-Forwarded-For", xff)
+
+	// Copy the incoming header so we don't mutate it. This is done outside
+	// the loop, and we share the same header object for all requests.
+	h := r.Header.Clone()
+	h.Set("X-Forwarded-For", xff)
+
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
 		glog.Infof("sending signal url=%v", url)
@@ -57,7 +63,7 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			b.errors <- err
 		}
-		request.Header = r.Header
+		request.Header = h
 		request.Host = r.Host
 		b.signalQueue <- Signal{request, 0}
 	}
