@@ -1,7 +1,6 @@
 package signaller
 
 import (
-	"github.com/golang/glog"
 	"net/http"
 	"sync"
 	"time"
@@ -52,7 +51,6 @@ func (b *Signaller) GetErrors() chan error {
 }
 
 func (b *Signaller) SetEndpoints(e *watcher.EndpointConfig) {
-	glog.Info("Signaller.SetEndpoints(%#v)", e)
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 

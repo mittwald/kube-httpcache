@@ -2,13 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"runtime"
-	"time"
-
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"os"
+	"os/exec"
 )
 
 func (v *VarnishController) Run() error {
@@ -51,13 +48,6 @@ func (v *VarnishController) Run() error {
 			if err != nil {
 				glog.Warningf("error while watching for updates: %s", err.Error())
 			}
-		}
-	}()
-
-	go func() {
-		for {
-			glog.Infof("NumGoroutine=%v", runtime.NumGoroutine())
-			<-time.After(5 * time.Second)
 		}
 	}()
 
