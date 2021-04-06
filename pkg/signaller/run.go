@@ -68,6 +68,12 @@ func (b *Signaller) ProcessSignalQueue() {
 		} else {
 			glog.V(5).Infof("recieved a signal response from %s: %+v", response.Request.URL.Host, response)
 		}
+
+		if response != nil {
+			if err := response.Body.Close(); err != nil {
+				glog.Error("error on closing response body:", err)
+			}
+		}
 	}
 }
 
