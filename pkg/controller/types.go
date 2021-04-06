@@ -17,6 +17,7 @@ type TemplateData struct {
 }
 
 type VarnishController struct {
+	Executable   string
 	SecretFile   string
 	Storage      string
 	FrontendAddr string
@@ -39,6 +40,7 @@ type VarnishController struct {
 }
 
 func NewVarnishController(
+	executable string,
 	secretFile string,
 	storage string,
 	frontendAddr string,
@@ -69,6 +71,7 @@ func NewVarnishController(
 	}
 
 	return &VarnishController{
+		Executable:         executable,
 		SecretFile:         secretFile,
 		Storage:            storage,
 		FrontendAddr:       frontendAddr,

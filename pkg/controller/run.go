@@ -2,11 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"os"
+	"os/exec"
 )
 
 func (v *VarnishController) Run() error {
@@ -74,7 +73,7 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 	}
 
 	c := exec.Command(
-		"/opt/varnish/sbin/varnishd",
+		v.Executable,
 		args...,
 	)
 

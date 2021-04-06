@@ -1,5 +1,5 @@
 # build kube-httpcache go app
-FROM        golang:1.14 AS app-builder
+FROM        golang:1.15.2 AS app-builder
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 

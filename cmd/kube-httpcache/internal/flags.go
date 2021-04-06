@@ -57,6 +57,7 @@ type KubeHTTPProxyFlags struct {
 		Port    int
 	}
 	Varnish struct {
+		Executable      string
 		SecretFile      string
 		Storage         string
 		VCLTemplate     string
@@ -96,6 +97,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
 	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP port for the Varnish admin")
 
+	flag.StringVar(&f.Varnish.Executable, "varnish-executable", "/opt/varnish/sbin/varnishd", "Path to varnishd executable")
 	flag.StringVar(&f.Varnish.SecretFile, "varnish-secret-file", "/etc/varnish/secret", "Varnish secret file")
 	flag.StringVar(&f.Varnish.Storage, "varnish-storage", "file,/tmp/varnish-data,1G", "varnish storage config")
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")

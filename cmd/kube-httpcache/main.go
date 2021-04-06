@@ -7,6 +7,7 @@ import (
 	"github.com/mittwald/kube-httpcache/pkg/controller"
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -19,6 +20,9 @@ func init() {
 }
 
 func main() {
+	tracer.Start(tracer.WithRuntimeMetrics())
+	defer tracer.Stop()
+
 	_ = opts.Parse()
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
@@ -105,6 +109,7 @@ func main() {
 	}()
 
 	varnishController, err := controller.NewVarnishController(
+		opts.Varnish.Executable,
 		opts.Varnish.SecretFile,
 		opts.Varnish.Storage,
 		opts.Frontend.Address,
