@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
 func (b *Signaller) Run() error {
@@ -35,9 +36,11 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	glog.V(5).Infof("received a signal request: %+v", r)
 
 	b.mutex.RLock()
-	defer b.mutex.RUnlock()
+	endpoints := make([]watcher.Endpoint, len(b.endpoints.Endpoints))
+	copy(endpoints, b.endpoints.Endpoints)
+	b.mutex.RUnlock()
 
-	for _, endpoint := range b.endpoints.Endpoints {
+	for _, endpoint := range endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
 		request, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 		if err != nil {
