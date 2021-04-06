@@ -57,7 +57,7 @@ type KubeHTTPProxyFlags struct {
 		Port    int
 	}
 	Varnish struct {
-		Executable string
+		Executable      string
 		SecretFile      string
 		Storage         string
 		VCLTemplate     string

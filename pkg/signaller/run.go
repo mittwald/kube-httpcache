@@ -37,7 +37,6 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	glog.V(5).Infof("received a signal request: %+v", r)
 
-
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
 

@@ -17,7 +17,7 @@ type TemplateData struct {
 }
 
 type VarnishController struct {
-	Executable string
+	Executable   string
 	SecretFile   string
 	Storage      string
 	FrontendAddr string
