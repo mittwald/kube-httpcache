@@ -95,5 +95,10 @@ func (v *VarnishController) generateArgs() []string {
 			args = append(args, val)
 		}
 	}
+
+	if v.WorkingDir != "" {
+		args = append(args, "-n", v.WorkingDir)
+	}
+
 	return args
 }

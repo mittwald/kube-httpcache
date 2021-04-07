@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/golang/glog"
+	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 	"github.com/mittwald/kube-httpcache/pkg/controller"
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
@@ -25,7 +25,7 @@ func init() {
 
 func main() {
 	if err := opts.Parse(); err != nil {
-		panic(err)	
+		panic(err)
 	}
 
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
@@ -116,6 +116,7 @@ func main() {
 		opts.Varnish.SecretFile,
 		opts.Varnish.Storage,
 		opts.Varnish.AdditionalParameters,
+		opts.Varnish.WorkingDir,
 		opts.Frontend.Address,
 		opts.Frontend.Port,
 		opts.Admin.Address,

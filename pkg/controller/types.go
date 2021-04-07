@@ -23,6 +23,7 @@ type VarnishController struct {
 	SecretFile           string
 	Storage              string
 	AdditionalParameters string
+	WorkingDir           string
 	FrontendAddr         string
 	FrontendPort         int
 	AdminAddr            string
@@ -45,6 +46,7 @@ func NewVarnishController(
 	secretFile string,
 	storage string,
 	additionalParameter string,
+	workingDir string,
 	frontendAddr string,
 	frontendPort int,
 	adminAddr string,
@@ -74,6 +76,7 @@ func NewVarnishController(
 		SecretFile:           secretFile,
 		Storage:              storage,
 		AdditionalParameters: additionalParameter,
+		WorkingDir:           workingDir,
 		FrontendAddr:         frontendAddr,
 		FrontendPort:         frontendPort,
 		AdminAddr:            adminAddr,

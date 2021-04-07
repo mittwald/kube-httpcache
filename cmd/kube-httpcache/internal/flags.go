@@ -47,6 +47,7 @@ type KubeHTTPProxyFlags struct {
 		AdditionalParameters string
 		VCLTemplate          string
 		VCLTemplatePoll      bool
+		WorkingDir           string
 	}
 	Readiness struct {
 		Enable  bool
@@ -89,10 +90,11 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")
 	flag.StringVar(&f.Varnish.AdditionalParameters, "varnish-additional-parameters", "", "Additional Varnish start parameters (-p, seperated by comma), like 'ban_dups=on,cli_timeout=30'")
 	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
+	flag.StringVar(&f.Varnish.WorkingDir, "varnish-working-dir", "", "varnish working directory (-n)")
 
 	// present for BC only; no effect until #36 [1] has resolved
 	//   [1]: https://github.com/mittwald/kube-httpcache/issues/36
-	flag.BoolVar(&f.Readiness.Enable, "readiness-enable", true, "enable readiness probe")	
+	flag.BoolVar(&f.Readiness.Enable, "readiness-enable", true, "enable readiness probe")
 	flag.StringVar(&f.Readiness.Address, "readiness-addr", "0.0.0.0:9102", "address for the readiness probe to listen on")
 
 	flag.Parse()
