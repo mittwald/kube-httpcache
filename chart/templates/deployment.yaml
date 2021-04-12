@@ -57,7 +57,11 @@ spec:
           - -frontend-watch
           - -frontend-namespace={{ "$(NAMESPACE)" }}
           - -frontend-service={{ include "kube-httpcache.fullname" . }}
+          {{- if .Values.cache.backendWatch }}
           - -backend-watch
+          {{- else }}
+          - -backend-watch=false
+          {{- end }}
           - -backend-service={{ .Values.cache.backendService }}
           - -backend-namespace={{ .Values.cache.backendServiceNamespace | default "$(NAMESPACE)" }}
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
