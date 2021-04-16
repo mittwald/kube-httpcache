@@ -14,5 +14,10 @@ spec:
     - name: "signaller"
       port: 8090
       targetPort: 8090
+    {{- if .Values.exporter.enabled }}
+    - name: metrics
+      port: 9131
+      targetPort: 9131
+    {{- end }}
   selector:
     {{- include "kube-httpcache.selectorLabels" . | nindent 4 }}
