@@ -199,6 +199,8 @@ nodeSelector: {}
 
 tolerations: []
 
+#terminationGracePeriodSeconds: 60
+
 affinity: {}
 
 livenessProbe: {}
