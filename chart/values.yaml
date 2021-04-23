@@ -103,7 +103,13 @@ initContainers: {}
 #     volumeMounts:
 #     - name: template
 #       mountPath: /etc/varnish/tmpl
-#
+
+extraContainers: []
+# - name: my-sidecar
+#   image: myapp/my-sidecar
+#   command:
+#   - my-sidecar-command
+
 extraVolumes: {}
 # extraVolumes:
 #   - emptyDir: {}

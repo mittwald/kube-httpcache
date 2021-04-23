@@ -127,6 +127,9 @@ spec:
             {{- toYaml .Values.exporter.resources | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- if .Values.extraContainers }}
+          {{- toYaml .Values.extraContainers | nindent 8 }}
+        {{- end }}
       volumes:
       {{- if .Values.configmap.enabled }}
       - name: template
