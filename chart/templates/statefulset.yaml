@@ -49,7 +49,7 @@ spec:
           - -signaller-port=8090
           - -frontend-watch
           - -frontend-namespace={{ "$(NAMESPACE)" }}
-          - -frontend-service={{ include "kube-httpcache.fullname" . }}
+          - -frontend-service={{ .Values.cache.frontendService | default (include "kube-httpcache.fullname" .) }}
           {{- if .Values.cache.backendWatch }}
           - -backend-watch
           {{- else }}
