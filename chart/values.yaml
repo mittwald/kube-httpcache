@@ -78,6 +78,14 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+lifecycle: {}
+  # preStop:
+  #   exec:
+  #     command:
+  #     - /bin/sh
+  #     - -c
+  #     - touch /etc/varnish/fail_probes; sleep 25
+
 initContainers: {}
 # initContainers: |
 #   - args:
