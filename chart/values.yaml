@@ -56,6 +56,9 @@ serviceAccount:
 rbac:
   enabled: true
 
+# create a prometheus operator ServiceMonitor
+serviceMonitor: false
+
 podSecurityPolicy:
   enabled: false
   # name: unrestricted-psp
@@ -100,6 +103,23 @@ extraMounts: {}
 # extraMounts:
 #   - name: geoip
 #     mountPath: /var/lib/geoip
+
+exporter:
+  enabled: false
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+  resources: {}
+  livenessProbe: {}
+  # livenessProbe:
+  #   httpGet:
+  #    path: /
+  #    port: 6083
+  readinessProbe: {}
 
 service:
   type: ClusterIP

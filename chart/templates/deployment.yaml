@@ -82,6 +82,8 @@ spec:
             mountPath: /etc/varnish/tmpl
           - name: secret
             mountPath: /etc/varnish/k8s-secret
+          - name: var
+            mountPath: /var/lib/varnish
           {{- if .Values.extraMounts }}
             {{- toYaml .Values.extraMounts | nindent 10 }}
           {{- end }}
@@ -89,6 +91,38 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+        {{- if .Values.exporter.enabled }}
+        - name: exporter
+          securityContext:
+            {{- toYaml .Values.exporter.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - /exporter/prometheus_varnish_exporter
+          args:
+          - -no-exit
+          env:
+          - name: VSM_NOPID
+            value: "1"
+          ports:
+          - name: metrics
+            containerPort: 9131
+          volumeMounts:
+          - name: var
+            mountPath: /var/lib/varnish
+          {{- if .Values.exporter.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.exporter.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.exporter.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.exporter.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.exporter.resources }}
+          resources:
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
+          {{- end }}
+        {{- end }}
       volumes:
       {{- if .Values.configmap.enabled }}
       - name: template
@@ -98,6 +132,8 @@ spec:
       - name: secret
         secret:
           secretName: {{ include "kube-httpcache.fullname" . }}
+      - name: var
+        emptyDir: {}
       {{- if .Values.extraVolumes -}}
       {{- toYaml .Values.extraVolumes | nindent 6 }}
       {{- end }}
