@@ -1,0 +1,16 @@
+{{- if .Values.serviceMonitor -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "kube-httpcache.fullname" . }}
+  labels:
+    {{- include "kube-httpcache.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "kube-httpcache.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 10s
+{{- end}}
