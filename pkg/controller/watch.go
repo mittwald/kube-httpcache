@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/ihr-radioedit/go-tracing"
 	"os/exec"
-	"strings"
 	"text/template"
 
 	"github.com/golang/glog"
@@ -55,7 +54,7 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 }
 
 func (v *VarnishController) rebuildConfig(i int) (err error) {
-	txn, ctx := tracing.StartBackgroundTransaction(context.Background(), "varnish update")
+	txn, _ := tracing.StartBackgroundTransaction(context.Background(), "varnish update")
 	defer func() {
 		txn.Finish(err)
 	}()
