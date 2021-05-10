@@ -1,7 +1,6 @@
-# github.com/DataDog/datadog-go v4.4.0+incompatible
+# github.com/DataDog/datadog-go v4.5.1+incompatible
 github.com/DataDog/datadog-go/statsd
-# github.com/Microsoft/go-winio v0.4.16
-## explicit
+# github.com/Microsoft/go-winio v0.4.17
 github.com/Microsoft/go-winio
 github.com/Microsoft/go-winio/pkg/guid
 # github.com/fsnotify/fsnotify v1.4.7
@@ -10,6 +9,8 @@ github.com/fsnotify/fsnotify
 # github.com/ghodss/yaml v1.0.0
 ## explicit
 github.com/ghodss/yaml
+# github.com/go-stack/stack v1.8.0
+github.com/go-stack/stack
 # github.com/gogo/protobuf v1.1.1
 ## explicit
 github.com/gogo/protobuf/proto
@@ -17,7 +18,7 @@ github.com/gogo/protobuf/sortkeys
 # github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 ## explicit
 github.com/golang/glog
-# github.com/golang/protobuf v1.2.0
+# github.com/golang/protobuf v1.3.3
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
@@ -41,6 +42,9 @@ github.com/googleapis/gnostic/extensions
 ## explicit
 github.com/gregjones/httpcache
 github.com/gregjones/httpcache/diskcache
+# github.com/ihr-radioedit/go-tracing v0.0.6
+## explicit
+github.com/ihr-radioedit/go-tracing
 # github.com/imdario/mergo v0.3.6
 ## explicit
 github.com/imdario/mergo
@@ -56,52 +60,76 @@ github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 ## explicit
 github.com/modern-go/reflect2
+# github.com/newrelic/go-agent/v3 v3.11.0
+github.com/newrelic/go-agent/v3/internal
+github.com/newrelic/go-agent/v3/internal/cat
+github.com/newrelic/go-agent/v3/internal/com_newrelic_trace_v1
+github.com/newrelic/go-agent/v3/internal/jsonx
+github.com/newrelic/go-agent/v3/internal/logger
+github.com/newrelic/go-agent/v3/internal/sysinfo
+github.com/newrelic/go-agent/v3/internal/utilization
+github.com/newrelic/go-agent/v3/newrelic
+# github.com/newrelic/go-agent/v3/integrations/nrmongo v1.0.0
+github.com/newrelic/go-agent/v3/integrations/nrmongo
 # github.com/peterbourgon/diskv v2.0.1+incompatible
 ## explicit
 github.com/peterbourgon/diskv
 # github.com/philhofer/fwd v1.1.1
 ## explicit
 github.com/philhofer/fwd
+# github.com/sirupsen/logrus v1.7.0
+github.com/sirupsen/logrus
 # github.com/spf13/pflag v1.0.3
 ## explicit
 github.com/spf13/pflag
 # github.com/tinylib/msgp v1.1.2
 github.com/tinylib/msgp/msgp
-# golang.org/x/crypto v0.0.0-20181012144002-a92615f3c490
-## explicit
+# go.mongodb.org/mongo-driver v1.5.1
+go.mongodb.org/mongo-driver/bson
+go.mongodb.org/mongo-driver/bson/bsoncodec
+go.mongodb.org/mongo-driver/bson/bsonoptions
+go.mongodb.org/mongo-driver/bson/bsonrw
+go.mongodb.org/mongo-driver/bson/bsontype
+go.mongodb.org/mongo-driver/bson/primitive
+go.mongodb.org/mongo-driver/event
+go.mongodb.org/mongo-driver/internal
+go.mongodb.org/mongo-driver/mongo/address
+go.mongodb.org/mongo-driver/mongo/description
+go.mongodb.org/mongo-driver/mongo/readpref
+go.mongodb.org/mongo-driver/tag
+go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+# golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20181011144130-49bb7cea24b1
-## explicit
+# golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
+golang.org/x/net/internal/timeseries
+golang.org/x/net/trace
 # golang.org/x/oauth2 v0.0.0-20181003184128-c57b0facaced
 ## explicit
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
-# golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
-## explicit
-# golang.org/x/sys v0.0.0-20191204072324-ce4227a45e2e
+# golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.5
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
-## explicit
+# golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
 golang.org/x/time/rate
 # golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 ## explicit
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# google.golang.org/appengine v1.2.0
-## explicit
+# google.golang.org/appengine v1.4.0
 google.golang.org/appengine/internal
 google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/datastore
@@ -109,8 +137,48 @@ google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
+# google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
+google.golang.org/genproto/googleapis/rpc/status
+# google.golang.org/grpc v1.27.0
+google.golang.org/grpc
+google.golang.org/grpc/attributes
+google.golang.org/grpc/backoff
+google.golang.org/grpc/balancer
+google.golang.org/grpc/balancer/base
+google.golang.org/grpc/balancer/roundrobin
+google.golang.org/grpc/binarylog/grpc_binarylog_v1
+google.golang.org/grpc/codes
+google.golang.org/grpc/connectivity
+google.golang.org/grpc/credentials
+google.golang.org/grpc/credentials/internal
+google.golang.org/grpc/encoding
+google.golang.org/grpc/encoding/proto
+google.golang.org/grpc/grpclog
+google.golang.org/grpc/internal
+google.golang.org/grpc/internal/backoff
+google.golang.org/grpc/internal/balancerload
+google.golang.org/grpc/internal/binarylog
+google.golang.org/grpc/internal/buffer
+google.golang.org/grpc/internal/channelz
+google.golang.org/grpc/internal/envconfig
+google.golang.org/grpc/internal/grpcrand
+google.golang.org/grpc/internal/grpcsync
+google.golang.org/grpc/internal/resolver/dns
+google.golang.org/grpc/internal/resolver/passthrough
+google.golang.org/grpc/internal/syscall
+google.golang.org/grpc/internal/transport
+google.golang.org/grpc/keepalive
+google.golang.org/grpc/metadata
+google.golang.org/grpc/naming
+google.golang.org/grpc/peer
+google.golang.org/grpc/resolver
+google.golang.org/grpc/serviceconfig
+google.golang.org/grpc/stats
+google.golang.org/grpc/status
+google.golang.org/grpc/tap
 # gopkg.in/DataDog/dd-trace-go.v1 v1.29.2
 ## explicit
+gopkg.in/DataDog/dd-trace-go.v1/contrib/go.mongodb.org/mongo-driver/mongo
 gopkg.in/DataDog/dd-trace-go.v1/contrib/internal/httputil
 gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http
 gopkg.in/DataDog/dd-trace-go.v1/ddtrace
@@ -124,8 +192,7 @@ gopkg.in/DataDog/dd-trace-go.v1/internal/version
 # gopkg.in/inf.v0 v0.9.1
 ## explicit
 gopkg.in/inf.v0
-# gopkg.in/yaml.v2 v2.2.1
-## explicit
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
 # k8s.io/api v0.0.0-20181013054003-e94254e9898f
 ## explicit
