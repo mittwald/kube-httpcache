@@ -47,10 +47,6 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	xff += r.RemoteAddr
 
-	// Copy the incoming header so we don't mutate it. This is done outside
-	// the loop, and we share the same header object for all requests.
-	h := r.Header.Clone()
-	h.Set("X-Forwarded-For", xff)
 
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)
@@ -58,7 +54,11 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			b.errors <- err
 		}
-		request.Header = h
+
+		// Copy the incoming header so we don't mutate it. This is done inside
+		// the loop, because tracing integrations modify headers per request.
+		request.Header = r.Header.Clone()
+		request.Header.Set("X-Forwarded-For", xff)
 		request.Host = r.Host
 		b.signalQueue <- Signal{request, 0}
 	}
