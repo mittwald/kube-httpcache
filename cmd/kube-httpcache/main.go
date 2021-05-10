@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"github.com/golang/glog"
+	"github.com/ihr-radioedit/go-tracing"
 	"github.com/mittwald/kube-httpcache/cmd/kube-httpcache/internal"
 	"github.com/mittwald/kube-httpcache/pkg/controller"
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -20,14 +20,16 @@ func init() {
 }
 
 func main() {
-	tracer.Start(tracer.WithRuntimeMetrics())
-	defer tracer.Stop()
+	finish, err := tracing.Init()
+	if err != nil {
+		glog.Fatalf("unable to start tracing: %v", err)
+	}
+	defer finish()
 
 	_ = opts.Parse()
 	glog.Infof("running kube-httpcache with following options: %+v", opts)
 
 	var config *rest.Config
-	var err error
 	var client kubernetes.Interface
 
 	if opts.Kubernetes.Config == "" {

@@ -3,21 +3,21 @@ package signaller
 import (
 	"bytes"
 	"fmt"
+	"github.com/ihr-radioedit/go-tracing"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang/glog"
-	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 )
 
 func (b *Signaller) Run() error {
-	service := os.Getenv("DD_SERVICE")
 	server := &http.Server{
 		Addr:    b.Address + ":" + strconv.Itoa(b.Port),
-		Handler: httptrace.WrapHandler(b, service, "signaller"),
+		Handler: tracing.HTTPMiddleware(func (r *http.Request) string {
+			return r.Method + "/signaller"
+		})(b),
 	}
 
 	for i := 0; i < b.WorkersCount; i++ {
@@ -70,6 +70,7 @@ func (b *Signaller) ProcessSignalQueue() {
 	client := &http.Client{}
 
 	for signal := range b.signalQueue {
+		tracing.ExternalSegment(signal.Request.Context(), "signaller", signal.Request)
 		response, err := client.Do(signal.Request)
 		if err != nil {
 			glog.Errorf("signal broadcast error: %v", err.Error())

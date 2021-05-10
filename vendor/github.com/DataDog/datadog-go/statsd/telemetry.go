@@ -19,7 +19,7 @@ var clientTelemetryTag = "client:go"
 /*
 clientVersionTelemetryTag is a tag identifying this specific client version.
 */
-var clientVersionTelemetryTag = "client_version:4.4.0"
+var clientVersionTelemetryTag = "client_version:4.5.1"
 
 type telemetryClient struct {
 	c          *Client
@@ -51,7 +51,7 @@ func newTelemetryClient(c *Client, transport string, devMode bool) *telemetryCli
 }
 
 func newTelemetryClientWithCustomAddr(c *Client, transport string, devMode bool, telemetryAddr string, pool *bufferPool) (*telemetryClient, error) {
-	telemetryWriter, _, err := resolveAddr(telemetryAddr)
+	telemetryWriter, _, err := createWriter(telemetryAddr)
 	if err != nil {
 		return nil, fmt.Errorf("Could not resolve telemetry address: %v", err)
 	}

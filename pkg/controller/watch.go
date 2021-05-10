@@ -2,8 +2,11 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"github.com/ihr-radioedit/go-tracing"
 	"os/exec"
+	"strings"
 	"text/template"
 
 	"github.com/golang/glog"
@@ -51,10 +54,15 @@ func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error)
 	}
 }
 
-func (v *VarnishController) rebuildConfig(i int) error {
+func (v *VarnishController) rebuildConfig(i int) (err error) {
+	txn, ctx := tracing.StartBackgroundTransaction(context.Background(), "varnish update")
+	defer func() {
+		txn.Finish(err)
+	}()
+
 	buf := new(bytes.Buffer)
 
-	err := v.renderVCL(buf, v.frontend.Endpoints, v.frontend.Primary, v.backend.Endpoints, v.backend.Primary)
+	err = v.renderVCL(buf, v.frontend.Endpoints, v.frontend.Primary, v.backend.Endpoints, v.backend.Primary)
 	if err != nil {
 		return err
 	}
@@ -62,7 +70,8 @@ func (v *VarnishController) rebuildConfig(i int) error {
 	vcl := buf.Bytes()
 	glog.V(8).Infof("new VCL: %s", string(vcl))
 
-	client, err := varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
+	var client varnishclient.Client
+	client, err = varnishclient.DialTCP(fmt.Sprintf("127.0.0.1:%d", v.AdminPort))
 	if err != nil {
 		return err
 	}
