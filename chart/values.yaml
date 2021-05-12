@@ -25,6 +25,8 @@ configmap:
 # kube-httpcache specific configuration
 cache:
   # name of backend service
+  # frontendService: kube-httpcache-headless
+  # name of backend service
   backendService: backend-service
   # name of backend service namespace
   # backendServiceNamespace: backend-service-namespace
@@ -76,6 +78,14 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+lifecycle: {}
+  # preStop:
+  #   exec:
+  #     command:
+  #     - /bin/sh
+  #     - -c
+  #     - touch /etc/varnish/fail_probes; sleep 25
+
 initContainers: {}
 # initContainers: |
 #   - args:
@@ -93,7 +103,13 @@ initContainers: {}
 #     volumeMounts:
 #     - name: template
 #       mountPath: /etc/varnish/tmpl
-#
+
+extraContainers: []
+# - name: my-sidecar
+#   image: myapp/my-sidecar
+#   command:
+#   - my-sidecar-command
+
 extraVolumes: {}
 # extraVolumes:
 #   - emptyDir: {}
@@ -182,6 +198,8 @@ autoscaling:
 nodeSelector: {}
 
 tolerations: []
+
+#terminationGracePeriodSeconds: 60
 
 affinity: {}
 
