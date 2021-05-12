@@ -53,7 +53,7 @@ spec:
           - -frontend-watch=false
           {{- end }}
           - -frontend-namespace={{ "$(NAMESPACE)" }}
-          - -frontend-service={{ include "kube-httpcache.fullname" . }}
+          - -frontend-service={{ .Values.cache.frontendService | default (include "kube-httpcache.fullname" .) }}
           {{- if .Values.cache.backendWatch }}
           - -backend-watch
           {{- else }}
@@ -74,6 +74,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          {{- if .Values.lifecycle }}
+          lifecycle:
+            {{- toYaml .Values.lifecycle | nindent 12 }}
+          {{- end }}
           volumeMounts:
           - name: template
             mountPath: /etc/varnish/tmpl
@@ -128,6 +132,9 @@ spec:
             {{- toYaml .Values.exporter.resources | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- if .Values.extraContainers }}
+          {{- toYaml .Values.extraContainers | nindent 8 }}
+        {{- end }}
       volumes:
      {{- if .Values.configmap.enabled }}
       - name: template
@@ -153,5 +160,8 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- end }}
 {{- end }}
