@@ -54,7 +54,11 @@ spec:
           - -admin-port=6083
           - -signaller-enable
           - -signaller-port=8090
+          {{- if .Values.cache.frontendWatch }}
           - -frontend-watch
+          {{- else }}
+          - -frontend-watch=false
+          {{- end }}
           - -frontend-namespace={{ "$(NAMESPACE)" }}
           - -frontend-service={{ .Values.cache.frontendService | default (include "kube-httpcache.fullname" .) }}
           {{- if .Values.cache.backendWatch }}

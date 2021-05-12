@@ -30,6 +30,8 @@ cache:
   backendService: backend-service
   # name of backend service namespace
   # backendServiceNamespace: backend-service-namespace
+  # watching for frontend changes is true by default
+  frontendWatch: true
   # watching for backend changes is true by default
   backendWatch: true
   # Varnish storage backend type (https://varnish-cache.org/docs/trunk/users-guide/storage-backends.html)
