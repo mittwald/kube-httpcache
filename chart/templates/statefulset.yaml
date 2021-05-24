@@ -143,7 +143,7 @@ spec:
      {{- end }}
       - name: secret
         secret:
-          secretName: {{ include "kube-httpcache.fullname" . }}
+          secretName: {{ .Values.cache.existingSecret | default (include "kube-httpcache.fullname" .) }}
       - name: var
         emptyDir: {}
       {{- if .Values.extraVolumes }}
