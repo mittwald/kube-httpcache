@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"context"
 	"time"
 
 	"github.com/golang/glog"
@@ -21,7 +22,7 @@ func (v *EndpointWatcher) Run() (chan *EndpointConfig, chan error) {
 
 func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error) {
 	for {
-		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(metav1.ListOptions{
+		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(context.Background(), metav1.ListOptions{
 			FieldSelector: fields.OneTermEqualSelector("metadata.name", v.serviceName).String(),
 		})
 
@@ -46,6 +47,13 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 
 			endpoint := ev.Object.(*v1.Endpoints)
 
+			glog.Infof("%s: %s", v.serviceName, ev.Type)
+			for _, e := range endpoint.Subsets {
+				for _, e2 := range e.Addresses {
+					glog.Infof("    %v\n", e2.TargetRef.Name)
+				}
+			}
+
 			if len(endpoint.Subsets) == 0 || len(endpoint.Subsets[0].Addresses) == 0 {
 				glog.Warningf("service '%s' has no endpoints", v.serviceName)
 
@@ -58,26 +66,6 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 				glog.Infof("endpoints did not change")
 				continue
 			}
-
-			var addresses []v1.EndpointAddress
-			for _, a := range endpoint.Subsets[0].Addresses {
-				puid := string(a.TargetRef.UID)
-
-				po, err := v.client.CoreV1().Pods(v.namespace).Get(a.TargetRef.Name, metav1.GetOptions{})
-
-				if err != nil {
-					glog.Errorf("error while locating endpoint : %s", err.Error())
-					continue
-				}
-
-				if len(po.Status.Conditions) > 0 && po.Status.Conditions[0].Status != v1.ConditionTrue {
-					glog.Infof("skipping endpoint (not healthy): %s", puid)
-					continue
-				}
-
-				addresses = append(addresses, a)
-			}
-			endpoint.Subsets[0].Addresses = addresses
 
 			newConfig := NewEndpointConfig()
 
