@@ -25,7 +25,9 @@ This repository contains a controller that allows you to operate a [Varnish cach
 - [Detailed how-tos](#detailed-how-tos)
   - [Using built in signaller component](#using-built-in-signaller-component)
   - [Proxying to external services](#proxying-to-external-services)
-- [Helm Chart Intallation](#helm-chart-installation)
+- [Helm Chart installation](#helm-chart-installation)
+- [Developer notes](#developer-notes)
+  - [Build the Docker image locally](#build-the-docker-image-locally)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -441,3 +443,13 @@ spec:
 Look at the `vclTemplate` property in [chart/values.yaml](chart/values.yaml) to define
 your own Varnish cluster rules or load with `extraVolume` an extra file
 as initContainer if your ruleset is really big.
+
+## Developer notes
+
+### Build the Docker image locally
+
+A Dockerfile for building the container image yourself is located in `build/package/docker`. Invoke `docker build` as follows:
+
+```
+$ docker build -t $IMAGE_NAME -f build/package/docker/Dockerfile .
+```
