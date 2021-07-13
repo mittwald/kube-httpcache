@@ -38,6 +38,10 @@ cache:
   varnishStorage: malloc # default,malloc,umem,file...
   # Varnish storage backend size
   storageSize: 128M # K(ibibytes), M(ebibytes), G(ibibytes), T(ebibytes) ... unlimited
+  # Varnish transient storage backend type (https://varnish-cache.org/docs/trunk/users-guide/storage-backends.html)
+  #varnishTransientStorage: malloc
+  # Varnish transient storage backend size
+  #transientStorageSize: 128M # K(ibibytes), M(ebibytes), G(ibibytes), T(ebibytes) ... unlimited
   # Secret for Varnish admin credentials
   #secret: "12345678"
   # Read admin credentials from user provided secret
