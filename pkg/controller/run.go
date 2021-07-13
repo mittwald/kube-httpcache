@@ -84,7 +84,8 @@ func (v *VarnishController) generateArgs() []string {
 		"-F",
 		"-f", v.configFile,
 		"-S", v.SecretFile,
-		"-s", v.Storage,
+		"-s", fmt.Sprintf("Cache=%s", v.Storage),
+		"-s", fmt.Sprintf("Transient=%s", v.TransientStorage),
 		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
 		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
 	}

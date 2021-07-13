@@ -22,6 +22,7 @@ type TemplateData struct {
 type VarnishController struct {
 	SecretFile           string
 	Storage              string
+	TransientStorage     string
 	AdditionalParameters string
 	WorkingDir           string
 	FrontendAddr         string
@@ -45,6 +46,7 @@ type VarnishController struct {
 func NewVarnishController(
 	secretFile string,
 	storage string,
+	transientStorage string,
 	additionalParameter string,
 	workingDir string,
 	frontendAddr string,
@@ -75,6 +77,7 @@ func NewVarnishController(
 	return &VarnishController{
 		SecretFile:           secretFile,
 		Storage:              storage,
+		TransientStorage:     transientStorage,
 		AdditionalParameters: additionalParameter,
 		WorkingDir:           workingDir,
 		FrontendAddr:         frontendAddr,
