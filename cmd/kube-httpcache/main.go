@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,6 +34,23 @@ func main() {
 	var config *rest.Config
 	var err error
 	var client kubernetes.Interface
+
+	_, err = newrelic.NewApplication(
+		// Name your application
+		newrelic.ConfigAppName(os.Getenv("NEW_RELIC_APP_NAME")),
+		// Fill in your New Relic license key
+		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_API_KEY")),
+		// Add logging:
+		newrelic.ConfigDebugLogger(os.Stdout),
+		// Optional: add additional changes to your configuration via a config function:
+		func(cfg *newrelic.Config) {
+			cfg.CustomInsightsEvents.Enabled = false
+		},
+	)
+
+	if err != nil {
+		fmt.Println("unable to create New Relic Application", err)
+	}
 
 	if opts.Kubernetes.Config == "" {
 		glog.Infof("using in-cluster configuration")

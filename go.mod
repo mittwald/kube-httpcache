@@ -16,6 +16,7 @@ require (
 	github.com/martin-helmich/go-varnish-client v0.2.1
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/newrelic/go-agent v3.14.0+incompatible // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	golang.org/x/crypto v0.0.0-20181012144002-a92615f3c490 // indirect
