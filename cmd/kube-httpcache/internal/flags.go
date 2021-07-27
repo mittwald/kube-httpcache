@@ -29,8 +29,6 @@ type KubeHTTPProxyFlags struct {
 		RetryBackoff       time.Duration
 	}
 	Frontend struct {
-		Address   string
-		Port      int
 		Watch     bool
 		Namespace string
 		Service   string
@@ -67,9 +65,6 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 
 	flag.StringVar(&f.Kubernetes.Config, "kubeconfig", "", "kubeconfig file")
 	flag.StringVar(&f.Kubernetes.RetryBackoffString, "retry-backoff", "30s", "backoff for Kubernetes API reconnection attempts")
-
-	flag.StringVar(&f.Frontend.Address, "frontend-addr", "0.0.0.0", "TCP address to listen on")
-	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP port to listen on")
 
 	flag.BoolVar(&f.Frontend.Watch, "frontend-watch", false, "watch for Kubernetes frontend updates")
 	flag.StringVar(&f.Frontend.Namespace, "frontend-namespace", "", "name of Kubernetes frontend namespace")
