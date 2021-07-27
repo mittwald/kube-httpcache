@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
 	"os"
-	"os/exec"
 )
 
 func (v *VarnishController) Run() error {
@@ -46,46 +44,5 @@ func (v *VarnishController) Run() error {
 		}
 	}
 
-	return nil  // never gonna happen
-}
-
-func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
-	args := []string{
-		"-F",
-		"-f", v.configFile,
-		"-S", v.SecretFile,
-		"-s", v.Storage,
-		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
-		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
-	}
-
-	if v.name != "" {
-		args = append(args, "-n", v.name)
-	}
-
-	for _, a := range v.addresses {
-		args = append(args, "-a", a)
-	}
-
-	for _, p := range v.parameters {
-		args = append(args, "-p", p)
-	}
-
-	c := exec.Command(
-		v.Executable,
-		args...,
-	)
-
-	c.Dir = "/"
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-
-	r := make(chan error)
-
-	go func() {
-		err := c.Run()
-		r <- err
-	}()
-
-	return c, r
+	return nil // never gonna happen
 }
