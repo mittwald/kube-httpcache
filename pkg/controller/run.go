@@ -38,7 +38,7 @@ func (v *VarnishController) Run() error {
 	cmd, errChan := v.startVarnish()
 
 	v.waitForAdminPort()
-	v.startPrometheusVarnishExporter()
+	//v.startPrometheusVarnishExporter()
 
 	watchErrors := make(chan error)
 	go v.watchConfigUpdates(cmd, watchErrors)
