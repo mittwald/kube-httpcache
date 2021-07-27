@@ -55,7 +55,6 @@ func NewVarnishController(
 	vclTemplateFile string,
 	addresses []string,
 	parameters []string,
-	name string,
 ) (*VarnishController, error) {
 	contents, err := ioutil.ReadFile(vclTemplateFile)
 	if err != nil {
@@ -89,7 +88,6 @@ func NewVarnishController(
 		secret:             secret,
 		addresses:          addresses,
 		parameters:         parameters,
-		name: name,
 	}, nil
 }
 

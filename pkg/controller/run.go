@@ -35,23 +35,18 @@ func (v *VarnishController) Run() error {
 		return err
 	}
 
-	cmd, errChan := v.startVarnish()
-
 	v.waitForAdminPort()
-	//v.startPrometheusVarnishExporter()
 
 	watchErrors := make(chan error)
-	go v.watchConfigUpdates(cmd, watchErrors)
+	go v.watchConfigUpdates(watchErrors)
 
-	go func() {
-		for err := range watchErrors {
-			if err != nil {
-				glog.Warningf("error while watching for updates: %s", err.Error())
-			}
+	for err := range watchErrors {
+		if err != nil {
+			glog.Warningf("error while watching for updates: %s", err.Error())
 		}
-	}()
+	}
 
-	return <-errChan
+	return nil  // never gonna happen
 }
 
 func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
@@ -93,17 +88,4 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 	}()
 
 	return c, r
-}
-
-func (v *VarnishController) startPrometheusVarnishExporter() {
-	c := exec.Command(
-		"prometheus_varnish_exporter",
-	)
-	c.Dir = "/"
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	go func() {
-		err := c.Run()
-		glog.Errorf("prometheus_varnish_exporter exited: %v", err)
-	}()
 }

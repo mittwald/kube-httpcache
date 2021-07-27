@@ -21,3 +21,5 @@ RUN         ./bootstrap
 RUN         ./configure --prefix=/opt/varnish
 RUN         make
 RUN         make install
+
+ENTRYPOINT  ["/opt/varnish/sbin/varnishd"]

@@ -64,7 +64,6 @@ type KubeHTTPProxyFlags struct {
 		VCLTemplatePoll bool
 		Addresses       arrayFlags
 		Parameters      arrayFlags
-		Name string
 	}
 }
 
@@ -105,7 +104,6 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
 	flag.Var(&f.Varnish.Addresses, "varnish-address", "listen address for varnish (may be repeated)")
 	flag.Var(&f.Varnish.Parameters, "varnish-parameter", "parameter configs for varnish (may be repeated)")
-	flag.StringVar(&f.Varnish.Name, "n", "", "name for varnish instance")
 
 	flag.Parse()
 

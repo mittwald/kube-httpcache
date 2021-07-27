@@ -125,7 +125,6 @@ func main() {
 		opts.Varnish.VCLTemplate,
 		opts.Varnish.Addresses,
 		opts.Varnish.Parameters,
-		opts.Varnish.Name,
 	)
 	if err != nil {
 		panic(err)
