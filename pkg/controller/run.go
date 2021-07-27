@@ -64,6 +64,10 @@ func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
 		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
 	}
 
+	if v.name != "" {
+		args = append(args, "-n", v.name)
+	}
+
 	for _, a := range v.addresses {
 		args = append(args, "-a", a)
 	}
