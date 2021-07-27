@@ -1,0 +1,10 @@
+# final image
+FROM        ubuntu:18.04 AS final
+
+WORKDIR     /
+RUN         apt-get update && apt-get install -y gcc libedit2 libpcre++ ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY        --from=varnish:6.5 /opt/varnish /opt/varnish/
+COPY        ./prometheus_varnish_exporter-1.6.linux-amd64/prometheus_varnish_exporter /usr/bin
+ENV         PATH=/opt/varnish/bin:$PATH
+
+ENTRYPOINT  [ "/usr/bin/prometheus_varnish_exporter" ]

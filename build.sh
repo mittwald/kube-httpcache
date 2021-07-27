@@ -22,5 +22,10 @@ git tag "${VERSION}"
 git push --tags
 
 # docker build
+docker build -t varnish:6.5 -f build/Dockerfile.varnish .
+docker build -t re-docker-registry.ihrprod.net/prometheus_varnish_exporter:6.5 -f build/Dockerfile.prometheus_varnish_exporter .
 docker build -t re-docker-registry.ihrprod.net/kube-httpcache:${VERSION} -f build/package/docker/Dockerfile .
+
+# docker push
+docker push re-docker-registry.ihrprod.net/prometheus_varnish_exporter:6.5
 docker push re-docker-registry.ihrprod.net/kube-httpcache:${VERSION}
