@@ -46,8 +46,6 @@ cache:
   #secret: "12345678"
   # Read admin credentials from user provided secret
   #existingSecret: kubecache-secret
-  # File name for Varnish template
-  template: varnish.tpl
 
 cacheExtraArgs: {}
 # cacheExtraArgs: |
