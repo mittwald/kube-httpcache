@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
 	"os"
-	"os/exec"
 )
 
 func (v *VarnishController) Run() error {
@@ -35,71 +33,16 @@ func (v *VarnishController) Run() error {
 		return err
 	}
 
-	cmd, errChan := v.startVarnish()
-
 	v.waitForAdminPort()
-	v.startPrometheusVarnishExporter()
 
 	watchErrors := make(chan error)
-	go v.watchConfigUpdates(cmd, watchErrors)
+	go v.watchConfigUpdates(watchErrors)
 
-	go func() {
-		for err := range watchErrors {
-			if err != nil {
-				glog.Warningf("error while watching for updates: %s", err.Error())
-			}
+	for err := range watchErrors {
+		if err != nil {
+			glog.Warningf("error while watching for updates: %s", err.Error())
 		}
-	}()
-
-	return <-errChan
-}
-
-func (v *VarnishController) startVarnish() (*exec.Cmd, <-chan error) {
-	args := []string{
-		"-F",
-		"-f", v.configFile,
-		"-S", v.SecretFile,
-		"-s", v.Storage,
-		"-a", fmt.Sprintf("%s:%d", v.FrontendAddr, v.FrontendPort),
-		"-T", fmt.Sprintf("%s:%d", v.AdminAddr, v.AdminPort),
 	}
 
-	for _, a := range v.addresses {
-		args = append(args, "-a", a)
-	}
-
-	for _, p := range v.parameters {
-		args = append(args, "-p", p)
-	}
-
-	c := exec.Command(
-		v.Executable,
-		args...,
-	)
-
-	c.Dir = "/"
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-
-	r := make(chan error)
-
-	go func() {
-		err := c.Run()
-		r <- err
-	}()
-
-	return c, r
-}
-
-func (v *VarnishController) startPrometheusVarnishExporter() {
-	c := exec.Command(
-		"prometheus_varnish_exporter",
-	)
-	c.Dir = "/"
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	go func() {
-		err := c.Run()
-		glog.Errorf("prometheus_varnish_exporter exited: %v", err)
-	}()
+	return nil // never gonna happen
 }

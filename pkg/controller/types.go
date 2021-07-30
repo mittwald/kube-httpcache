@@ -17,14 +17,7 @@ type TemplateData struct {
 }
 
 type VarnishController struct {
-	Executable   string
-	SecretFile   string
-	Storage      string
-	FrontendAddr string
-	FrontendPort int
-	AdminAddr    string
-	AdminPort    int
-
+	AdminPort          int
 	vclTemplate        *template.Template
 	vclTemplateUpdates chan []byte
 	frontendUpdates    chan *watcher.EndpointConfig
@@ -37,23 +30,17 @@ type VarnishController struct {
 	localAdminAddr     string
 	addresses          []string
 	parameters         []string
+	name               string
 }
 
 func NewVarnishController(
-	executable string,
 	secretFile string,
-	storage string,
-	frontendAddr string,
-	frontendPort int,
-	adminAddr string,
 	adminPort int,
 	frontendUpdates chan *watcher.EndpointConfig,
 	backendUpdates chan *watcher.EndpointConfig,
 	templateUpdates chan []byte,
 	varnishSignaller *signaller.Signaller,
 	vclTemplateFile string,
-	addresses []string,
-	parameters []string,
 ) (*VarnishController, error) {
 	contents, err := ioutil.ReadFile(vclTemplateFile)
 	if err != nil {
@@ -71,12 +58,6 @@ func NewVarnishController(
 	}
 
 	return &VarnishController{
-		Executable:         executable,
-		SecretFile:         secretFile,
-		Storage:            storage,
-		FrontendAddr:       frontendAddr,
-		FrontendPort:       frontendPort,
-		AdminAddr:          adminAddr,
 		AdminPort:          adminPort,
 		vclTemplate:        tmpl,
 		vclTemplateUpdates: templateUpdates,
@@ -85,8 +66,6 @@ func NewVarnishController(
 		varnishSignaller:   varnishSignaller,
 		configFile:         "/tmp/vcl",
 		secret:             secret,
-		addresses:          addresses,
-		parameters:         parameters,
 	}, nil
 }
 

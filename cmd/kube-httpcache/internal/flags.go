@@ -29,8 +29,6 @@ type KubeHTTPProxyFlags struct {
 		RetryBackoff       time.Duration
 	}
 	Frontend struct {
-		Address   string
-		Port      int
 		Watch     bool
 		Namespace string
 		Service   string
@@ -53,17 +51,12 @@ type KubeHTTPProxyFlags struct {
 		RetryBackoff       time.Duration
 	}
 	Admin struct {
-		Address string
-		Port    int
+		Port int
 	}
 	Varnish struct {
-		Executable      string
 		SecretFile      string
-		Storage         string
 		VCLTemplate     string
 		VCLTemplatePoll bool
-		Addresses       arrayFlags
-		Parameters      arrayFlags
 	}
 }
 
@@ -72,9 +65,6 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 
 	flag.StringVar(&f.Kubernetes.Config, "kubeconfig", "", "kubeconfig file")
 	flag.StringVar(&f.Kubernetes.RetryBackoffString, "retry-backoff", "30s", "backoff for Kubernetes API reconnection attempts")
-
-	flag.StringVar(&f.Frontend.Address, "frontend-addr", "0.0.0.0", "TCP address to listen on")
-	flag.IntVar(&f.Frontend.Port, "frontend-port", 80, "TCP port to listen on")
 
 	flag.BoolVar(&f.Frontend.Watch, "frontend-watch", false, "watch for Kubernetes frontend updates")
 	flag.StringVar(&f.Frontend.Namespace, "frontend-namespace", "", "name of Kubernetes frontend namespace")
@@ -94,16 +84,11 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.IntVar(&f.Signaller.MaxRetries, "signaller-retries", 5, "maximum number of attempts for signalling request")
 	flag.StringVar(&f.Signaller.RetryBackoffString, "signaller-backoff", "30s", "backoff for signalling request attempts")
 
-	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
 	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP port for the Varnish admin")
 
-	flag.StringVar(&f.Varnish.Executable, "varnish-executable", "/opt/varnish/sbin/varnishd", "Path to varnishd executable")
 	flag.StringVar(&f.Varnish.SecretFile, "varnish-secret-file", "/etc/varnish/secret", "Varnish secret file")
-	flag.StringVar(&f.Varnish.Storage, "varnish-storage", "file,/tmp/varnish-data,1G", "varnish storage config")
 	flag.StringVar(&f.Varnish.VCLTemplate, "varnish-vcl-template", "/etc/varnish/default.vcl.tmpl", "VCL template file")
 	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
-	flag.Var(&f.Varnish.Addresses, "varnish-address", "listen address for varnish (may be repeated)")
-	flag.Var(&f.Varnish.Parameters, "varnish-parameter", "parameter configs for varnish (may be repeated)")
 
 	flag.Parse()
 

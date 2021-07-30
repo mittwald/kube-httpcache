@@ -111,20 +111,13 @@ func main() {
 	}()
 
 	varnishController, err := controller.NewVarnishController(
-		opts.Varnish.Executable,
 		opts.Varnish.SecretFile,
-		opts.Varnish.Storage,
-		opts.Frontend.Address,
-		opts.Frontend.Port,
-		opts.Admin.Address,
 		opts.Admin.Port,
 		frontendUpdates,
 		backendUpdates,
 		templateUpdates,
 		varnishSignaller,
 		opts.Varnish.VCLTemplate,
-		opts.Varnish.Addresses,
-		opts.Varnish.Parameters,
 	)
 	if err != nil {
 		panic(err)

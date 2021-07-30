@@ -14,8 +14,8 @@ import (
 
 func (b *Signaller) Run() error {
 	server := &http.Server{
-		Addr:    b.Address + ":" + strconv.Itoa(b.Port),
-		Handler: tracing.HTTPMiddleware(func (r *http.Request) string {
+		Addr: b.Address + ":" + strconv.Itoa(b.Port),
+		Handler: tracing.HTTPMiddleware(func(r *http.Request) string {
 			return r.Method + "/signaller"
 		})(b),
 	}
@@ -46,7 +46,6 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		xff += ", "
 	}
 	xff += r.RemoteAddr
-
 
 	for _, endpoint := range b.endpoints.Endpoints {
 		url := fmt.Sprintf("%s://%s:%s%s", b.EndpointScheme, endpoint.Host, endpoint.Port, r.RequestURI)

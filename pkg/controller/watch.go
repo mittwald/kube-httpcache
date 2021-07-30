@@ -5,14 +5,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/ihr-radioedit/go-tracing"
-	"os/exec"
 	"text/template"
 
 	"github.com/golang/glog"
 	varnishclient "github.com/martin-helmich/go-varnish-client"
 )
 
-func (v *VarnishController) watchConfigUpdates(c *exec.Cmd, errors chan<- error) {
+func (v *VarnishController) watchConfigUpdates(errors chan<- error) {
 	i := 0
 
 	for {
