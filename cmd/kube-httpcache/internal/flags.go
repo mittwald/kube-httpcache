@@ -44,7 +44,7 @@ type KubeHTTPProxyFlags struct {
 	Varnish struct {
 		SecretFile           string
 		Storage              string
-		TransientStorage	string
+		TransientStorage     string
 		AdditionalParameters string
 		VCLTemplate          string
 		VCLTemplatePoll      bool
