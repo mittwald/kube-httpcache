@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
 
@@ -32,7 +33,13 @@ func NewSignaller(
 	workersCount int,
 	maxRetries int,
 	retryBackoff time.Duration,
+	queueLength int,
 ) *Signaller {
+	if queueLength < 0 {
+		glog.Warning("signaller processing queue cannot have negative length, fall back to default value: 0")
+		queueLength = 0
+	}
+
 	return &Signaller{
 		Address:        address,
 		Port:           port,
@@ -41,7 +48,7 @@ func NewSignaller(
 		RetryBackoff:   retryBackoff,
 		EndpointScheme: "http",
 		endpoints:      watcher.NewEndpointConfig(),
-		signalQueue:    make(chan Signal),
+		signalQueue:    make(chan Signal, queueLength),
 		errors:         make(chan error),
 	}
 }

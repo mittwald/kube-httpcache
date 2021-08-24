@@ -36,6 +36,7 @@ type KubeHTTPProxyFlags struct {
 		MaxRetries         int
 		RetryBackoffString string
 		RetryBackoff       time.Duration
+		QueueLength        int
 	}
 	Admin struct {
 		Address string
@@ -81,6 +82,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.IntVar(&f.Signaller.WorkersCount, "signaller-workers", 1, "number of workers to process requests")
 	flag.IntVar(&f.Signaller.MaxRetries, "signaller-retries", 5, "maximum number of attempts for signalling request")
 	flag.StringVar(&f.Signaller.RetryBackoffString, "signaller-backoff", "30s", "backoff for signalling request attempts")
+	flag.IntVar(&f.Signaller.QueueLength, "signaller-queue-length", 0, "length of signaller's processing queue")
 
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
 	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP port for the Varnish admin")
