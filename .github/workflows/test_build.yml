@@ -45,5 +45,5 @@ jobs:
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
-          version: latest
+          version: "0.176.0"
           args: release -f build/ci/.goreleaser.yml --snapshot --skip-publish --rm-dist
