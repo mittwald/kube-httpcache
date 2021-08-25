@@ -87,3 +87,17 @@ func EndpointListFromSubset(ep v1.EndpointSubset, portName string) (EndpointList
 
 	return l, nil
 }
+
+// EndpointSubsetIndex returns the index of EndpointSubset for which port.Name
+// matches provided portName
+func EndpointSubsetIndex(es []v1.EndpointSubset, portName string) (int, error) {
+	for i, set := range es {
+		for _, port := range set.Ports {
+			if port.Name == portName {
+				return i, nil
+			}
+		}
+	}
+
+	return -1, fmt.Errorf("port %q is not found in endpoint subsets", portName)
+}

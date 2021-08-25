@@ -46,7 +46,7 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 
 			endpoint := ev.Object.(*v1.Endpoints)
 
-			if len(endpoint.Subsets) == 0 || len(endpoint.Subsets[0].Addresses) == 0 {
+			if len(endpoint.Subsets) == 0 {
 				glog.Warningf("service '%s' has no endpoints", v.serviceName)
 
 				v.endpointConfig = NewEndpointConfig()
@@ -54,13 +54,28 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 				continue
 			}
 
-			if v.endpointConfig.Endpoints.EqualsEndpoints(endpoint.Subsets[0]) {
+			endpointSubsetIndex, err := EndpointSubsetIndex(endpoint.Subsets, v.portName)
+			if err != nil {
+				glog.Warning(err)
+				v.endpointConfig = NewEndpointConfig()
+
+				continue
+			}
+
+			if len(endpoint.Subsets[endpointSubsetIndex].Addresses) == 0 {
+				glog.Warningf("service '%s' has no endpoints", v.serviceName)
+				v.endpointConfig = NewEndpointConfig()
+
+				continue
+			}
+
+			if v.endpointConfig.Endpoints.EqualsEndpoints(endpoint.Subsets[endpointSubsetIndex]) {
 				glog.Infof("endpoints did not change")
 				continue
 			}
 
 			var addresses []v1.EndpointAddress
-			for _, a := range endpoint.Subsets[0].Addresses {
+			for _, a := range endpoint.Subsets[endpointSubsetIndex].Addresses {
 				puid := string(a.TargetRef.UID)
 
 				po, err := v.client.CoreV1().Pods(v.namespace).Get(a.TargetRef.Name, metav1.GetOptions{})
@@ -84,11 +99,11 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 				continue
 			}
 
-			endpoint.Subsets[0].Addresses = addresses
+			endpoint.Subsets[endpointSubsetIndex].Addresses = addresses
 
 			newConfig := NewEndpointConfig()
 
-			newBackendList, err := EndpointListFromSubset(endpoint.Subsets[0], v.portName)
+			newBackendList, err := EndpointListFromSubset(endpoint.Subsets[endpointSubsetIndex], v.portName)
 			if err != nil {
 				glog.Errorf("error while building backend list: %s", err.Error())
 				continue
