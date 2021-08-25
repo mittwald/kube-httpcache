@@ -86,6 +86,7 @@ func main() {
 			opts.Signaller.WorkersCount,
 			opts.Signaller.MaxRetries,
 			opts.Signaller.RetryBackoff,
+			opts.Signaller.QueueLength,
 		)
 		varnishSignallerErrors = varnishSignaller.GetErrors()
 
