@@ -71,6 +71,9 @@ spec:
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
           - -varnish-storage={{ .Values.cache.varnishStorage }},{{ .Values.cache.storageSize }}
+          {{- if .Values.cache.varnishTransientStorage }}
+          - -varnish-transient-storage={{ .Values.cache.varnishTransientStorage }},{{ .Values.cache.transientStorageSize }}
+          {{- end }}
           {{- if .Values.cacheExtraArgs }}
             {{- with .Values.cacheExtraArgs }}
             {{- tpl . $ | trim | nindent 10 }}

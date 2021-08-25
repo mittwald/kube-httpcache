@@ -116,6 +116,7 @@ func main() {
 	varnishController, err := controller.NewVarnishController(
 		opts.Varnish.SecretFile,
 		opts.Varnish.Storage,
+		opts.Varnish.TransientStorage,
 		opts.Varnish.AdditionalParameters,
 		opts.Varnish.WorkingDir,
 		opts.Frontend.Address,
