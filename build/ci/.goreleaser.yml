@@ -33,7 +33,7 @@ dockers:
       - quay.io/mittwald/kube-httpcache:{{ .Tag }}
       - quay.io/mittwald/kube-httpcache:stable
     dockerfile: build/package/docker/GoReleaser.Dockerfile
-    binaries:
+    ids:
       - kube-httpcache
     goos: linux
     goarch: amd64
