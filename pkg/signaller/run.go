@@ -61,15 +61,15 @@ func (b *Signaller) ProcessSignalQueue() {
 	for signal := range b.signalQueue {
 		response, err := client.Do(signal.Request)
 		if err != nil {
-			glog.Errorf("singal broadcast error: %v", err.Error())
-			glog.Infof("retring in %v", b.RetryBackoff)
+			glog.Errorf("signal broadcast error: %v", err.Error())
+			glog.Infof("retrying in %v", b.RetryBackoff)
 			b.Retry(signal)
 		} else if response.StatusCode >= 400 && response.StatusCode <= 599 {
-			glog.Warningf("singal broadcast error: unusual status code from %s: %v", response.Request.URL.Host, response.Status)
-			glog.Infof("retring in %v", b.RetryBackoff)
+			glog.Warningf("signal broadcast error: unusual status code from %s: %v", response.Request.URL.Host, response.Status)
+			glog.Infof("retrying in %v", b.RetryBackoff)
 			b.Retry(signal)
 		} else {
-			glog.V(5).Infof("recieved a signal response from %s: %+v", response.Request.URL.Host, response)
+			glog.V(5).Infof("received a signal response from %s: %+v", response.Request.URL.Host, response)
 		}
 
 		if response != nil {
