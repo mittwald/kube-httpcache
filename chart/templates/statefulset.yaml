@@ -30,6 +30,10 @@ spec:
       serviceAccountName: {{ include "kube-httpcache.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.initContainers }}
       initContainers:
         {{- with .Values.initContainers }}
