@@ -24,7 +24,7 @@ configmap:
 
 # kube-httpcache specific configuration
 cache:
-  # name of backend service
+  # name of frontend service
   # frontendService: kube-httpcache-headless
   # name of backend service
   backendService: backend-service
