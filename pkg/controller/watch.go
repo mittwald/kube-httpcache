@@ -19,7 +19,7 @@ func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd,
 
 		select {
 		case tmplContents := <-v.vclTemplateUpdates:
-			glog.Infof("VCL template was updated")
+			glog.Infof("VCL template has been updated")
 
 			tmpl, err := template.New("vcl").Parse(string(tmplContents))
 			if err != nil {

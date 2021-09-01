@@ -36,8 +36,8 @@ func NewSignaller(
 	queueLength int,
 ) *Signaller {
 	if queueLength < 0 {
-		glog.Warning("signaller processing queue cannot have negative length, fall back to default value: 0")
 		queueLength = 0
+		glog.Warning("signaller processing queue cannot have a negative length, falling back to default value: %d", queueLength)
 	}
 
 	return &Signaller{
