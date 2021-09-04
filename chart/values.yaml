@@ -157,6 +157,35 @@ exporter:
   #    port: 6083
   readinessProbe: {}
 
+logger:
+  enabled: false
+  # format:
+  #   '@timestamp': '%{%Y-%m-%dT%H:%M:%S%z}t'
+  #   '@version': '1'
+  #   'vips': '%{host}i'
+  #   'tags': '["varnish"]'
+  #   'message': '%h %l %u %t \\%r\\ %s %b'
+  #   'clientip': '%h'
+  #   'duration': '%D'
+  #   'status': '%s'
+  #   'request': '%U%q'
+  #   'urlpath': '%U'
+  #   'urlquery': '%q'
+  #   'bytes': '%b'
+  #   'method': '%m'
+  #   'referer': '%{Referer}i'
+  #   'useragent': '%{User-agent}i'
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: false
+    # runAsNonRoot: true
+    # runAsUser: 1000
+  resources: {}
+  livenessProbe: {}
+  readinessProbe: {}
+
 service:
   type: ClusterIP
   port: 80

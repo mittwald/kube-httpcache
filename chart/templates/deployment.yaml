@@ -138,6 +138,38 @@ spec:
             {{- toYaml .Values.exporter.resources | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- if .Values.logger.enabled }}
+        - name: logger
+          securityContext:
+            {{- toYaml .Values.logger.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - varnishncsa
+          args:
+          - -a
+          {{- if .Values.logger.format }}
+          - {{- printf " -F %s" (toJson .Values.logger.format) }}
+          {{- end }}
+          env:
+          - name: VSM_NOPID
+            value: "1"
+          volumeMounts:
+          - name: var
+            mountPath: /var/lib/varnish
+          {{- if .Values.logger.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.logger.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.logger.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.logger.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.logger.resources }}
+          resources:
+            {{- toYaml .Values.logger.resources | nindent 12 }}
+          {{- end }}
+        {{- end }}
         {{- if .Values.extraContainers }}
           {{- toYaml .Values.extraContainers | nindent 8 }}
         {{- end }}
