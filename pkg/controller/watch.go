@@ -97,6 +97,10 @@ func (v *VarnishController) rebuildConfig(ctx context.Context, i int) error {
 		glog.V(1).Infof("error while changing state of VCL %s: %s", v.currentVCLName, err)
 	}
 
+	if err := client.DiscardVCL(ctx, v.currentVCLName); err != nil {
+		glog.V(1).Infof("error while discarding previous VCL version %s: %s", v.currentVCLName, err)
+	}
+
 	v.currentVCLName = configname
 
 	return nil
