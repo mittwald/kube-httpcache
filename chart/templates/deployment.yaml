@@ -58,6 +58,7 @@ spec:
           - -admin-port=6083
           - -signaller-enable
           - -signaller-port=8090
+          - -frontend-port={{ .Values.service.target }}
           {{- if .Values.cache.frontendWatch }}
           - -frontend-watch
           {{- else }}
