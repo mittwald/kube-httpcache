@@ -184,7 +184,7 @@ data:
 ```
 
 Environment variables can be used from the template. `{{ .Env.ENVVAR }}` is replaced with the
-environment variable value. This can be used to set for example the Host-header for the external 
+environment variable value. This can be used to set for example the Host-header for the external
 service.
 
 ### Create a Secret
@@ -316,7 +316,7 @@ sub vcl_recv {
 
   # Purge logic
   if (req.method == "PURGE") {
-    if (client.ip !~ privileged) {
+    if (client.ip !~ purgers) {
       return (synth(403, "Not allowed."));
     }
     if (req.http.X-Host) {
@@ -327,7 +327,7 @@ sub vcl_recv {
 
   # Ban logic
   if (req.method == "BAN") {
-    if (client.ip !~ privileged) {
+    if (client.ip !~ purgers) {
       return (synth(403, "Not allowed."));
     }
     if (req.http.Cache-Tags) {
@@ -418,7 +418,7 @@ spec:
   type: ClusterIP
 ```
 
-An ingress points to the kube-httpcache service which cached 
+An ingress points to the kube-httpcache service which cached
 your backend service:
 
 ```
