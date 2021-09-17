@@ -15,16 +15,20 @@ type Signal struct {
 }
 
 type Signaller struct {
-	Address        string
-	Port           int
-	WorkersCount   int
-	MaxRetries     int
-	RetryBackoff   time.Duration
-	EndpointScheme string
-	endpoints      *watcher.EndpointConfig
-	signalQueue    chan Signal
-	errors         chan error
-	mutex          sync.RWMutex
+	Address                string
+	Port                   int
+	WorkersCount           int
+	MaxRetries             int
+	RetryBackoff           time.Duration
+	MaxConnsPerHost        int
+	MaxIdleConns           int
+	MaxIdleConnsPerHost    int
+	UpstreamRequestTimeout time.Duration
+	EndpointScheme         string
+	endpoints              *watcher.EndpointConfig
+	signalQueue            chan Signal
+	errors                 chan error
+	mutex                  sync.RWMutex
 }
 
 func NewSignaller(
@@ -34,6 +38,10 @@ func NewSignaller(
 	maxRetries int,
 	retryBackoff time.Duration,
 	queueLength int,
+	maxConnsPerHost int,
+	maxIdleConns int,
+	maxIdleConnsPerHost int,
+	upstreamRequestTimeout time.Duration,
 ) *Signaller {
 	if queueLength < 0 {
 		queueLength = 0
@@ -41,15 +49,19 @@ func NewSignaller(
 	}
 
 	return &Signaller{
-		Address:        address,
-		Port:           port,
-		WorkersCount:   workersCount,
-		MaxRetries:     maxRetries,
-		RetryBackoff:   retryBackoff,
-		EndpointScheme: "http",
-		endpoints:      watcher.NewEndpointConfig(),
-		signalQueue:    make(chan Signal, queueLength),
-		errors:         make(chan error),
+		Address:                address,
+		Port:                   port,
+		WorkersCount:           workersCount,
+		MaxRetries:             maxRetries,
+		RetryBackoff:           retryBackoff,
+		MaxConnsPerHost:        maxConnsPerHost,
+		MaxIdleConns:           maxIdleConns,
+		MaxIdleConnsPerHost:    maxIdleConnsPerHost,
+		UpstreamRequestTimeout: upstreamRequestTimeout,
+		EndpointScheme:         "http",
+		endpoints:              watcher.NewEndpointConfig(),
+		signalQueue:            make(chan Signal, queueLength),
+		errors:                 make(chan error),
 	}
 }
 

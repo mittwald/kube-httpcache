@@ -87,6 +87,10 @@ func main() {
 			opts.Signaller.MaxRetries,
 			opts.Signaller.RetryBackoff,
 			opts.Signaller.QueueLength,
+			opts.Signaller.MaxConnsPerHost,
+			opts.Signaller.MaxIdleConns,
+			opts.Signaller.MaxIdleConnsPerHost,
+			opts.Signaller.UpstreamRequestTimeout,
 		)
 		varnishSignallerErrors = varnishSignaller.GetErrors()
 
