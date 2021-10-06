@@ -3,6 +3,7 @@ package signaller
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -57,6 +58,25 @@ func (b *Signaller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (b *Signaller) ProcessSignalQueue() {
 	client := &http.Client{}
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+
+	if b.MaxConnsPerHost != -1 {
+		transport.MaxConnsPerHost = b.MaxConnsPerHost
+	}
+
+	if b.MaxIdleConns != -1 {
+		transport.MaxIdleConns = b.MaxIdleConns
+	}
+
+	if b.MaxIdleConnsPerHost != -1 {
+		transport.MaxIdleConnsPerHost = b.MaxIdleConnsPerHost
+	}
+
+	client.Transport = transport
+
+	if b.UpstreamRequestTimeout != 0 {
+		client.Timeout = b.UpstreamRequestTimeout
+	}
 
 	for signal := range b.signalQueue {
 		response, err := client.Do(signal.Request)
@@ -73,6 +93,10 @@ func (b *Signaller) ProcessSignalQueue() {
 		}
 
 		if response != nil {
+			if _, err := io.Copy(ioutil.Discard, response.Body); err != nil {
+				glog.Error("error on discarding response body for connection reuse:", err)
+			}
+
 			if err := response.Body.Close(); err != nil {
 				glog.Error("error on closing response body:", err)
 			}

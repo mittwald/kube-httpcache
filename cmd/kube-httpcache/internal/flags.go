@@ -29,14 +29,19 @@ type KubeHTTPProxyFlags struct {
 		PortName  string
 	}
 	Signaller struct {
-		Enable             bool
-		Address            string
-		Port               int
-		WorkersCount       int
-		MaxRetries         int
-		RetryBackoffString string
-		RetryBackoff       time.Duration
-		QueueLength        int
+		Enable                       bool
+		Address                      string
+		Port                         int
+		WorkersCount                 int
+		MaxRetries                   int
+		RetryBackoffString           string
+		RetryBackoff                 time.Duration
+		QueueLength                  int
+		MaxConnsPerHost              int
+		MaxIdleConns                 int
+		MaxIdleConnsPerHost          int
+		UpstreamRequestTimeoutString string
+		UpstreamRequestTimeout       time.Duration
 	}
 	Admin struct {
 		Address string
@@ -84,6 +89,13 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.IntVar(&f.Signaller.MaxRetries, "signaller-retries", 5, "maximum number of attempts for signalling request")
 	flag.StringVar(&f.Signaller.RetryBackoffString, "signaller-backoff", "30s", "backoff for signalling request attempts")
 	flag.IntVar(&f.Signaller.QueueLength, "signaller-queue-length", 0, "length of signaller's processing queue")
+	flag.IntVar(&f.Signaller.MaxConnsPerHost, "signaller-max-conns-per-host", -1,
+		"set http.Transport.MaxConnsPerHost in signaller http-client, avaliable then upstream connection reuse is enabled")
+	flag.IntVar(&f.Signaller.MaxIdleConns, "signaller-max-idle-conns", -1,
+		"set http.Transport.MaxIdleConns in signaller http-client, avaliable then upstream connection reuse is enabled")
+	flag.IntVar(&f.Signaller.MaxIdleConnsPerHost, "signaller-max-idle-conns-per-host", -1,
+		"set http.Transport.MaxIdleConnsPerHost in signaller http-client, avaliable then upstream connection reuse is enabled")
+	flag.StringVar(&f.Signaller.UpstreamRequestTimeoutString, "signaller-request-timeout", "", "timeout for an outgoing signaller request")
 
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
 	flag.IntVar(&f.Admin.Port, "admin-port", 6082, "TCP port for the Varnish admin")
@@ -116,6 +128,13 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	f.Signaller.RetryBackoff, err = time.ParseDuration(f.Signaller.RetryBackoffString)
 	if err != nil {
 		return err
+	}
+
+	if f.Signaller.UpstreamRequestTimeoutString != "" {
+		f.Signaller.UpstreamRequestTimeout, err = time.ParseDuration(f.Signaller.UpstreamRequestTimeoutString)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
