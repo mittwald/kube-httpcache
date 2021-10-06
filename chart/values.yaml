@@ -160,7 +160,7 @@ exporter:
 service:
   type: ClusterIP
   port: 80
-  target: 80
+  target: 8080
 
 ingress:
   enabled: false
