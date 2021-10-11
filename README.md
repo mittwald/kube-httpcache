@@ -397,10 +397,11 @@ When starting kube-httpcache, remember to set the `--backend-watch=false` flag t
 You can use the [Helm chart](chart/) to rollout an instance of kube-httpcache:
 
 ```
-$ helm install -f your-values.yaml kube-httpcache ./chart
+$ helm repo add mittwald https://helm.mittwald.de
+$ helm install -f your-values.yaml kube-httpcache mittwald/kube-httpcache
 ```
 
-For possible values, have a look at the comments in the provided [`values.yaml` file](./chart/values.yaml).
+For possible values, have a look at the comments in the provided [`values.yaml` file](./chart/values.yaml). Take special note that you'll most likely have to overwrite the `vclTemplate` value with your own VCL configuration file.
 
 Ensure your defined backend services have a port named `http`:
 
