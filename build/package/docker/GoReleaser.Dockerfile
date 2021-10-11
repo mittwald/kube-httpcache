@@ -1,4 +1,5 @@
-FROM        debian:stretch-slim
+ARG ARCH=
+FROM        ${ARCH}debian:stretch-slim
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
