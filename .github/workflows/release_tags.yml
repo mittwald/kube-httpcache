@@ -31,3 +31,12 @@ jobs:
           args: release --rm-dist -f build/ci/.goreleaser.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_USER_TOKEN }}
+
+      - name: Run chart version bump
+        uses: mittwald/bump-app-version-action@v1
+        with:
+          mode: 'publish'
+          chartYaml: './chart/Chart.yaml'
+        env:
+          GITHUB_TOKEN: "${{ secrets.RELEASE_USER_TOKEN }}"
+          HELM_REPO_PASSWORD: "${{ secrets.HELM_REPO_PASSWORD }}"
