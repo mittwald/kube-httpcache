@@ -1,4 +1,5 @@
-FROM        debian:stretch-slim
+ARG ARCH=
+FROM        ${ARCH}debian:stretch-slim
 
 ENV         EXPORTER_VERSION=1.6
 
