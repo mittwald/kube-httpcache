@@ -38,7 +38,7 @@ RUN         set -x \
             && \
             apt-get -qq update && apt-get -qq install varnish \
             && \
-            apt-get -qq purge curl gnupg apt-transport-https && \
+            apt-get -qq purge curl gnupg && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
             rm -rf /var/cache/*
 
