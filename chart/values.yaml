@@ -71,6 +71,7 @@ podSecurityPolicy:
   enabled: false
   # name: unrestricted-psp
 
+annotations: {}
 podAnnotations: {}
 
 podSecurityContext: {}
