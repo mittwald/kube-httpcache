@@ -6,6 +6,10 @@ metadata:
   name: {{ include "kube-httpcache.fullname" . }}
   labels:
     {{- include "kube-httpcache.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   serviceName: {{ include "kube-httpcache.fullname" . }}
 {{- if not .Values.autoscaling.enabled }}
