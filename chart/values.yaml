@@ -152,12 +152,20 @@ exporter:
     # runAsNonRoot: true
     # runAsUser: 1000
   resources: {}
-  livenessProbe: {}
-  # livenessProbe:
-  #   httpGet:
-  #    path: /
-  #    port: 6083
-  readinessProbe: {}
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 9131
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 9131
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
 
 service:
   type: ClusterIP
@@ -225,12 +233,18 @@ tolerations: []
 
 affinity: {}
 
-livenessProbe: {}
-# livenessProbe:
-#   httpGet:
-#    path: /
-#    port: 6083
-readinessProbe: {}
+livenessProbe:
+  tcpSocket:
+    port: 8090
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 3
+readinessProbe:
+  tcpSocket:
+    port: 8090
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 3
 
 vclTemplate: |
   vcl 4.0;
