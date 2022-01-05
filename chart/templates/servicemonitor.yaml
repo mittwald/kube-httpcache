@@ -1,10 +1,13 @@
-{{- if .Values.serviceMonitor -}}
+{{- if .Values.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "kube-httpcache.fullname" . }}
   labels:
     {{- include "kube-httpcache.labels" . | nindent 4 }}
+    {{- if .Values.serviceMonitor.additionalLabels }}
+{{ toYaml .Values.serviceMonitor.additionalLabels | indent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:
@@ -12,5 +15,10 @@ spec:
   endpoints:
   - port: metrics
     path: /metrics
-    interval: 10s
+    {{- if .Values.serviceMonitor.interval }}
+    interval: {{ .Values.serviceMonitor.interval }}
+    {{- end }}
+    {{- if .Values.serviceMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+    {{- end }}
 {{- end}}
