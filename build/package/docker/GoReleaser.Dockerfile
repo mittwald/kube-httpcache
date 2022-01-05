@@ -1,7 +1,7 @@
 ARG ARCH=
 FROM        ${ARCH}debian:stretch-slim
 
-ENV         EXPORTER_VERSION=1.6
+ENV         EXPORTER_VERSION=1.6.1
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
