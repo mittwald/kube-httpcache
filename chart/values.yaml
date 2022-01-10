@@ -65,7 +65,15 @@ rbac:
   enabled: true
 
 # create a prometheus operator ServiceMonitor
-serviceMonitor: false
+serviceMonitor:
+  enabled: false
+
+  additionalLabels: {}
+  ## Scrape interval. If not set, the Prometheus default scrape interval is used.
+  interval: 10s
+  ## Scrape Timeout. If not set, the Prometheus default scrape timeout is used.
+  scrapeTimeout: ""
+
 
 podSecurityPolicy:
   enabled: false

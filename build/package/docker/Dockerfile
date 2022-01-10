@@ -13,7 +13,7 @@ RUN         CGO_ENABLED=0 GOOS=linux \
 
 FROM        debian:stretch-slim AS final
 
-ENV         EXPORTER_VERSION=1.6
+ENV         EXPORTER_VERSION=1.6.1
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
