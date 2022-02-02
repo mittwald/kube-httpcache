@@ -9,6 +9,7 @@ image:
   pullPolicy: IfNotPresent
   tag: "stable"
 
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
