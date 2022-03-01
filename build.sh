@@ -24,9 +24,11 @@ git push --tags
 # docker build
 docker build -t re-docker-registry.ihrprod.net/varnish:6.5 -f build/Dockerfile.varnish .
 docker build -t re-docker-registry.ihrprod.net/prometheus_varnish_exporter:6.5 -f build/Dockerfile.prometheus_varnish_exporter .
+docker build -t re-docker-registry.ihrprod.net/varnish_log_exporter:6.5 -f build/Dockerfile.varnish_log_exporter .
 docker build -t re-docker-registry.ihrprod.net/kube-httpcache:${VERSION} -f build/package/docker/Dockerfile .
 
 # docker push
 docker push re-docker-registry.ihrprod.net/varnish:6.5
 docker push re-docker-registry.ihrprod.net/prometheus_varnish_exporter:6.5
+docker push re-docker-registry.ihrprod.net/varnish_log_exporter:6.5
 docker push re-docker-registry.ihrprod.net/kube-httpcache:${VERSION}

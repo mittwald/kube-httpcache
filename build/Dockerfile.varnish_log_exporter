@@ -1,0 +1,9 @@
+# final image
+FROM        ubuntu:18.04 AS final
+
+WORKDIR     /
+RUN         apt-get update && apt-get install -y gcc libedit2 libpcre++ ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY        --from=re-docker-registry.ihrprod.net/varnish:6.5 /opt/varnish /opt/varnish/
+ENV         PATH=/opt/varnish/bin:$PATH
+
+ENTRYPOINT  [ "/opt/varnish/bin/varnishncsa" ]
