@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -73,6 +75,45 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 	err = client.Authenticate(ctx, v.secret)
 	if err != nil {
 		return err
+	}
+
+	maxVclParam, err := client.GetParameter(ctx, "max_vcl")
+	if err != nil {
+		return err
+	}
+
+	maxVcl, err := strconv.Atoi(maxVclParam.Value)
+	if err != nil {
+		return err
+	}
+
+	loadedVcl, err := client.ListVCL(ctx)
+	if err != nil {
+		return err
+	}
+
+	availableVcl := make([]varnishclient.VCLConfig, 0)
+
+	for i := range loadedVcl {
+		if loadedVcl[i].Status == varnishclient.VCLAvailable {
+			availableVcl = append(availableVcl, loadedVcl[i])
+		}
+	}
+
+	if len(loadedVcl) >= maxVcl {
+		// we're abusing the fact that "boot" < "reload"
+		sort.Slice(availableVcl, func(i, j int) bool {
+			return availableVcl[i].Name < availableVcl[j].Name
+		})
+
+		for i := 0; i < len(loadedVcl)-maxVcl+1; i++ {
+			glog.V(8).Infof("discarding VCL: %s", availableVcl[i].Name)
+
+			err = client.DiscardVCL(ctx, availableVcl[i].Name)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	configname := strings.ReplaceAll(time.Now().Format("reload_20060102_150405.00000"), ".", "_")
