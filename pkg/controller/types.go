@@ -69,11 +69,6 @@ func NewVarnishController(
 		return nil, err
 	}
 
-	secret, err := ioutil.ReadFile(secretFile)
-	if err != nil {
-		return nil, err
-	}
-
 	return &VarnishController{
 		SecretFile:           secretFile,
 		Storage:              storage,
@@ -90,7 +85,6 @@ func NewVarnishController(
 		backendUpdates:       backendUpdates,
 		varnishSignaller:     varnishSignaller,
 		configFile:           "/tmp/vcl",
-		secret:               secret,
 	}, nil
 }
 
