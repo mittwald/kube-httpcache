@@ -38,7 +38,6 @@ type VarnishController struct {
 	backend            *watcher.EndpointConfig
 	varnishSignaller   *signaller.Signaller
 	configFile         string
-	secret             []byte
 	localAdminAddr     string
 	currentVCLName     string
 }
