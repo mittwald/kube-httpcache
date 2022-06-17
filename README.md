@@ -241,6 +241,7 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
             - -frontend-watch
             - -frontend-namespace=$(NAMESPACE)
             - -frontend-service=frontend-service
+            - -frontend-port=8080
             - -backend-watch
             - -backend-namespace=$(NAMESPACE)
             - -backend-service=backend-service
@@ -257,6 +258,11 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
               mountPath: /etc/varnish/tmpl
             - name: secret
               mountPath: /etc/varnish/k8s-secret
+            ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8090
+              name: signaller
           serviceAccountName: kube-httpcache  # when using RBAC
           restartPolicy: Always
           volumes:
@@ -283,10 +289,10 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
       ports:
       - name: "http"
         port: 80
-        targetPort: 80
+        targetPort: http
       - name: "signaller"
         port: 8090
-        targetPort: 8090
+        targetPort: signaller
       selector:
         app: cache
     ```
