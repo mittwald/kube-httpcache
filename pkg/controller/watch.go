@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -72,7 +73,12 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 		return err
 	}
 
-	err = client.Authenticate(ctx, v.secret)
+	secret, err := ioutil.ReadFile(v.SecretFile)
+	if err != nil {
+		return err
+	}
+
+	err = client.Authenticate(ctx, secret)
 	if err != nil {
 		return err
 	}
