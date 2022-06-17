@@ -13,7 +13,9 @@ jobs:
     - uses: actions/stale@v3
       with:
         repo-token: ${{ secrets.RELEASE_USER_TOKEN }}
-        days-before-stale: 14
+        days-before-stale: 30
+        days-before-close: 30
+        days-before-pr-close: -1
 
         stale-issue-message: >
           There has not been any activity to this issue in the last 14 days.
