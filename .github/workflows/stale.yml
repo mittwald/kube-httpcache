@@ -18,13 +18,12 @@ jobs:
         days-before-pr-close: -1
 
         stale-issue-message: >
-          There has not been any activity to this issue in the last 14 days.
-          It will automatically be closed after 7 more days. Remove the `stale` label to prevent this.
+          There has not been any activity to this issue in the last 30 days.
+          It will automatically be closed after 30 more days. Remove the `stale` label to prevent this.
         stale-issue-label: 'stale'
         exempt-issue-labels: 'accepted,confirmed,help-wanted'
 
         stale-pr-message: >
-          There has not been any activity to this pull request in the last 14 days.
-          It will automatically be closed after 7 more days. Remove the `stale` label to prevent this.
+          There has not been any activity to this pull request in the last 30 days.
         stale-pr-label: 'stale'
         exempt-pr-labels: 'awaiting-approval,work-in-progress'
