@@ -37,7 +37,7 @@ This controller is not intended to be a replacement of a regular [ingress contro
 
 ```
 ┌─────────┐       ┌─────────┐       ┌─────────────┐
-│ Ingress ├─────▶│ Varnish ├─────▶│ Application │
+| Ingress | ----> | Varnish | ----> | Application |
 └─────────┘       └─────────┘       └─────────────┘
 ```
 
