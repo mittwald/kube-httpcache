@@ -113,7 +113,7 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 		})
 
 		for i := 0; i < len(loadedVcl)-maxVcl+1; i++ {
-			glog.V(8).Infof("discarding VCL: %s", availableVcl[i].Name)
+			glog.V(6).Infof("discarding VCL: %s", availableVcl[i].Name)
 
 			err = client.DiscardVCL(ctx, availableVcl[i].Name)
 			if err != nil {
@@ -124,6 +124,7 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 
 	configname := strings.ReplaceAll(time.Now().Format("reload_20060102_150405.00000"), ".", "_")
 
+	glog.V(6).Infof("about to create new VCL: %s", string(configname))
 	err = client.DefineInlineVCL(ctx, configname, vcl, varnishclient.VCLStateAuto)
 	if err != nil {
 		return err
@@ -133,6 +134,7 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	glog.V(6).Infof("activated new VCL: %s", string(configname))
 
 	if v.currentVCLName == "" {
 		v.currentVCLName = "boot"
@@ -141,6 +143,7 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 	if err := client.SetVCLState(ctx, v.currentVCLName, varnishclient.VCLStateCold); err != nil {
 		glog.V(1).Infof("error while changing state of VCL %s: %s", v.currentVCLName, err)
 	}
+	glog.V(6).Infof("deactivated old VCL: %s", string(v.currentVCLName))
 
 	v.currentVCLName = configname
 

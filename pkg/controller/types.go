@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/golang/glog"
 	"io"
 	"io/ioutil"
 	"os"
@@ -97,6 +98,9 @@ func getEnvironment() map[string]string {
 }
 
 func (v *VarnishController) renderVCL(target io.Writer, frontendList watcher.EndpointList, primaryFrontend *watcher.Endpoint, backendList watcher.EndpointList, primaryBackend *watcher.Endpoint) error {
+	glog.V(6).Infof("rendering VCL (Frontends:%v, PrimaryFrontend:%v, Backends:%v, PrimaryBackend:%v)",
+		frontendList, primaryFrontend, backendList, primaryBackend)
+
 	err := v.vclTemplate.Execute(target, &TemplateData{
 		Frontends:       frontendList,
 		PrimaryFrontend: primaryFrontend,
