@@ -3,6 +3,8 @@ package controller
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"os/exec"
@@ -22,14 +24,11 @@ func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd,
 		case tmplContents := <-v.vclTemplateUpdates:
 			glog.Infof("VCL template has been updated")
 
-			tmpl, err := template.New("vcl").Parse(string(tmplContents))
+			err := v.setTemplate(tmplContents)
 			if err != nil {
 				errors <- err
 				continue
 			}
-
-			v.vclTemplate = tmpl
-
 			errors <- v.rebuildConfig(ctx)
 
 		case newConfig := <-v.frontendUpdates:
@@ -55,6 +54,17 @@ func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd,
 			return
 		}
 	}
+}
+
+func (v *VarnishController) setTemplate(tmplContents []byte) error {
+	parsedTemplate, err := template.New("vcl").Parse(string(tmplContents))
+	if err == nil {
+		v.vclTemplate = parsedTemplate
+		hash := md5.Sum(tmplContents)
+		hashStr := hex.EncodeToString(hash[:])
+		v.vclTemplateHash = hashStr
+	}
+	return err
 }
 
 func (v *VarnishController) rebuildConfig(ctx context.Context) error {
