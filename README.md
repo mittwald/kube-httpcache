@@ -37,9 +37,9 @@ This repository contains a controller that allows you to operate a [Varnish cach
 This controller is not intended to be a replacement of a regular [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress/). Instead, it is intended to be used between your regular Ingress controller and your application's service.
 
 ```
-┌─────────┐      ┌─────────┐      ┌─────────────┐
-│ Ingress ├─────▶│ Varnish ├─────▶│ Application │
-└─────────┘      └─────────┘      └─────────────┘
+┌─────────┐       ┌─────────┐       ┌─────────────┐
+| Ingress | ----> | Varnish | ----> | Application |
+└─────────┘       └─────────┘       └─────────────┘
 ```
 
 The Varnish controller needs the following prerequisites to run:
