@@ -58,13 +58,16 @@ func (v *VarnishController) watchConfigUpdates(ctx context.Context, c *exec.Cmd,
 
 func (v *VarnishController) setTemplate(tmplContents []byte) error {
 	parsedTemplate, err := template.New("vcl").Parse(string(tmplContents))
-	if err == nil {
-		v.vclTemplate = parsedTemplate
-		hash := md5.Sum(tmplContents)
-		hashStr := hex.EncodeToString(hash[:])
-		v.vclTemplateHash = hashStr
+	if err != nil {
+		return err
 	}
-	return err
+
+	v.vclTemplate = parsedTemplate
+	hash := md5.Sum(tmplContents)
+	hashStr := hex.EncodeToString(hash[:])
+	v.vclTemplateHash = hashStr
+
+	return nil
 }
 
 func (v *VarnishController) rebuildConfig(ctx context.Context) error {

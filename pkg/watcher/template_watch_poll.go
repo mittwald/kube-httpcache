@@ -11,9 +11,9 @@ import (
 
 const (
 	// how often to check for template file changes
-	POLL_INTERVAL_SECONDS = 15
+	POLL_INTERVAL = 15 * time.Second
 	// how often print template info for troubleshooting
-	TIMESTAMP_DISPLAY_INTERVAL_SECONDS = 3600
+	TIMESTAMP_DISPLAY_INTERVAL = 1 * time.Hour
 )
 
 func (t *pollingTemplateWatcher) Run() (chan []byte, chan error) {
@@ -35,8 +35,9 @@ func (t *pollingTemplateWatcher) watch(updates chan []byte, errors chan error) {
 	glog.V(6).Infof("observed modification time on %s (%s)", t.filename, t.lastObservedTimestamp.String())
 
 	var i uint64 = 0
+	logTemplateInfoCount := uint64(TIMESTAMP_DISPLAY_INTERVAL / POLL_INTERVAL)
 	for {
-		time.Sleep(POLL_INTERVAL_SECONDS * time.Second)
+		time.Sleep(POLL_INTERVAL)
 
 		stat, err := os.Stat(t.filename)
 		if err != nil {
@@ -46,7 +47,7 @@ func (t *pollingTemplateWatcher) watch(updates chan []byte, errors chan error) {
 
 		modtime := stat.ModTime()
 		i++
-		if glog.V(6) && (i%(TIMESTAMP_DISPLAY_INTERVAL_SECONDS/POLL_INTERVAL_SECONDS) == 0) {
+		if glog.V(6) && (i%logTemplateInfoCount == 0) {
 			logTemplateInfo(t.filename, modtime, errors)
 		}
 
