@@ -22,6 +22,7 @@ This repository contains a controller that allows you to operate a [Varnish cach
   - [Create a Secret](#create-a-secret)
   - [[Optional] Configure RBAC roles](#optional-configure-rbac-roles)
   - [Deploy Varnish](#deploy-varnish)
+  - [Logging](#logging)
 - [Detailed how-tos](#detailed-how-tos)
   - [Using built in signaller component](#using-built-in-signaller-component)
   - [Proxying to external services](#proxying-to-external-services)
@@ -298,6 +299,10 @@ $ kubectl create rolebinding kube-httpcache --clusterrole=kube-httpcache --servi
     ```
 
 3. Create an `Ingress` to forward requests to cache service. Typically, you should only need an Ingress for the Services `http` port, and not for the `signaller` port (if for some reason you do, make sure to implement proper access controls)
+
+### Logging
+Logging uses [glog](https://github.com/golang/glog). 
+Detailed logging e.g. for troubleshooting can be activated by passing command line parameter `-v7` (where 7 is requested logging level).
 
 ## Detailed how-tos
 

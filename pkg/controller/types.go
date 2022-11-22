@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/golang/glog"
 	"io"
 	"io/ioutil"
 	"os"
@@ -30,7 +31,9 @@ type VarnishController struct {
 	AdminAddr            string
 	AdminPort            int
 
-	vclTemplate        *template.Template
+	vclTemplate *template.Template
+	// md5 hash of unparsed template
+	vclTemplateHash    string
 	vclTemplateUpdates chan []byte
 	frontendUpdates    chan *watcher.EndpointConfig
 	frontend           *watcher.EndpointConfig
@@ -63,12 +66,7 @@ func NewVarnishController(
 		return nil, err
 	}
 
-	tmpl, err := template.New("vcl").Parse(string(contents))
-	if err != nil {
-		return nil, err
-	}
-
-	return &VarnishController{
+	v := VarnishController{
 		SecretFile:           secretFile,
 		Storage:              storage,
 		TransientStorage:     transientStorage,
@@ -78,13 +76,18 @@ func NewVarnishController(
 		FrontendPort:         frontendPort,
 		AdminAddr:            adminAddr,
 		AdminPort:            adminPort,
-		vclTemplate:          tmpl,
 		vclTemplateUpdates:   templateUpdates,
 		frontendUpdates:      frontendUpdates,
 		backendUpdates:       backendUpdates,
 		varnishSignaller:     varnishSignaller,
 		configFile:           "/tmp/vcl",
-	}, nil
+	}
+	err = v.setTemplate(contents)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v, nil
 }
 
 func getEnvironment() map[string]string {
@@ -97,6 +100,9 @@ func getEnvironment() map[string]string {
 }
 
 func (v *VarnishController) renderVCL(target io.Writer, frontendList watcher.EndpointList, primaryFrontend *watcher.Endpoint, backendList watcher.EndpointList, primaryBackend *watcher.Endpoint) error {
+	glog.V(6).Infof("rendering VCL (source md5sum: %s, Frontends:%v, PrimaryFrontend:%v, Backends:%v, PrimaryBackend:%v)",
+		v.vclTemplateHash, frontendList, primaryFrontend, backendList, primaryBackend)
+
 	err := v.vclTemplate.Execute(target, &TemplateData{
 		Frontends:       frontendList,
 		PrimaryFrontend: primaryFrontend,

@@ -82,7 +82,7 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Backend.Port, "backend-port", "", "deprecated: name of backend port")
 	flag.StringVar(&f.Backend.PortName, "backend-portname", "http", "name of backend port")
 
-	flag.BoolVar(&f.Signaller.Enable, "signaller-enable", false, "enable signaller functionality for boradcasting PURGE and BAN requests")
+	flag.BoolVar(&f.Signaller.Enable, "signaller-enable", false, "enable signaller functionality for broadcasting PURGE and BAN requests")
 	flag.StringVar(&f.Signaller.Address, "signaller-addr", "0.0.0.0", "TCP address for the signaller")
 	flag.IntVar(&f.Signaller.Port, "signaller-port", 8090, "TCP port for the signaller")
 	flag.IntVar(&f.Signaller.WorkersCount, "signaller-workers", 1, "number of workers to process requests")
@@ -90,11 +90,11 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Signaller.RetryBackoffString, "signaller-backoff", "30s", "backoff for signalling request attempts")
 	flag.IntVar(&f.Signaller.QueueLength, "signaller-queue-length", 0, "length of signaller's processing queue")
 	flag.IntVar(&f.Signaller.MaxConnsPerHost, "signaller-max-conns-per-host", -1,
-		"set http.Transport.MaxConnsPerHost in signaller http-client, avaliable then upstream connection reuse is enabled")
+		"set http.Transport.MaxConnsPerHost in signaller http-client, available then upstream connection reuse is enabled")
 	flag.IntVar(&f.Signaller.MaxIdleConns, "signaller-max-idle-conns", -1,
-		"set http.Transport.MaxIdleConns in signaller http-client, avaliable then upstream connection reuse is enabled")
+		"set http.Transport.MaxIdleConns in signaller http-client, available then upstream connection reuse is enabled")
 	flag.IntVar(&f.Signaller.MaxIdleConnsPerHost, "signaller-max-idle-conns-per-host", -1,
-		"set http.Transport.MaxIdleConnsPerHost in signaller http-client, avaliable then upstream connection reuse is enabled")
+		"set http.Transport.MaxIdleConnsPerHost in signaller http-client, available then upstream connection reuse is enabled")
 	flag.StringVar(&f.Signaller.UpstreamRequestTimeoutString, "signaller-request-timeout", "", "timeout for an outgoing signaller request")
 
 	flag.StringVar(&f.Admin.Address, "admin-addr", "127.0.0.1", "TCP address for the Varnish admin")
