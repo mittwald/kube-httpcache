@@ -87,12 +87,12 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+#  capabilities:
+#   drop:
+#   - ALL
+#  readOnlyRootFilesystem: true
+#  runAsNonRoot: true
+#  runAsUser: 1000
 
 lifecycle: {}
   # preStop:
@@ -149,6 +149,20 @@ extraMounts: {}
 # extraMounts:
 #   - name: geoip
 #     mountPath: /var/lib/geoip
+
+extraEnvVars: {}
+#extraEnvVars:
+#  - name: foo
+#    value: bar
+
+
+extraEnvFromConfig: {}
+#extraEnvFromConfig:
+#  - configMapRef:
+#      name: my-configmap-name
+#  - secretRef:
+#      name: my-secret-name
+
 
 exporter:
   enabled: false

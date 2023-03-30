@@ -89,6 +89,13 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          {{- with .Values.extraEnvVars }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.extraEnvFromConfig }}
+          envFrom:
+          {{- toYaml .Values.extraEnvFromConfig | nindent 12 }}
+          {{- end }}
           {{- if .Values.lifecycle }}
           lifecycle:
             {{- toYaml .Values.lifecycle | nindent 12 }}
