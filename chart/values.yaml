@@ -150,6 +150,20 @@ extraMounts: {}
 #   - name: geoip
 #     mountPath: /var/lib/geoip
 
+extraEnvVars: {}
+#extraEnvVars:
+#  - name: foo
+#    value: bar
+
+
+extraEnvFromConfig: {}
+#extraEnvFromConfig:
+#  - configMapRef:
+#      name: my-configmap-name
+#  - secretRef:
+#      name: my-secret-name
+
+
 exporter:
   enabled: false
   securityContext: {}
