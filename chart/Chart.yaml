@@ -1,10 +1,9 @@
 apiVersion: v2
 name: kube-httpcache
 description: Varnish on Kubernetes Helm Chart
-version: 0.7.2
-appVersion: v0.7.2
+version: 0.7.1
+appVersion: v0.7.1
 home: https://varnish-cache.org
 icon: https://varnish-cache.org/_static/varnish-bunny.png
 sources:
   - https://github.com/mittwald/kube-httpcache
-  - https://github.com/sarasensible/kube-httpcache
