@@ -11,6 +11,7 @@ spec:
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.target }}
       protocol: TCP
+      appProtocol: TCP
     - name: "signaller"
       port: 8090
       targetPort: 8090
