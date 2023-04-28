@@ -11,7 +11,7 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -a cmd/kube-httpcache/main.go
 
 
-FROM        debian:stretch-slim AS final
+FROM        debian:bullseye-slim AS final
 
 ENV         EXPORTER_VERSION=1.6.1
 
@@ -29,11 +29,11 @@ RUN         set -x \
                 gnupg \
                 apt-transport-https \
             && \
-            curl -Ss -L https://packagecloud.io/varnishcache/varnish60lts/gpgkey | apt-key add - \
+            curl -fsSL https://packagecloud.io/varnishcache/varnish60lts/gpgkey | apt-key add - \
             && \
             printf "%s\n%s" \
-                "deb https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
-                "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
+                "deb https://packagecloud.io/varnishcache/varnish60lts/debian/ bullseye main" \
+                "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ bullseye main" \
             > "/etc/apt/sources.list.d/varnishcache_varnish60lts.list" \
             && \
             apt-get -qq update && apt-get -qq install varnish \
