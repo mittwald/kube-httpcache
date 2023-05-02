@@ -36,7 +36,7 @@ RUN         set -x \
                 "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ bullseye main" \
             > "/etc/apt/sources.list.d/varnishcache_varnish60lts.list" \
             && \
-            apt-get -qq update && apt-get -qq install varnish \
+            apt-get -qq update && apt-get -qq install varnish=6.0.11-1~bullseye \
             && \
             apt-get -qq purge curl gnupg && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
