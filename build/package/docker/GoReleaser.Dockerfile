@@ -1,5 +1,5 @@
 ARG ARCH=
-FROM        ${ARCH}debian:stretch-slim
+FROM        ${ARCH}debian:bullseye-slim
 
 ENV         EXPORTER_VERSION=1.6.1
 
@@ -18,11 +18,11 @@ RUN         apt-get -qq update && apt-get -qq upgrade \
             curl -Ss -L https://packagecloud.io/varnishcache/varnish60lts/gpgkey | apt-key add - \
             && \
             printf "%s\n%s" \
-                "deb https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
-                "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ stretch main" \
+                "deb https://packagecloud.io/varnishcache/varnish60lts/debian/ bullseye main" \
+                "deb-src https://packagecloud.io/varnishcache/varnish60lts/debian/ bullseye main" \
             > "/etc/apt/sources.list.d/varnishcache_varnish60lts.list" \
             && \
-            apt-get -qq update && apt-get -qq install varnish \
+            apt-get -qq update && apt-get -qq install varnish=6.0.11-1~bullseye \
             && \
             apt-get -qq purge curl gnupg apt-transport-https && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
