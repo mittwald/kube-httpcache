@@ -3,7 +3,7 @@ module github.com/mittwald/kube-httpcache
 go 1.20
 
 require (
-	github.com/fsnotify/fsnotify v1.4.7
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/golang/glog v1.0.0
 	github.com/martin-helmich/go-varnish-client v0.2.4
 	github.com/prometheus/client_golang v1.11.1
