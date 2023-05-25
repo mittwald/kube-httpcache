@@ -47,6 +47,7 @@ func main() {
 	}
 
 	client = kubernetes.NewForConfigOrDie(config)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	var frontendUpdates chan *watcher.EndpointConfig
 	var frontendErrors chan error
@@ -58,7 +59,7 @@ func main() {
 			opts.Frontend.PortName,
 			opts.Kubernetes.RetryBackoff,
 		)
-		frontendUpdates, frontendErrors = frontendWatcher.Run()
+		frontendUpdates, frontendErrors = frontendWatcher.Run(ctx)
 	}
 
 	var backendUpdates chan *watcher.EndpointConfig
@@ -71,7 +72,7 @@ func main() {
 			opts.Backend.PortName,
 			opts.Kubernetes.RetryBackoff,
 		)
-		backendUpdates, backendErrors = backendWatcher.Run()
+		backendUpdates, backendErrors = backendWatcher.Run(ctx)
 	}
 
 	templateWatcher := watcher.MustNewTemplateWatcher(opts.Varnish.VCLTemplate, opts.Varnish.VCLTemplatePoll)
@@ -136,8 +137,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
 
 	signals := make(chan os.Signal, 1)
 

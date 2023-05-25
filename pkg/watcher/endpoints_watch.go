@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"context"
 	"time"
 
 	"github.com/golang/glog"
@@ -10,18 +11,18 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 )
 
-func (v *EndpointWatcher) Run() (chan *EndpointConfig, chan error) {
+func (v *EndpointWatcher) Run(ctx context.Context) (chan *EndpointConfig, chan error) {
 	updates := make(chan *EndpointConfig)
 	errors := make(chan error)
 
-	go v.watch(updates, errors)
+	go v.watch(ctx, updates, errors)
 
 	return updates, errors
 }
 
-func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error) {
+func (v *EndpointWatcher) watch(ctx context.Context, updates chan *EndpointConfig, errors chan error) {
 	for {
-		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(metav1.ListOptions{
+		w, err := v.client.CoreV1().Endpoints(v.namespace).Watch(ctx, metav1.ListOptions{
 			FieldSelector: fields.OneTermEqualSelector("metadata.name", v.serviceName).String(),
 		})
 
@@ -78,7 +79,7 @@ func (v *EndpointWatcher) watch(updates chan *EndpointConfig, errors chan error)
 			for _, a := range endpoint.Subsets[endpointSubsetIndex].Addresses {
 				puid := string(a.TargetRef.UID)
 
-				po, err := v.client.CoreV1().Pods(v.namespace).Get(a.TargetRef.Name, metav1.GetOptions{})
+				po, err := v.client.CoreV1().Pods(v.namespace).Get(ctx, a.TargetRef.Name, metav1.GetOptions{})
 
 				if err != nil {
 					glog.Errorf("error while locating endpoint : %s", err.Error())
