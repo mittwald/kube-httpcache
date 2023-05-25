@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/martin-helmich/go-varnish-client v0.2.2
-	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/client_golang v1.11.1
 	k8s.io/api v0.0.0-20181013054003-e94254e9898f
 	k8s.io/apimachinery v0.0.0-20181013010248-dcb88206cd7f
 	k8s.io/client-go v9.0.0+incompatible
