@@ -73,7 +73,7 @@ serviceMonitor:
   interval: 10s
   ## Scrape Timeout. If not set, the Prometheus default scrape timeout is used.
   scrapeTimeout: ""
-
+  processMetricsEnabled: false
 
 podSecurityPolicy:
   enabled: false
