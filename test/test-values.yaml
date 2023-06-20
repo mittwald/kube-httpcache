@@ -1,0 +1,33 @@
+image:
+  repository: quay.io/mittwald/kube-httpcache
+  pullPolicy: Never
+  tag: "dev"
+
+cache:
+  backendService: test-backend
+
+vclTemplate: |
+  vcl 4.0;
+
+  import std;
+  import directors;
+
+  {{ range .Backends }}
+  backend be-{{ .Name }} {
+      .host = "{{ .Host }}";
+      .port = "{{ .Port }}";
+  }
+  {{- end }}
+
+  sub vcl_init {
+      new lb = directors.round_robin();
+
+      {{ range .Backends -}}
+      lb.add_backend(be-{{ .Name }});
+      {{ end }}
+  }
+
+  sub vcl_recv
+  {
+      set req.backend_hint = lb.backend();
+  }

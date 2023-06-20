@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test
+  name: test-backend
   labels:
-    app: shopware
+    app: test-backend
 spec:
   replicas: 4
   selector:
     matchLabels:
-      app: shopware
+      app: test-backend
   template:
     metadata:
       labels:
-        app: shopware
+        app: test-backend
     spec:
       containers:
         - name: app
-          image: nginx
+          image: ealen/echo-server
           ports:
             - containerPort: 80
               name: http
@@ -24,10 +24,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: test
+  name: test-backend
 spec:
   selector:
-    app: shopware
+    app: test-backend
   clusterIP: None
   ports:
     - port: 80
