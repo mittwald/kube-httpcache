@@ -74,6 +74,8 @@ serviceMonitor:
   ## Scrape Timeout. If not set, the Prometheus default scrape timeout is used.
   scrapeTimeout: ""
 
+  # Set this to also scrape the signaller metrics in addition to the varnish metrics
+  scrapeSignaller: false
 
 podSecurityPolicy:
   enabled: false
