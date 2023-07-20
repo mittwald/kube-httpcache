@@ -7,8 +7,8 @@ require (
 	github.com/golang/glog v1.1.1
 	github.com/martin-helmich/go-varnish-client v0.3.0
 	github.com/prometheus/client_golang v1.16.0
-	k8s.io/api v0.27.3
-	k8s.io/apimachinery v0.27.3
+	k8s.io/api v0.27.4
+	k8s.io/apimachinery v0.27.4
 	k8s.io/client-go v0.27.3
 )
 
