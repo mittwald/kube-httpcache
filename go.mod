@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/golang/glog v1.1.1
+	github.com/golang/glog v1.1.2
 	github.com/martin-helmich/go-varnish-client v0.3.0
 	github.com/prometheus/client_golang v1.16.0
 	k8s.io/api v0.27.3
