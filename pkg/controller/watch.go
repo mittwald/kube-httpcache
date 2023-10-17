@@ -6,7 +6,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -86,7 +86,7 @@ func (v *VarnishController) rebuildConfig(ctx context.Context) error {
 		return err
 	}
 
-	secret, err := ioutil.ReadFile(v.SecretFile)
+	secret, err := os.ReadFile(v.SecretFile)
 	if err != nil {
 		return err
 	}
