@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -69,7 +68,7 @@ func (b *Signaller) Run() error {
 func (b *Signaller) Serve(w http.ResponseWriter, r *http.Request) {
 	t := time.Now()
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		b.errors <- err
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -144,7 +143,7 @@ func (b *Signaller) ProcessSignalQueue() {
 		}
 
 		if response != nil {
-			if _, err := io.Copy(ioutil.Discard, response.Body); err != nil {
+			if _, err := io.Copy(io.Discard, response.Body); err != nil {
 				glog.Error("error on discarding response body for connection reuse:", err)
 			}
 

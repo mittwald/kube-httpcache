@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/golang/glog"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
@@ -61,7 +60,7 @@ func NewVarnishController(
 	varnishSignaller *signaller.Signaller,
 	vclTemplateFile string,
 ) (*VarnishController, error) {
-	contents, err := ioutil.ReadFile(vclTemplateFile)
+	contents, err := os.ReadFile(vclTemplateFile)
 	if err != nil {
 		return nil, err
 	}
