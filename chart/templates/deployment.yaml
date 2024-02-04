@@ -78,7 +78,7 @@ spec:
           {{- else }}
           - -backend-watch=false
           {{- end }}
-          - -backend-service={{ .Values.cache.backendService }}
+          - -backend-service={{ tpl .Values.cache.backendService . }}
           - -backend-namespace={{ .Values.cache.backendServiceNamespace | default "$(NAMESPACE)" }}
           - -varnish-secret-file=/etc/varnish/k8s-secret/secret
           - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
