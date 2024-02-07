@@ -1,4 +1,4 @@
-FROM        golang:1.20 AS builder
+FROM        golang:1.20-bullseye AS builder
 
 WORKDIR     /workspace
 COPY        . .
@@ -8,9 +8,20 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -o kube-httpcache \
                 -a cmd/kube-httpcache/main.go
 
+FROM        golang:1.20-bullseye AS builder-exporter
+ENV         EXPORTER_VERSION=1.6.1
+
+WORKDIR     /workspace
+RUN         apt-get update \
+            && apt-get install -y \
+               git
+RUN         git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
+WORKDIR     /workspace/prometheus_varnish_exporter
+RUN         go build
+
+
 FROM        debian:bullseye-slim AS final
 
-ENV         EXPORTER_VERSION=1.6.1
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
 WORKDIR     /
@@ -24,12 +35,7 @@ RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install cur
 
 RUN         mkdir /exporter && chown varnish /exporter
 
-ADD         --chown=varnish https://github.com/jonnenauha/prometheus_varnish_exporter/releases/download/${EXPORTER_VERSION}/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-amd64.tar.gz /tmp
-
-RUN         cd /exporter && \
-            tar -xzf /tmp/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-amd64.tar.gz && \
-            ln -sf /exporter/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-amd64/prometheus_varnish_exporter prometheus_varnish_exporter
-
 COPY        --from=builder /workspace/kube-httpcache .
+COPY        --from=builder-exporter /workspace/prometheus_varnish_exporter/prometheus_varnish_exporter /exporter/
 
 ENTRYPOINT  [ "/kube-httpcache" ]
