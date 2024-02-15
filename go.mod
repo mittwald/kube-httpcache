@@ -8,7 +8,7 @@ require (
 	github.com/martin-helmich/go-varnish-client v0.3.1
 	github.com/prometheus/client_golang v1.18.0
 	k8s.io/api v0.29.1
-	k8s.io/apimachinery v0.29.1
+	k8s.io/apimachinery v0.29.2
 	k8s.io/client-go v0.29.1
 )
 
