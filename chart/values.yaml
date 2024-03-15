@@ -13,7 +13,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Enable StatefulSet (Deployment is default)
+# Enable StatefulSet (StatefulSet is default)
 useStatefulset:
   enabled: true
 
