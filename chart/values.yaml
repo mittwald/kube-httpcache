@@ -187,6 +187,7 @@ service:
   type: ClusterIP
   port: 80
   target: 8080
+#  annotations: {}
 
 ingress:
   enabled: false
