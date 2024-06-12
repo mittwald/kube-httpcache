@@ -125,6 +125,17 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+        {{- if .Values.logging.enabled }}
+        - name: varnishncsa
+          securityContext:
+                {{- toYaml .Values.logging.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "/bin/sh", "-c", "sleep 10 && varnishncsa -F '{{ .Values.logging.logFormat }}'" ]
+          volumeMounts:
+            - name: var
+              mountPath: /var/lib/varnish
+        {{- end}}
         {{- if .Values.exporter.enabled }}
         - name: exporter
           securityContext:

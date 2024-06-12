@@ -64,6 +64,11 @@ serviceAccount:
 rbac:
   enabled: true
 
+logging:
+  enabled: false
+  logFormat: '%h %U'
+  securityContext: {}
+
 # create a prometheus operator ServiceMonitor
 serviceMonitor:
   enabled: false
