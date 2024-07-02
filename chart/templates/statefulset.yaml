@@ -104,6 +104,13 @@ spec:
           lifecycle:
             {{- toYaml .Values.lifecycle | nindent 12 }}
           {{- end }}
+          ports:
+          - containerPort: {{ .Values.service.target }}
+            name: http
+            protocol: TCP
+          - containerPort: 8090
+            name: signaller
+            protocol: TCP
           volumeMounts:
           - name: template
             mountPath: /etc/varnish/tmpl
