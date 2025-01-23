@@ -6,17 +6,41 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
 )
+
+func (v *VarnishController) waitForUpdate(updatesChan chan *watcher.EndpointConfig, timeout time.Duration) (*watcher.EndpointConfig, error) {
+	var cancel context.CancelFunc
+	var ctx context.Context
+
+	ctx = context.Background()
+
+	if timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+
+	select {
+	case u := <-updatesChan:
+		return u, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+}
 
 func (v *VarnishController) Run(ctx context.Context) error {
 	glog.Infof("waiting for initial configuration before starting Varnish")
 
 	v.frontend = watcher.NewEndpointConfig()
 	if v.frontendUpdates != nil {
-		v.frontend = <-v.frontendUpdates
+		if frontend, err := v.waitForUpdate(v.frontendUpdates, v.frontendInitTimeout); err == nil {
+			v.frontend = frontend
+		} else {
+			glog.Info("timeout while waiting for initial frontend configuration: %s", err.Error())
+		}
 		if v.varnishSignaller != nil {
 			v.varnishSignaller.SetEndpoints(v.frontend)
 		}
@@ -24,7 +48,11 @@ func (v *VarnishController) Run(ctx context.Context) error {
 
 	v.backend = watcher.NewEndpointConfig()
 	if v.backendUpdates != nil {
-		v.backend = <-v.backendUpdates
+		if backend, err := v.waitForUpdate(v.backendUpdates, v.backendInitTimeout); err == nil {
+			v.backend = backend
+		} else {
+			glog.Info("timeout while waiting for initial backend configuration: %s", err.Error())
+		}
 	}
 
 	target, err := os.Create(v.configFile)
