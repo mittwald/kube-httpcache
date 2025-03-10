@@ -35,7 +35,7 @@ jobs:
         uses: mittwald/bump-app-version-action@v1
         with:
           mode: 'publish'
-          chartYaml: './chart/Chart.yaml'
+          chartYaml: './charts/kube-httpcache/Chart.yaml'
         env:
           GITHUB_TOKEN: "${{ secrets.RELEASE_USER_TOKEN }}"
           HELM_REPO_PASSWORD: "${{ secrets.HELM_REPO_PASSWORD }}"
