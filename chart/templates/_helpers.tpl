@@ -60,3 +60,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Return the target Kubernetes version
+*/}}
+{{- define "kube-httpcache.kubeVersion" -}}
+{{- default .Capabilities.KubeVersion.Version .Values.kubeVersion -}}
+{{- end -}}
