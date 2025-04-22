@@ -1,41 +1,50 @@
-FROM        golang:1.20-bullseye AS builder
+# ------------------------
+# Stage 1: Build kube-httpcache
+# ------------------------
+ARG GO_VERSION=1.24
+FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bullseye AS builder
 
-WORKDIR     /workspace
-COPY        . .
-RUN         CGO_ENABLED=0 GOOS=linux \
-            go build \
-                -installsuffix cgo \
-                -o kube-httpcache \
-                -a cmd/kube-httpcache/main.go
+WORKDIR /workspace
+COPY . .
 
-FROM        golang:1.20-bullseye AS builder-exporter
-ENV         EXPORTER_VERSION=1.6.1
+RUN CGO_ENABLED=0 GOOS=linux \
+    go build -installsuffix cgo -o kube-httpcache -a cmd/kube-httpcache/main.go
 
-WORKDIR     /workspace
-RUN         apt-get update \
-            && apt-get install -y \
-               git
-RUN         git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
-WORKDIR     /workspace/prometheus_varnish_exporter
-RUN         go build
+# ------------------------
+# Stage 2: Build Prometheus Varnish Exporter
+# ------------------------
+ARG GO_VERSION=1.24
+ARG EXPORTER_VERSION=1.6.1
+FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bullseye AS builder-exporter
 
+WORKDIR /workspace
+RUN apt-get update && apt-get install -y --no-install-recommends git && \
+    git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --branch ${EXPORTER_VERSION} --depth 1
 
-FROM        debian:bullseye-slim AS final
+WORKDIR /workspace/prometheus_varnish_exporter
+RUN go build
 
-LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
+# ------------------------
+# Stage 3: Final image with Varnish 7.7
+# ------------------------
+ARG VARNISH_REPO_VERSION=77
+FROM public.ecr.aws/docker/library/debian:bullseye-slim AS final
 
-WORKDIR     /
+WORKDIR /
 
-RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install curl && \
-            curl -s https://packagecloud.io/install/repositories/varnishcache/varnish73/script.deb.sh | bash && \
-            apt-get -qq update && apt-get -qq install varnish && \
-            apt-get -qq purge curl gnupg && \
-            apt-get -qq autoremove && apt-get -qq autoclean && \
-            rm -rf /var/cache/*
+# Install Varnish from packagecloud (e.g., varnish77)
+RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg ca-certificates && \
+    curl -s https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh | bash && \
+    apt-get update && apt-get install -y --no-install-recommends varnish && \
+    apt-get -y purge curl gnupg && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/*
 
-RUN         mkdir /exporter && chown varnish /exporter
+# Create directory for exporter
+RUN mkdir /exporter && chown varnish /exporter
 
-COPY        --from=builder /workspace/kube-httpcache .
-COPY        --from=builder-exporter /workspace/prometheus_varnish_exporter/prometheus_varnish_exporter /exporter/
+# Copy built binaries
+COPY --from=builder /workspace/kube-httpcache .
+COPY --from=builder-exporter /workspace/prometheus_varnish_exporter/prometheus_varnish_exporter /exporter/
 
-ENTRYPOINT  [ "/kube-httpcache" ]
+# Entrypoint
+ENTRYPOINT ["/kube-httpcache"]
+    
