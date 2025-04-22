@@ -25,8 +25,8 @@ stages:
                 cliProjectKey: 'kube-httpcache'
                 cliProjectName: 'kube-httpcache'
                 cliSources: '.'
-            - task: SonarQubeAnalyze@5
-            - task: SonarQubePublish@5
+            - task: SonarQubeAnalyze@3
+            - task: SonarQubePublish@3
               inputs:
                 pollingTimeoutSec: '300'
   - stage: build_kube_httpcache
