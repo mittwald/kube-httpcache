@@ -9,6 +9,8 @@ parameters:
   type: string
 - name: ocVersion
   type: string
+- name: kubeHttpCacheVersion
+  type: string
 
 jobs:
   - job: BuildDockerImage
@@ -24,6 +26,7 @@ jobs:
       - script: |
           export ENVIRONMENT="${{ parameters.environment }}"
           export NAMESPACE="${{ parameters.namespace }}"
+          export KUBE_HTTP_CACHE_VERSION="${{ parameters.kubeHttpCacheVersion }}" 
           envsubst < $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml > temp.yaml && mv temp.yaml $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml
           cat $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml
           oc apply -f $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml -n ${{ parameters.namespace }}

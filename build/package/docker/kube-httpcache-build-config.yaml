@@ -6,13 +6,14 @@ metadata:
   labels:
     app: kube-httpcache
     app.kubernetes.io/component: kube-httpcache
+    app.kubernetes.io/instance: kube-httpcache-$ENVIRONMENT
 spec:
   nodeSelector: null
   output:
     to:
       kind: DockerImage
       name: >-
-        container-registry.platta-net.hel.fi/devops/kube-httpcache:${TAG}
+        container-registry.platta-net.hel.fi/devops/kube-httpcache:$KUBE_HTTP_CACHE_VERSION
     pushSecret:
       name: quay-secret-new
   resources:
