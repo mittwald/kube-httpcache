@@ -1,0 +1,57 @@
+parameters:
+- name: environment
+  type: string
+- name: openshiftService
+  type: string
+- name: namespace
+  type: string
+- name: KubeHttpCacheConfigName
+  type: string
+- name: ocVersion
+  type: string
+
+jobs:
+  - job: BuildDockerImage
+    displayName: 'Build KubeHttpCache Image'
+    pool: Default
+    steps:
+      - task: oc-setup@2
+        displayName: 'Setup OpenShift CLI'
+        inputs:
+          connectionType: 'OpenShift Connection Service'
+          openshiftService: ${{ parameters.openshiftService }}
+          version: ${{ parameters.ocVersion }}
+      - script: |
+          export ENVIRONMENT="${{ parameters.environment }}"
+          export NAMESPACE="${{ parameters.namespace }}"
+          envsubst < $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml > temp.yaml && mv temp.yaml $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml
+          cat $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml
+          oc apply -f $(Build.SourcesDirectory)/build/package/docker/${{ parameters.KubeHttpCacheConfigName }}-build-config.yaml -n ${{ parameters.namespace }}
+          oc start-build ${{ parameters.KubeHttpCacheConfigName }} -n ${{ parameters.namespace }} --insecure-skip-tls-verify=true
+          
+          echo "Waiting for build to be created..."
+          while true; do
+            build_name=$(oc get builds -n ${{ parameters.namespace }} --selector=openshift.io/build-config.name=${{ parameters.KubeHttpCacheConfigName }} --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')
+            if [ -n "$build_name" ]; then
+              echo "Latest build name: $build_name"
+              break
+            fi
+            echo "Build not found. Retrying in 10 seconds..."
+            sleep 10
+          done
+
+          echo "Monitoring build status..."
+          while true; do
+            buildStatus=$(oc get build $build_name -n ${{ parameters.namespace }} -o jsonpath='{.status.phase}')
+            echo "Build status: $buildStatus"
+            if [ "$buildStatus" == "Complete" ]; then
+              echo "Build succeeded with status: $buildStatus"
+              break
+            elif [ "$buildStatus" == "Failed" ] || [ "$buildStatus" == "Error" ]; then
+              echo "Build failed with status: $buildStatus"
+              exit 1
+            fi
+            sleep 10
+          done
+          oc logs build/$build_name -n ${{ parameters.namespace }}
+        displayName: 'Apply BuildConfig and Start Build'

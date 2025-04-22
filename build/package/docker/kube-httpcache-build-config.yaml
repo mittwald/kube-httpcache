@@ -1,0 +1,39 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: kube-httpcache
+  namespace: $NAMESPACE
+  labels:
+    app: kube-httpcache
+    app.kubernetes.io/component: kube-httpcache
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: DockerImage
+      name: >-
+        container-registry.platta-net.hel.fi/devops/kube-httpcache:${TAG}
+    pushSecret:
+      name: quay-secret-new
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 500Mi
+  successfulBuildsHistoryLimit: 1
+  failedBuildsHistoryLimit: 1
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  postCommit: {}
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/City-of-Helsinki/kube-httpcache'
+      ref: master
+    contextDir: /build/package/docker
+  triggers: []
+  runPolicy: Serial
