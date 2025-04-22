@@ -20,6 +20,7 @@ stages:
             - task: SonarCloudPrepare@3
               inputs:
                 SonarQube: $(sonarQubeConnection)  # SonarQube connection
+                organization: 'city-of-helsinki'
                 scannerMode: 'CLI'
                 configMode: 'manual'
                 cliProjectKey: 'kube-httpcache'
