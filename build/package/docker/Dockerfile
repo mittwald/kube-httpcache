@@ -2,7 +2,7 @@
 # Stage 1: Build kube-httpcache
 ###############
 ARG GO_VERSION=1.24
-FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bullseye AS builder
+FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bookworm AS builder
 WORKDIR /workspace
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux \
@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 # Stage 2: Build Prometheus Varnish Exporter
 ###############
 ARG GO_VERSION=1.24
-FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bullseye AS builder-exporter
+FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bookworm AS builder-exporter
 ARG EXPORTER_VERSION=1.6.1
 WORKDIR /workspace
 RUN apt-get update && \
@@ -26,8 +26,8 @@ RUN apt-get update && \
 ###############
 # Stage 3: Final Image with Varnish 7.7
 ###############
-FROM public.ecr.aws/docker/library/debian:bullseye-slim AS final
-ARG VARNISH_REPO_VERSION=76
+FROM public.ecr.aws/docker/library/debian:bookworm-slim AS final
+ARG VARNISH_REPO_VERSION=77
 WORKDIR /
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl gnupg ca-certificates && \
