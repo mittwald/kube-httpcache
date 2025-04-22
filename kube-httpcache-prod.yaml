@@ -17,7 +17,7 @@ stages:
         - job: SonarQube
           displayName: 'Run SonarQube Scanner'
           steps:
-            - task: SonarQubePrepare@3
+            - task: SonarCloudPrepare@3
               inputs:
                 SonarQube: $(sonarQubeConnection)  # SonarQube connection
                 scannerMode: 'CLI'
@@ -25,8 +25,8 @@ stages:
                 cliProjectKey: 'kube-httpcache'
                 cliProjectName: 'kube-httpcache'
                 cliSources: '.'
-            - task: SonarQubeAnalyze@3
-            - task: SonarQubePublish@3
+            - task: SonarCloudAnalyze@3
+            - task: SonarCloudPublish@3
               inputs:
                 pollingTimeoutSec: '300'
   - stage: build_kube_httpcache
