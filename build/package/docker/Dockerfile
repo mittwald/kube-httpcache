@@ -27,7 +27,7 @@ RUN apt-get update && \
 # Stage 3: Final Image with Varnish 7.7
 ###############
 FROM public.ecr.aws/docker/library/debian:bullseye-slim AS final
-ARG VARNISH_REPO_VERSION=77
+ARG VARNISH_REPO_VERSION=76
 WORKDIR /
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl gnupg ca-certificates && \
