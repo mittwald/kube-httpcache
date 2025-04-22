@@ -14,9 +14,8 @@ RUN CGO_ENABLED=0 GOOS=linux \
 # Stage 2: Build Prometheus Varnish Exporter
 # ------------------------
 ARG GO_VERSION=1.24
-ARG EXPORTER_VERSION=1.6.1
 FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bullseye AS builder-exporter
-
+ARG EXPORTER_VERSION=1.6.1
 WORKDIR /workspace
 RUN apt-get update && apt-get install -y --no-install-recommends git && \
     git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --branch ${EXPORTER_VERSION} --depth 1
