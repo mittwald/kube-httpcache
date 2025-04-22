@@ -1,11 +1,12 @@
 trigger: none
 
 variables:
-  environment: prod   #<< change this for every environment
-  openshiftService: cert-manager-prod  #<< change this for every environment
+  environment: devtest   #<< change this for every environment
+  openshiftService: devops-toolchain  #<< change this for every environment
   KubeHttpCacheConfigName: 'kube-httpcache'
-  openshiftProject: 'kube-httpcache'
+  openshiftProject: 'devops-toolchain'
   ocVersion: 'v4.13.44'
+  kubeHttpCacheVersion: '0.1'
 
 stages:
   - stage: build_kube-httpcache
@@ -19,3 +20,4 @@ stages:
           namespace: $(openshiftProject)
           ocVersion: $(ocVersion)
           KubeHttpCacheConfigName: $(KubeHttpCacheConfigName)
+          kubeHttpCacheVersion: $(kubeHttpCacheVersion)
