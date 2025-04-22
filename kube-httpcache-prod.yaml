@@ -8,8 +8,27 @@ variables:
   openshiftProject: 'devops-toolchain'
   ocVersion: 'v4.13.44'
   kubeHttpCacheVersion: '0.1'
+  sonarQubeConnection: 'sonarcloud'
 
 stages:
+  - stage: SonarQube_Analysis
+    displayName: 'SonarQube Analysis'
+    jobs:
+        - job: SonarQube
+          displayName: 'Run SonarQube Scanner'
+          steps:
+            - task: SonarQubePrepare@3
+              inputs:
+                SonarQube: $(sonarQubeConnection)  # SonarQube connection
+                scannerMode: 'CLI'
+                configMode: 'manual'
+                cliProjectKey: 'kube-httpcache'
+                cliProjectName: 'kube-httpcache'
+                cliSources: '.'
+            - task: SonarQubeAnalyze@3
+            - task: SonarQubePublish@3
+              inputs:
+                pollingTimeoutSec: '300'
   - stage: build_kube_httpcache
     displayName: 'Build KubeHttpCache Image'
     dependsOn: [] 
