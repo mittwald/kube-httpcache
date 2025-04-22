@@ -9,7 +9,7 @@ variables:
   kubeHttpCacheVersion: '0.1'
 
 stages:
-  - stage: build-kube-httpcache
+  - stage: build_kube_httpcache
     displayName: 'Build KubeHttpCache Image'
     dependsOn: [] 
     jobs:
