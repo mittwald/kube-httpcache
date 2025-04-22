@@ -28,13 +28,13 @@ spec:
   strategy:
     type: Docker
     dockerStrategy:
-      dockerfilePath: Dockerfile
+      dockerfilePath: build/package/docker/Dockerfile
   postCommit: {}
   source:
     type: Git
     git:
       uri: 'https://github.com/City-of-Helsinki/kube-httpcache'
       ref: master
-    contextDir: /build/package/docker
+    contextDir: /
   triggers: []
   runPolicy: Serial
