@@ -1,0 +1,21 @@
+trigger: none
+
+variables:
+  environment: prod   #<< change this for every environment
+  openshiftService: cert-manager-prod  #<< change this for every environment
+  KubeHttpCacheConfigName: 'kube-httpcache'
+  openshiftProject: 'kube-httpcache'
+  ocVersion: 'v4.13.44'
+
+stages:
+  - stage: build_kube-httpcache
+    displayName: 'Build KubeHttpCache Image'
+    dependsOn: [] 
+    jobs:
+      - template: templates/build-kube-httpcache.yml
+        parameters:
+          environment: $(environment)
+          openshiftService: $(openshiftService)
+          namespace: $(openshiftProject)
+          ocVersion: $(ocVersion)
+          KubeHttpCacheConfigName: $(KubeHttpCacheConfigName)
