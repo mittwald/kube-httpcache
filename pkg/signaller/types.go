@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"github.com/City-of-Helsinki/kube-httpcache/pkg/watcher"
 )
 
 type Signal struct {

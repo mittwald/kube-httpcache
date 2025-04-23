@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"github.com/City-of-Helsinki/kube-httpcache/pkg/watcher"
 )
 
 func (v *VarnishController) Run(ctx context.Context) error {

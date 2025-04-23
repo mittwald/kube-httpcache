@@ -6,4 +6,4 @@ appVersion: v0.8.1
 home: https://varnish-cache.org
 icon: https://varnish-cache.org/_static/varnish-bunny.png
 sources:
-  - https://github.com/mittwald/kube-httpcache
+  - https://github.com/City-of-Helsinki/kube-httpcache
