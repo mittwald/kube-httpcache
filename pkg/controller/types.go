@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mittwald/kube-httpcache/pkg/signaller"
-	"github.com/mittwald/kube-httpcache/pkg/watcher"
+	"github.com/City-of-Helsinki/kube-httpcache/pkg/signaller"
+	"github.com/City-of-Helsinki/kube-httpcache/pkg/watcher"
 )
 
 type TemplateData struct {
