@@ -26,15 +26,16 @@ stages:
             echo "Installing Go version $(goVersion)..."
             wget https://golang.org/dl/go$(goVersion).linux-amd64.tar.gz
             tar -C /usr/local -xzf go$(goVersion).linux-amd64.tar.gz
-            export PATH=$PATH:$(goInstallPath)/bin
             echo "Go installed, version: $(go version)"
+            echo "Adding Go binary directory to PATH"
+            echo "/usr/local/go/bin" >> $GITHUB_ENV  # Adding to $GITHUB_ENV for Azure pipelines
           displayName: 'Install Go $(goVersion)'
         
         - script: |
             echo "Installing govulncheck version $(govulncheckVersion)..."
-            go install golang.org/x/vuln/cmd/govulncheck@$(govulncheckVersion)
+            /usr/local/go/bin/go install golang.org/x/vuln/cmd/govulncheck@$(govulncheckVersion)
             echo "Running govulncheck..."
-            govulncheck ./...
+            /usr/local/go/bin/govulncheck ./...
           displayName: 'Run govulncheck'
   - stage: SonarQube_Analysis
     displayName: 'SonarQube Analysis'
