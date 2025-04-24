@@ -1,7 +1,7 @@
 ###############
 # Stage 1: Build kube-httpcache
 ###############
-ARG GO_VERSION=1.24
+ARG GO_VERSION=1.24.2
 FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bookworm AS builder
 WORKDIR /workspace
 COPY . .
@@ -10,7 +10,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 ###############
 # Stage 2: Build Prometheus Varnish Exporter
 ###############
-ARG GO_VERSION=1.24
+ARG GO_VERSION=1.24.2
 FROM public.ecr.aws/docker/library/golang:${GO_VERSION}-bookworm AS builder-exporter
 ARG EXPORTER_VERSION=1.6.1
 WORKDIR /workspace

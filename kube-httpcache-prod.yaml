@@ -9,6 +9,9 @@ variables:
   ocVersion: 'v4.13.44'
   kubeHttpCacheVersion: '0.2'
   sonarQubeConnection: 'sonarcloud'
+  goVersion: '1.24.2'  
+  goInstallPath: '/usr/local/go'
+  govulncheckVersion: 'latest'
 
 stages:
   - stage: GoVulnCheck
@@ -19,16 +22,20 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - script: |
-              sudo apt-get update
-              sudo apt-get install -y golang-go
-              go version
-            displayName: 'Install Go'
-          - script: |
-              go install golang.org/x/vuln/cmd/govulncheck@latest
-              echo "Running govulncheck..."
-              $(go env GOPATH)/bin/govulncheck ./...
-            displayName: 'Run govulncheck'
+        - script: |
+            echo "Installing Go version $(goVersion)..."
+            wget https://golang.org/dl/go$(goVersion).linux-amd64.tar.gz
+            tar -C /usr/local -xzf go$(goVersion).linux-amd64.tar.gz
+            export PATH=$PATH:$(goInstallPath)/bin
+            echo "Go installed, version: $(go version)"
+          displayName: 'Install Go $(goVersion)'
+        
+        - script: |
+            echo "Installing govulncheck version $(govulncheckVersion)..."
+            go install golang.org/x/vuln/cmd/govulncheck@$(govulncheckVersion)
+            echo "Running govulncheck..."
+            govulncheck ./...
+          displayName: 'Run govulncheck'
   - stage: SonarQube_Analysis
     displayName: 'SonarQube Analysis'
     dependsOn: GoVulnCheck
