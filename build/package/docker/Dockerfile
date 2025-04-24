@@ -30,14 +30,14 @@ FROM public.ecr.aws/docker/library/debian:bookworm-slim AS final
 ARG VARNISH_REPO_VERSION=77
 WORKDIR /
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl gnupg ca-certificates && \
+    apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
     curl -fsSL https://packagecloud.io/install/repositories/varnishcache/varnish${VARNISH_REPO_VERSION}/script.deb.sh | bash && \
     apt-get update && \
     apt-get install -y --no-install-recommends varnish && \
-    apt-get purge -y curl gnupg && \
+    apt-get purge -y curl gnupg zlib1g-dev libminizip-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /usr/include/minizip /usr/share/doc/minizip*
 RUN mkdir -p /exporter && chown -R varnish /exporter
 COPY --from=builder /workspace/kube-httpcache .
 COPY --from=builder-exporter /workspace/prometheus_varnish_exporter /exporter/

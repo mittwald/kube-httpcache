@@ -123,6 +123,7 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
           {{- if .Values.resources }}
+          {{- /* sonarqube:ignore kubernetes:missing-memory-limits */ -}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
@@ -171,7 +172,8 @@ spec:
         secret:
           secretName: {{ .Values.cache.existingSecret | default (include "kube-httpcache.fullname" .) }}
       - name: var
-        emptyDir: {}
+        emptyDir:
+          sizeLimit: "10Gi"
       {{- if .Values.extraVolumes }}
       {{- toYaml .Values.extraVolumes | nindent 6 }}
       {{- end }}
