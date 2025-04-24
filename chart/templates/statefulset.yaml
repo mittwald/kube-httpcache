@@ -124,21 +124,34 @@ spec:
           {{- end }}
           {{- if .Values.resources }}
           resources:
-              requests:
-                {{- if not .Values.resources.requests.memory }}
-                memory: "128Mi"
-                {{- end }}
-                {{- if not .Values.resources.requests.cpu }}
-                cpu: "100m"
-                {{- end }}
-                ephemeral-storage: "512Mi"
-              limits:
-                {{- if not .Values.resources.limits.memory }}
-                memory: "256Mi"
-                {{- end }}
-                {{- if not .Values.resources.limits.cpu }}
-                cpu: "500m"
-                {{- end }}
+            {{- with .Values.resources.requests }}
+            requests:
+              {{- if .memory }}
+              memory: {{ .memory | quote }}
+              {{- else }}
+              memory: "128Mi"
+              {{- end }}
+              {{- if .cpu }}
+              cpu: {{ .cpu | quote }}
+              {{- else }}
+              cpu: "100m"
+              {{- end }}
+              ephemeral-storage: "512Mi"
+            {{- end }}
+            {{- with .Values.resources.limits }}
+            limits:
+              {{- if .memory }}
+              memory: {{ .memory | quote }}
+              {{- else }}
+              memory: "256Mi"
+              {{- end }}
+              {{- if .cpu }}
+              cpu: {{ .cpu | quote }}
+              {{- else }}
+              cpu: "500m"
+              {{- end }}
+              ephemeral-storage: "1Gi"
+            {{- end }}
           {{- end }}
         {{- if .Values.exporter.enabled }}
         - name: exporter
