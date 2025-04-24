@@ -7,7 +7,7 @@ variables:
   KubeHttpCacheConfigName: 'kube-httpcache'
   openshiftProject: 'devops-toolchain'
   ocVersion: 'v4.13.44'
-  kubeHttpCacheVersion: '0.1'
+  kubeHttpCacheVersion: '0.2'
   sonarQubeConnection: 'sonarcloud'
 
 stages:
