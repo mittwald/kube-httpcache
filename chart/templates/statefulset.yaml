@@ -123,9 +123,22 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           {{- end }}
           {{- if .Values.resources }}
-          {{- /* sonarqube:ignore kubernetes:missing-memory-limits */ -}}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+              requests:
+                {{- if not .Values.resources.requests.memory }}
+                memory: "128Mi"
+                {{- end }}
+                {{- if not .Values.resources.requests.cpu }}
+                cpu: "100m"
+                {{- end }}
+                ephemeral-storage: "512Mi"
+              limits:
+                {{- if not .Values.resources.limits.memory }}
+                memory: "256Mi"
+                {{- end }}
+                {{- if not .Values.resources.limits.cpu }}
+                cpu: "500m"
+                {{- end }}
           {{- end }}
         {{- if .Values.exporter.enabled }}
         - name: exporter
