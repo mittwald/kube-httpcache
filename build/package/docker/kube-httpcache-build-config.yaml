@@ -13,13 +13,13 @@ spec:
     to:
       kind: DockerImage
       name: >-
-        container-registry.platta-net.hel.fi/devops-toolchain/kube-httpcache:$KUBE_HTTP_CACHE_VERSION
+        container-registry.platta-net.hel.fi/devops-toolchain/kube-httpcache-fork:$KUBE_HTTP_CACHE_VERSION
     pushSecret:
       name: quay-secret-new
   resources:
     limits:
       cpu: 1000m
-      memory: 1Gi
+      memory: 2Gi
     requests:
       cpu: 500m
       memory: 500Mi
