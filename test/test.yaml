@@ -14,12 +14,18 @@ spec:
       labels:
         app: test-backend
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: app
           image: ealen/echo-server
           ports:
             - containerPort: 80
               name: http
+          resources:
+            limits:
+              memory: "128Mi"
+            requests:
+              memory: "64Mi"
 ---
 apiVersion: v1
 kind: Service
