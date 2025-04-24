@@ -13,6 +13,7 @@ variables:
 stages:
   - stage: SonarQube_Analysis
     displayName: 'SonarQube Analysis'
+    pool: Default
     jobs:
         - job: SonarQube
           displayName: 'Run SonarQube Scanner'
