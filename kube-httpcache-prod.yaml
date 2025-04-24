@@ -11,15 +11,32 @@ variables:
   sonarQubeConnection: 'sonarcloud'
 
 stages:
+  - stage: GoVulnCheck
+    displayName: 'Go Vulnerability Scan'
+    jobs:
+      - job: VulnScan
+        displayName: 'Run govulncheck'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: GoTool@0
+            inputs:
+              version: '1.24'
+          - script: |
+              go install golang.org/x/vuln/cmd/govulncheck@latest
+              echo "Running govulncheck..."
+              $(go env GOPATH)/bin/govulncheck ./...
+            displayName: 'Run govulncheck'
   - stage: SonarQube_Analysis
     displayName: 'SonarQube Analysis'
+    dependsOn: GoVulnCheck
     jobs:
         - job: SonarQube
           displayName: 'Run SonarQube Scanner'
           steps:
             - task: SonarCloudPrepare@3
               inputs:
-                SonarQube: $(sonarQubeConnection)  # SonarQube connection
+                SonarQube: $(sonarQubeConnection)
                 organization: 'city-of-helsinki'
                 scannerMode: 'CLI'
                 configMode: 'manual'
@@ -32,7 +49,7 @@ stages:
                 pollingTimeoutSec: '300'
   - stage: build_kube_httpcache
     displayName: 'Build KubeHttpCache Image'
-    dependsOn: [] 
+    dependsOn: SonarQube_Analysis
     jobs:
       - template: templates/build-kube-httpcache.yml
         parameters:

@@ -24,8 +24,12 @@ spec:
           resources:
             limits:
               memory: "128Mi"
+              cpu: "1"
+              ephemeral-storage: "1Gi"
             requests:
               memory: "64Mi"
+              cpu: "0.5"
+              ephemeral-storage: "512Mi"
 ---
 apiVersion: v1
 kind: Service
