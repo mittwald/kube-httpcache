@@ -19,9 +19,11 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - task: GoTool@0
-            inputs:
-              version: '1.24'
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y golang-go
+              go version
+            displayName: 'Install Go'
           - script: |
               go install golang.org/x/vuln/cmd/govulncheck@latest
               echo "Running govulncheck..."
