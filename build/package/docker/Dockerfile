@@ -1,4 +1,4 @@
-FROM        golang:1.20-bullseye AS builder
+FROM        golang:1.24-bullseye AS builder
 
 WORKDIR     /workspace
 COPY        . .
@@ -8,7 +8,7 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -o kube-httpcache \
                 -a cmd/kube-httpcache/main.go
 
-FROM        golang:1.20-bullseye AS builder-exporter
+FROM        golang:1.24-bullseye AS builder-exporter
 ENV         EXPORTER_VERSION=1.6.1
 
 WORKDIR     /workspace
