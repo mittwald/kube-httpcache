@@ -11,6 +11,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+{{- if .Values.minReadySeconds }}
+  minReadySeconds: {{ .Values.minReadySeconds}}
+{{- end }}
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}

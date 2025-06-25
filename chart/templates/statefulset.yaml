@@ -12,6 +12,9 @@ metadata:
   {{- end }}
 spec:
   serviceName: {{ include "kube-httpcache.fullname" . }}
+{{- if .Values.minReadySeconds }}
+  minReadySeconds: {{ .Values.minReadySeconds}}
+{{- end }}
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}
