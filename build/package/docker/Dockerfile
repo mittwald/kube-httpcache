@@ -1,4 +1,4 @@
-FROM        golang:1.20-bullseye AS builder
+FROM        golang:1.24-bullseye AS builder
 
 WORKDIR     /workspace
 COPY        . .
@@ -8,7 +8,7 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -o kube-httpcache \
                 -a cmd/kube-httpcache/main.go
 
-FROM        golang:1.20-bullseye AS builder-exporter
+FROM        golang:1.24-bullseye AS builder-exporter
 ENV         EXPORTER_VERSION=1.6.1
 
 WORKDIR     /workspace
@@ -27,7 +27,7 @@ LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 WORKDIR     /
 
 RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install curl && \
-            curl -s https://packagecloud.io/install/repositories/varnishcache/varnish73/script.deb.sh | bash && \
+            curl -s https://packagecloud.io/install/repositories/varnishcache/varnish76/script.deb.sh | bash && \
             apt-get -qq update && apt-get -qq install varnish && \
             apt-get -qq purge curl gnupg && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
