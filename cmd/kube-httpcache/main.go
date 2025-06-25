@@ -133,6 +133,8 @@ func main() {
 		templateUpdates,
 		varnishSignaller,
 		opts.Varnish.VCLTemplate,
+		opts.Varnish.FrontendInitTimeout,
+		opts.Varnish.BackendInitTimeout,
 	)
 	if err != nil {
 		panic(err)
