@@ -1,12 +1,11 @@
-ARG ARCH
 ARG DEBIAN_ARCH
 FROM        ${DEBIAN_ARCH}/debian:bookworm-slim
 
-ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
 
 WORKDIR     /
 
+# varnish
 RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install curl && \
             curl -s https://packagecloud.io/install/repositories/varnishcache/varnish76/script.deb.sh | bash && \
             apt-get -qq update && apt-get -qq install varnish && \
@@ -17,6 +16,10 @@ RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install cur
 RUN         mkdir /exporter && \
             chown varnish /exporter
 
+# exporter
+ARG ARCH
+ENV         ARCH="${ARCH}"
+ENV         EXPORTER_VERSION="v1.7.0-alpha.6"
 ADD         --chown=varnish https://github.com/leontappe/prometheus_varnish_exporter/releases/download/${EXPORTER_VERSION}/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}.tar.gz /tmp
 
 RUN         cd /exporter && \

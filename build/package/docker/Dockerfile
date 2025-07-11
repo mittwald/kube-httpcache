@@ -9,7 +9,7 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -a cmd/kube-httpcache/main.go
 
 FROM        golang:1.24.5-bookworm AS builder-exporter
-ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
+ENV         EXPORTER_VERSION="v1.7.0-alpha.6"
 
 WORKDIR     /workspace
 RUN         apt-get update \
