@@ -1,0 +1,67 @@
+project_name: kube-httpcache
+before:
+  hooks:
+    - go mod download
+    - go vet ./...
+    - go test ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    binary: kube-httpcache
+    main: ./cmd/kube-httpcache/main.go
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+dockers:
+  -
+    image_templates:
+      - quay.io/mittwald/kube-httpcache:latest-amd64
+      - quay.io/mittwald/kube-httpcache:{{ .Tag }}-amd64
+    use: buildx
+    dockerfile: build/package/docker/GoReleaser.Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=ARCH=amd64"
+      - "--build-arg=DEBIAN_ARCH=amd64"
+    ids:
+      - kube-httpcache
+    goos: linux
+    goarch: amd64
+    goarm: ''
+  -
+    image_templates:
+      - quay.io/mittwald/kube-httpcache:latest-arm64
+      - quay.io/mittwald/kube-httpcache:{{ .Tag }}-arm64
+    use: buildx
+    dockerfile: build/package/docker/GoReleaser.Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64/v8"
+      - "--build-arg=ARCH=arm64"
+      - "--build-arg=DEBIAN_ARCH=arm64v8"
+    ids:
+      - kube-httpcache
+    goos: linux
+    goarch: arm64
+    goarm: ''
+docker_manifests:
+  - name_template: quay.io/mittwald/kube-httpcache:latest
+    image_templates:
+      - quay.io/mittwald/kube-httpcache:latest-amd64
+      - quay.io/mittwald/kube-httpcache:latest-arm64
+  - name_template: quay.io/mittwald/kube-httpcache:{{ .Tag }}
+    image_templates:
+      - quay.io/mittwald/kube-httpcache:{{ .Tag }}-amd64
+      - quay.io/mittwald/kube-httpcache:{{ .Tag }}-arm64
