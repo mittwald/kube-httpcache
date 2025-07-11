@@ -1,4 +1,4 @@
-ARG ARCH=
+ARG ARCH=amd64
 FROM        ${ARCH}debian:bookworm-slim
 
 ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
