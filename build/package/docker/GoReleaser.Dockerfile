@@ -1,5 +1,5 @@
 ARG ARCH=
-FROM        ${ARCH}debian:bullseye-slim
+FROM        ${ARCH}debian:bookworm-slim
 
 ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
