@@ -9,13 +9,13 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -a cmd/kube-httpcache/main.go
 
 FROM        golang:1.24-bullseye AS builder-exporter
-ENV         EXPORTER_VERSION=1.6.1
+ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
 
 WORKDIR     /workspace
 RUN         apt-get update \
             && apt-get install -y \
                git
-RUN         git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
+RUN         git clone https://github.com/leontappe/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
 WORKDIR     /workspace/prometheus_varnish_exporter
 RUN         go build
 
