@@ -37,7 +37,8 @@ dockers:
     dockerfile: build/package/docker/GoReleaser.Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
-      - "--build-arg=ARCH=amd64/"
+      - "--build-arg=ARCH=amd64"
+      - "--build-arg=DEBIAN_ARCH=amd64"
     ids:
       - kube-httpcache
     goos: linux
@@ -54,7 +55,8 @@ dockers:
     dockerfile: build/package/docker/GoReleaser.Dockerfile
     build_flag_templates:
       - "--platform=linux/arm64/v8"
-      - "--build-arg=ARCH=arm64v8/"
+      - "--build-arg=ARCH=arm64"
+      - "--build-arg=DEBIAN_ARCH=arm64v8"
     ids:
       - kube-httpcache
     goos: linux

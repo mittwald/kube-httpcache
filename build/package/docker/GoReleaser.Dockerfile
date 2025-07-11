@@ -1,5 +1,6 @@
 ARG ARCH=amd64
-FROM        ${ARCH}debian:bookworm-slim
+ARG DEBIAN_ARCH=${ARCH}
+FROM        ${DEBIAN_ARCH}/debian:bookworm-slim
 
 ENV         EXPORTER_VERSION="v1.7.0-alpha.5"
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
