@@ -1,4 +1,4 @@
-ARG DEBIAN_ARCH
+ARG DEBIAN_ARCH=amd64
 FROM        ${DEBIAN_ARCH}/debian:bookworm-slim
 
 LABEL       MAINTAINER="Martin Helmich <m.helmich@mittwald.de>"
@@ -17,7 +17,7 @@ RUN         mkdir /exporter && \
             chown varnish /exporter
 
 # exporter
-ARG ARCH
+ARG ARCH=amd64
 ENV         ARCH="${ARCH}"
 ENV         EXPORTER_VERSION="v1.7.0-alpha.6"
 ADD         --chown=varnish https://github.com/leontappe/prometheus_varnish_exporter/releases/download/${EXPORTER_VERSION}/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}.tar.gz /tmp
