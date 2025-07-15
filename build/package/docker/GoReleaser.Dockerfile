@@ -19,7 +19,7 @@ RUN         mkdir /exporter && \
 # exporter
 ARG ARCH=amd64
 ENV         ARCH="${ARCH}"
-ENV         EXPORTER_VERSION="v1.7.0-alpha.6"
+ENV         EXPORTER_VERSION="v1.7.0"
 ADD         --chown=varnish https://github.com/leontappe/prometheus_varnish_exporter/releases/download/${EXPORTER_VERSION}/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}.tar.gz /tmp
 
 RUN         cd /exporter && \
