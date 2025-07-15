@@ -1,4 +1,4 @@
-FROM        golang:1.24-bullseye AS builder
+FROM        golang:1.24.5-bookworm AS builder
 
 WORKDIR     /workspace
 COPY        . .
@@ -8,14 +8,14 @@ RUN         CGO_ENABLED=0 GOOS=linux \
                 -o kube-httpcache \
                 -a cmd/kube-httpcache/main.go
 
-FROM        golang:1.24-bullseye AS builder-exporter
-ENV         EXPORTER_VERSION=1.6.1
+FROM        golang:1.24.5-bookworm AS builder-exporter
+ENV         EXPORTER_VERSION="v1.7.0"
 
 WORKDIR     /workspace
 RUN         apt-get update \
             && apt-get install -y \
                git
-RUN         git clone https://github.com/jonnenauha/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
+RUN         git clone https://github.com/leontappe/prometheus_varnish_exporter.git --depth 1 --branch ${EXPORTER_VERSION}
 WORKDIR     /workspace/prometheus_varnish_exporter
 RUN         go build
 
@@ -31,7 +31,7 @@ RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install cur
             apt-get -qq update && apt-get -qq install varnish && \
             apt-get -qq purge curl gnupg && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
-            rm -rf /var/cache/*
+            rm -rf /var/cache/* && rm -rf /var/lib/apt/lists/*
 
 RUN         mkdir /exporter && chown varnish /exporter
 
