@@ -11,7 +11,7 @@ RUN         apt-get -qq update && apt-get -qq upgrade && apt-get -qq install cur
             apt-get -qq update && apt-get -qq install varnish && \
             apt-get -qq purge curl gnupg && \
             apt-get -qq autoremove && apt-get -qq autoclean && \
-            rm -rf /var/cache/*
+            rm -rf /var/cache/* && rm -rf /var/lib/apt/lists/*
 
 RUN         mkdir /exporter && \
             chown varnish /exporter
