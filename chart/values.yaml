@@ -242,6 +242,14 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+podDisruptionBudget:
+  enabled: true
+  # You can use either maxUnavailable or minAvailable (but not both)
+  maxUnavailable: 1
+  # minAvailable: 1
+  # Additional spec configuration
+  # unhealthyPodEvictionPolicy: IfHealthyBudget
+
 nodeSelector: {}
 
 tolerations: []
