@@ -1,11 +1,13 @@
 package controller
 
 import (
-	"github.com/golang/glog"
 	"io"
 	"os"
 	"strings"
 	"text/template"
+	"time"
+
+	"github.com/golang/glog"
 
 	"github.com/mittwald/kube-httpcache/pkg/signaller"
 	"github.com/mittwald/kube-httpcache/pkg/watcher"
@@ -32,16 +34,17 @@ type VarnishController struct {
 
 	vclTemplate *template.Template
 	// md5 hash of unparsed template
-	vclTemplateHash    string
-	vclTemplateUpdates chan []byte
-	frontendUpdates    chan *watcher.EndpointConfig
-	frontend           *watcher.EndpointConfig
-	backendUpdates     chan *watcher.EndpointConfig
-	backend            *watcher.EndpointConfig
-	varnishSignaller   *signaller.Signaller
-	configFile         string
-	localAdminAddr     string
-	currentVCLName     string
+	vclTemplateHash     string
+	vclTemplateUpdates  chan []byte
+	frontendUpdates     chan *watcher.EndpointConfig
+	frontendInitTimeout time.Duration
+	backendInitTimeout  time.Duration
+	frontend            *watcher.EndpointConfig
+	backendUpdates      chan *watcher.EndpointConfig
+	backend             *watcher.EndpointConfig
+	varnishSignaller    *signaller.Signaller
+	configFile          string
+	currentVCLName      string
 }
 
 func NewVarnishController(
@@ -59,6 +62,8 @@ func NewVarnishController(
 	templateUpdates chan []byte,
 	varnishSignaller *signaller.Signaller,
 	vclTemplateFile string,
+	frontendInitTimeout time.Duration,
+	backendInitTimeout time.Duration,
 ) (*VarnishController, error) {
 	contents, err := os.ReadFile(vclTemplateFile)
 	if err != nil {
@@ -80,6 +85,8 @@ func NewVarnishController(
 		backendUpdates:       backendUpdates,
 		varnishSignaller:     varnishSignaller,
 		configFile:           "/tmp/vcl",
+		frontendInitTimeout:  frontendInitTimeout,
+		backendInitTimeout:   backendInitTimeout,
 	}
 	err = v.setTemplate(contents)
 	if err != nil {

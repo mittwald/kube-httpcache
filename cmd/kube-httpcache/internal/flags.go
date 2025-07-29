@@ -55,6 +55,8 @@ type KubeHTTPProxyFlags struct {
 		VCLTemplate          string
 		VCLTemplatePoll      bool
 		WorkingDir           string
+		FrontendInitTimeout  time.Duration
+		BackendInitTimeout   time.Duration
 	}
 	Readiness struct {
 		Enable  bool
@@ -107,6 +109,10 @@ func (f *KubeHTTPProxyFlags) Parse() error {
 	flag.StringVar(&f.Varnish.AdditionalParameters, "varnish-additional-parameters", "", "Additional Varnish start parameters (-p, seperated by comma), like 'ban_dups=on,cli_timeout=30'")
 	flag.BoolVar(&f.Varnish.VCLTemplatePoll, "varnish-vcl-template-poll", false, "poll for file changes instead of using inotify (useful on some network filesystems)")
 	flag.StringVar(&f.Varnish.WorkingDir, "varnish-working-dir", "", "varnish working directory (-n)")
+	flag.DurationVar(&f.Varnish.FrontendInitTimeout, "varnish-frontend-init-timeout", time.Duration(0),
+		"timeout for initial frontend configuration to be discovered. The default 0s means wait indefinitely. When timeout is reached, the controller will continue with an empty list of front-ends")
+	flag.DurationVar(&f.Varnish.BackendInitTimeout, "varnish-backend-init-timeout", time.Duration(0),
+		"timeout for initial backend configuration to be discovered. The default 0s means wait indefinitely. When timeout is reached, the controller will continue with an empty list of back-ends")
 
 	// present for BC only; no effect until #36 [1] has resolved
 	//   [1]: https://github.com/mittwald/kube-httpcache/issues/36
