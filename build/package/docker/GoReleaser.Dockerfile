@@ -24,7 +24,7 @@ ADD         --chown=varnish https://github.com/leontappe/prometheus_varnish_expo
 
 RUN         cd /exporter && \
             tar -xzf /tmp/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}.tar.gz && \
-            ln -sf /exporter/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}/prometheus_varnish_exporter prometheus_varnish_exporter
+            rm -f /tmp/prometheus_varnish_exporter-${EXPORTER_VERSION}.linux-${ARCH}.tar.gz
 
 COPY        kube-httpcache .
 
