@@ -104,19 +104,18 @@ lifecycle: {}
   #     - -c
   #     - touch /etc/varnish/fail_probes; sleep 25
 
-topologySpreadConstraints: {}
-  # - topologyKey: topology.kubernetes.io/zone
-  #   maxSkew: 1
-  #   whenUnsatisfiable: ScheduleAnyway
-  #   labelSelector:
-  #     matchLabels:
-  #       app.kubernetes.io/name: kube-httpcache
-  # - topologyKey: kubernetes.io/hostname
-  #   maxSkew: 1
-  #   whenUnsatisfiable: ScheduleAnyway
-  #   labelSelector:
-  #     matchLabels:
-  #       app.kubernetes.io/name: kube-httpcache
+# topologySpreadConstraints (this value is evaluated as a template)
+topologySpreadConstraints: |
+  - topologyKey: topology.kubernetes.io/zone
+    maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      {{- include "kube-httpcache.selectorLabels" . | nindent 4 }}
+  - topologyKey: kubernetes.io/hostname
+    maxSkew: 1
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      {{- include "kube-httpcache.selectorLabels" . | nindent 4 }}
 
 initContainers: {}
 # initContainers: |
