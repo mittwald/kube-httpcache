@@ -13,6 +13,8 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+kubeVersion: ""
+
 # Enable StatefulSet (Deployment is default)
 useStatefulset:
   enabled: true
@@ -187,6 +189,8 @@ service:
   type: ClusterIP
   port: 80
   target: 8080
+  trafficDistribution:
+    mode: "PreferClose"
 #  annotations: {}
 
 ingress:
