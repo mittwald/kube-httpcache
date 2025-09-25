@@ -13,6 +13,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# leave time to external load balancer to register target before terminating next Pod
+minReadySeconds: 0
+
 # Enable StatefulSet (Deployment is default)
 useStatefulset:
   enabled: true
